@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isSelf(uid) { return isSignedIn() && request.auth.uid == uid; }
+    // A store document's id equals its owner's uid (set at store-owner signup).
+    function isStoreOwner(storeId) { return isSignedIn() && request.auth.uid == storeId; }
+
+    // ── User profiles ─────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isSelf(userId);
+      allow create: if isSelf(userId);
+      allow update, delete: if isSelf(userId);
+    }
+
+    // ── Stores (public catalog) ───────────────────────────────────────────
+    match /stores/{storeId} {
+      allow read: if true;
+      allow create: if isStoreOwner(storeId);
+      allow update, delete: if isStoreOwner(storeId);
+
+      // Menu items live under each store; public read, owner-only writes.
+      match /menu/{itemId} {
+        allow read: if true;
+        allow write: if isStoreOwner(storeId);
+      }
+      match /settings/{settingId} {
+        allow read: if true;
+        allow write: if isStoreOwner(storeId);
+      }
+    }
+
+    // ── Deals (public read; owner of the referenced store writes) ──────────
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isStoreOwner(request.resource.data.store_id);
+      allow update, delete: if resource != null && isStoreOwner(resource.data.store_id);
+    }
+
+    // ── Coupons (public read; owner/admin writes via console/functions) ────
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── Orders ────────────────────────────────────────────────────────────
+    match /orders/{orderId} {
+      allow create: if isSignedIn() && isSelf(request.resource.data.userId);
+      allow read: if isSignedIn() &&
+        (isSelf(resource.data.userId) || isStoreOwner(resource.data.storeId));
+      // Customer may cancel their own; store owner may advance status.
+      allow update: if isSignedIn() &&
+        (isSelf(resource.data.userId) || isStoreOwner(resource.data.storeId));
+      allow delete: if false;
+    }
+
+    // ── Reviews ───────────────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isSelf(request.resource.data.userId);
+      allow update, delete: if isSignedIn() && isSelf(resource.data.userId);
+    }
+
+    // Default deny.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
