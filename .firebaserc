@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "mislice-364af"
-  }
+    "default": "xx-1-2e007",
+    "bunty": "xx-1-2e007",
+    "animations": "nn-xx-c7f89"
+  },
+  "targets": {},
+  "etags": {}
 }
