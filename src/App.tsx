@@ -30,7 +30,6 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { DemoStoreDashboard } from './components/DemoStoreDashboard';
 import { FavoriteStoresPicker } from './components/FavoriteStoresPicker';
 import { type CompareMode } from './components/ComparisonCards';
-import { DeliveryDriverDashboard, TowingDashboard, SupportAgentDashboard } from './components/DevMockDashboards';
 import { useAuth } from './store/AuthContext';
 import { Loader2 } from 'lucide-react';
 import {
@@ -164,39 +163,6 @@ function PizzaShowcase() {
   );
 }
 
-export function DevRoleSwitcher({ onSwitch }: { onSwitch?: (role: string | null) => void }) {
-  const { simulatedRole, switchSimulatedRole } = useAuth();
-
-  if (window.location.hostname !== 'localhost' || !import.meta.env.DEV) return null;
-
-  return (
-    <div className="fixed top-3 right-4 z-[99999] bg-stone-950/90 text-white backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl shadow-2xl flex items-center gap-2">
-      <span className="text-[9px] font-black uppercase text-orange-400">Dev Role:</span>
-      <select
-        value={simulatedRole || 'customer'}
-        onChange={(e) => {
-          const val = e.target.value;
-          const role = val === 'customer' ? null : val;
-          switchSimulatedRole(role);
-          if (onSwitch) onSwitch(role);
-        }}
-        className="bg-transparent border-0 text-white text-xs font-extrabold outline-none cursor-pointer"
-        style={{ colorScheme: 'dark' }}
-      >
-        <option value="customer" className="bg-stone-900 text-white font-bold">Customer</option>
-        <option value="store_employee" className="bg-stone-900 text-white font-bold">Store Employee</option>
-        <option value="store_admin" className="bg-stone-900 text-white font-bold">Store Admin</option>
-        <option value="delivery_driver" className="bg-stone-900 text-white font-bold">Delivery Driver</option>
-        <option value="towing_driver" className="bg-stone-900 text-white font-bold">Towing Driver</option>
-        <option value="towing_company" className="bg-stone-900 text-white font-bold">Towing Company</option>
-        <option value="merchant" className="bg-stone-900 text-white font-bold">Merchant</option>
-        <option value="support_agent" className="bg-stone-900 text-white font-bold">Support Agent</option>
-        <option value="platform_admin" className="bg-stone-900 text-white font-bold">Platform Admin</option>
-      </select>
-    </div>
-  );
-}
-
 export default function App() {
   const [demoMode, setDemoMode] = useState(false);
   const [customerDemoMode, setCustomerDemoMode] = useState(false);
@@ -298,7 +264,7 @@ export default function App() {
   });
 
   // Authentication (Firebase) — drives role-based routing
-  const { profile, loading: authLoading, isAuthenticated, isStoreOwner, isAdmin, logout, simulatedRole } = useAuth();
+  const { profile, loading: authLoading, isAuthenticated, isStoreOwner, isAdmin, logout } = useAuth();
   const uid = profile?.uid ?? null;
   const customerName = profile?.fullName || '';
   const storeOwnerName = profile?.storeName || profile?.fullName || '';
@@ -561,15 +527,7 @@ export default function App() {
 
   // ── Demo mode: full store owner experience with mock data ─────────────────
   if (demoMode) {
-    return (
-      <AppProvider>
-        <DevRoleSwitcher onSwitch={(role) => {
-          setDemoMode(false);
-          setCustomerDemoMode(true);
-        }} />
-        <DemoStoreDashboard onExit={() => setDemoMode(false)} />
-      </AppProvider>
-    );
+    return <DemoStoreDashboard onExit={() => setDemoMode(false)} />;
   }
 
   // ── Not signed in: Firebase login/signup gate ─────────────────────────────
@@ -585,7 +543,6 @@ export default function App() {
   if (isAdmin) {
     return (
       <AppProvider>
-        <DevRoleSwitcher onSwitch={(role) => { if (!role) setCustomerDemoMode(true); }} />
         <PlatformAdminDashboard />
       </AppProvider>
     );
@@ -595,45 +552,13 @@ export default function App() {
   if (isStoreOwner) {
     return (
       <AppProvider>
-        <DevRoleSwitcher onSwitch={(role) => { if (!role) setCustomerDemoMode(true); }} />
         <StoreOwnerDashboard storeId={profile?.storeId || profile?.uid || ''} storeName={storeOwnerName} onLogout={handleSignOut} />
-      </AppProvider>
-    );
-  }
-
-  // ── Delivery Driver Dashboard ──────────────────────────────────────────────
-  if (simulatedRole === 'delivery_driver') {
-    return (
-      <AppProvider>
-        <DevRoleSwitcher onSwitch={(role) => { if (!role) setCustomerDemoMode(true); }} />
-        <DeliveryDriverDashboard />
-      </AppProvider>
-    );
-  }
-
-  // ── Towing Driver / Company Dashboard ──────────────────────────────────────
-  if (simulatedRole === 'towing_driver' || simulatedRole === 'towing_company') {
-    return (
-      <AppProvider>
-        <DevRoleSwitcher onSwitch={(role) => { if (!role) setCustomerDemoMode(true); }} />
-        <TowingDashboard />
-      </AppProvider>
-    );
-  }
-
-  // ── Support Agent Dashboard ────────────────────────────────────────────────
-  if (simulatedRole === 'support_agent') {
-    return (
-      <AppProvider>
-        <DevRoleSwitcher onSwitch={(role) => { if (!role) setCustomerDemoMode(true); }} />
-        <SupportAgentDashboard />
       </AppProvider>
     );
   }
 
   return (
     <AppProvider>
-    <DevRoleSwitcher onSwitch={(role) => { if (!role) setCustomerDemoMode(true); }} />
     {showVideoIntro && <VideoIntro onDismiss={() => setShowVideoIntro(false)} />}
     <TextCursor spacing={75} followMouseDirection randomFloat exitDuration={0.35} removalInterval={22} maxPoints={8} />
     <div className={`relative min-h-screen font-sans flex overflow-x-hidden transition-colors duration-300 ${isLight ? 'light-theme bg-white' : 'bg-[#0A0D18]'}`}>

@@ -24,7 +24,7 @@ const LIGHTFALL_COLORS = ['#ff6b6b', '#dc2626', '#f97316', '#fbbf24', '#ff4444']
 type Mode = 'login' | 'store' | 'demo' | 'admin';
 
 export function WelcomeScreen({ onDemo, onCustomerDemo }: { onDemo: () => void; onCustomerDemo: () => void }) {
-  const { loginOrRegister, loginAsAdmin, switchSimulatedRole } = useAuth();
+  const { loginOrRegister, loginAsAdmin } = useAuth();
   const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -34,19 +34,6 @@ export function WelcomeScreen({ onDemo, onCustomerDemo }: { onDemo: () => void; 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showDriverModal, setShowDriverModal] = useState(false);
-
-  const devLogin = async (role: string) => {
-    setError('');
-    setLoading(true);
-    try {
-      await loginOrRegister('sathyasai1415@gmail.com', '123456', 'customer', 'Sathyasai1415');
-      switchSimulatedRole(role);
-    } catch (err: any) {
-      setError(err?.message || 'Developer demo login failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearForm = () => { setError(''); setName(''); setEmail(''); setStoreName(''); setPassword(''); };
 
@@ -158,64 +145,10 @@ export function WelcomeScreen({ onDemo, onCustomerDemo }: { onDemo: () => void; 
                     ← Back
                   </button>
                   <p className="text-center text-white/40 text-xs font-bold uppercase tracking-widest mb-4">Try without signing in</p>
-                  <DemoCard
-                    icon={Store}
-                    title="Store Owner Demo"
-                    desc="Full dashboard with mock data"
-                    color="from-orange-600 to-orange-500"
-                    onClick={() => {
-                      if (window.location.hostname === 'localhost' && import.meta.env.DEV) {
-                        switchSimulatedRole('store_admin');
-                        onCustomerDemo();
-                      } else {
-                        onDemo();
-                      }
-                    }}
-                  />
-                  <DemoCard
-                    icon={User}
-                    title="Customer Demo"
-                    desc="Browse & compare pizzas"
-                    color="from-red-600 to-pink-500"
-                    onClick={() => {
-                      if (window.location.hostname === 'localhost' && import.meta.env.DEV) {
-                        switchSimulatedRole(null);
-                        onCustomerDemo();
-                      } else {
-                        onCustomerDemo();
-                      }
-                    }}
-                  />
-                  <DemoCard
-                    icon={Bike}
-                    title="Delivery Partner"
-                    desc={window.location.hostname === 'localhost' && import.meta.env.DEV ? "Simulate delivery runs" : "Coming soon"}
-                    color="from-emerald-600 to-emerald-500"
-                    onClick={() => {
-                      if (window.location.hostname === 'localhost' && import.meta.env.DEV) {
-                        switchSimulatedRole('delivery_driver');
-                        onCustomerDemo();
-                      } else {
-                        setMode('login');
-                        setShowDriverModal(true);
-                      }
-                    }}
-                  />
-                  <DemoCard
-                    icon={ShieldCheck}
-                    title="Platform Admin"
-                    desc="Approve stores & manage platform"
-                    color="from-red-700 to-red-900"
-                    onClick={() => {
-                      if (window.location.hostname === 'localhost' && import.meta.env.DEV) {
-                        switchSimulatedRole('platform_admin');
-                        onCustomerDemo();
-                      } else {
-                        setMode('admin');
-                        clearForm();
-                      }
-                    }}
-                  />
+                  <DemoCard icon={Store} title="Store Owner Demo" desc="Full dashboard with mock data" color="from-orange-600 to-orange-500" onClick={onDemo} />
+                  <DemoCard icon={User} title="Customer Demo" desc="Browse & compare pizzas" color="from-red-600 to-pink-500" onClick={onCustomerDemo} />
+                  <DemoCard icon={Bike} title="Delivery Partner" desc="Coming soon" color="from-emerald-600 to-emerald-500" onClick={() => { setMode('login'); setShowDriverModal(true); }} />
+                  <DemoCard icon={ShieldCheck} title="Platform Admin" desc="Approve stores & manage platform" color="from-red-700 to-red-900" onClick={() => { setMode('admin'); clearForm(); }} />
                 </motion.div>
               )}
 
@@ -372,62 +305,6 @@ export function WelcomeScreen({ onDemo, onCustomerDemo }: { onDemo: () => void; 
                     </motion.button>
                   </form>
 
-                  {mode === 'store' && (
-                    <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-orange-400">Dev Demo Logins (ID: 1234567)</p>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setName('Store Admin');
-                            setEmail('admin@zumbo.com');
-                            setStoreName('Zumbo Pizza');
-                            setPassword('123456');
-                          }}
-                          className="px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-white font-bold transition-all border border-white/5"
-                        >
-                          👑 Store Admin
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setName('Jane Manager');
-                            setEmail('manager@zumbo.com');
-                            setStoreName('Zumbo Pizza');
-                            setPassword('123456');
-                          }}
-                          className="px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-white font-bold transition-all border border-white/5"
-                        >
-                          📋 Manager
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setName('Bob Cook');
-                            setEmail('kitchen@zumbo.com');
-                            setStoreName('Zumbo Pizza');
-                            setPassword('123456');
-                          }}
-                          className="px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-white font-bold transition-all border border-white/5"
-                        >
-                          🍳 Kitchen Staff
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setName('Alice Register');
-                            setEmail('cashier@zumbo.com');
-                            setStoreName('Zumbo Pizza');
-                            setPassword('123456');
-                          }}
-                          className="px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-white font-bold transition-all border border-white/5"
-                        >
-                          💵 Cashier
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
                   <p className="text-center text-[11px] text-white/25 mt-4">
                     New? We'll create your account automatically.
                   </p>
@@ -454,82 +331,6 @@ export function WelcomeScreen({ onDemo, onCustomerDemo }: { onDemo: () => void; 
           >
             <ShieldCheck className="w-3.5 h-3.5" /> Admin sign in
           </button>
-        )}
-
-        {window.location.hostname === 'localhost' && import.meta.env.DEV && (
-          <div className="mt-8 p-5 rounded-[2rem] bg-white/[0.03] border border-white/10 max-w-sm mx-auto space-y-3 backdrop-blur-md">
-            <p className="text-[10px] font-black uppercase tracking-widest text-center text-orange-400">
-              🛠️ Local Development Quick Auth
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => devLogin('customer')}
-                className="col-span-2 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-black transition-all hover:brightness-110 shadow-lg"
-              >
-                Continue as Customer
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('store_employee')}
-                className="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Store Employee
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('store_admin')}
-                className="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Store Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('delivery_driver')}
-                className="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Delivery Driver
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('towing_driver')}
-                className="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Towing Driver
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('merchant')}
-                className="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Merchant
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('support_agent')}
-                className="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Support Agent
-              </button>
-              <button
-                type="button"
-                onClick={() => devLogin('platform_admin')}
-                className="col-span-2 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold transition-all border border-white/5"
-              >
-                Platform Admin
-              </button>
-            </div>
-            
-            <div className="pt-2 border-t border-white/10">
-              <button
-                type="button"
-                onClick={() => devLogin('platform_admin')}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all shadow-md"
-              >
-                Platform Admin Demo
-              </button>
-            </div>
-          </div>
         )}
 
         <p className="text-center text-white/15 text-[10px] font-bold mt-4">MiSlice © 2026 · Michigan</p>

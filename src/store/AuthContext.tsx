@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -8,14 +8,12 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import { checkAndSeedDatabase } from '../lib/seeding';
 
 export interface UserProfile {
   uid: string;
   email: string;
   fullName: string;
-  role: 'customer' | 'store_owner' | 'store_employee' | 'admin';
-  storeRole?: 'admin' | 'manager' | 'cashier' | 'kitchen_staff' | 'employee';
+  role: 'customer' | 'store_owner' | 'admin';
   phone?: string;
   storeId?: string;
   storeName?: string;
@@ -25,14 +23,12 @@ interface AuthCtxValue {
   profile: UserProfile | null;
   loading: boolean;
   isAuthenticated: boolean;
-  isStoreOwner: boolean; // Includes store owners and store employees (directing them to the merchant dashboard)
+  isStoreOwner: boolean;
   isAdmin: boolean;
-  simulatedRole: string | null;
-  switchSimulatedRole: (role: string | null) => void;
   loginOrRegister: (
     email: string,
     password: string,
-    role: 'customer' | 'store_owner' | 'store_employee',
+    role: 'customer' | 'store_owner',
     fullName: string,
     storeName?: string,
   ) => Promise<void>;
@@ -53,7 +49,6 @@ function normalizeRole(raw: unknown): UserProfile['role'] {
   const r = String(raw ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
   if (r === 'admin') return 'admin';
   if (r === 'store_owner' || r === 'storeowner' || r === 'owner') return 'store_owner';
-  if (r === 'store_employee' || r === 'employee' || r === 'staff' || r === 'manager' || r === 'cashier' || r === 'kitchen_staff') return 'store_employee';
   return 'customer';
 }
 
@@ -67,28 +62,8 @@ async function readProfile(uid: string): Promise<UserProfile | null> {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [simulatedRole, setSimulatedRole] = useState<string | null>(() => {
-    if (window.location.hostname === 'localhost' && import.meta.env.DEV) {
-      return localStorage.getItem('mis_simulated_role') || null;
-    }
-    return null;
-  });
-
-  const switchSimulatedRole = useCallback((role: string | null) => {
-    if (window.location.hostname !== 'localhost' || !import.meta.env.DEV) return;
-    setSimulatedRole(role);
-    if (role) {
-      localStorage.setItem('mis_simulated_role', role);
-    } else {
-      localStorage.removeItem('mis_simulated_role');
-    }
-  }, []);
 
   useEffect(() => {
-    const isLocalhost = window.location.hostname === 'localhost' && import.meta.env.DEV;
-    if (isLocalhost) {
-      checkAndSeedDatabase();
-    }
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
@@ -97,37 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch {
           setProfile(null);
         }
-        setLoading(false);
-      } else if (isLocalhost) {
-        // Attempt automatic demo sign in
-        try {
-          const cred = await signInWithEmailAndPassword(auth, 'sathyasai1415@gmail.com', '123456');
-          const p = await readProfile(cred.user.uid);
-          setProfile(p);
-        } catch (err: any) {
-          // If user doesn't exist, create it!
-          if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email') {
-            try {
-              const cred = await createUserWithEmailAndPassword(auth, 'sathyasai1415@gmail.com', '123456');
-              await fbUpdateProfile(cred.user, { displayName: 'Sathyasai1415' });
-              const profileDoc: UserProfile = {
-                uid: cred.user.uid,
-                email: 'sathyasai1415@gmail.com',
-                fullName: 'Sathyasai1415',
-                role: 'customer',
-              };
-              await setDoc(doc(db, 'users', cred.user.uid), { ...profileDoc, createdAt: serverTimestamp() }, { merge: true });
-              setProfile(profileDoc);
-            } catch (createErr) {
-              console.error('Failed to auto-create demo user:', createErr);
-            }
-          }
-        }
-        setLoading(false);
       } else {
         setProfile(null);
-        setLoading(false);
       }
+      setLoading(false);
     });
     return unsub;
   }, []);
@@ -186,35 +134,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Brand-new account — create profile with the requested role.
-    let finalRole: UserProfile['role'] = role;
-    let storeId = role === 'store_owner' ? uid : undefined;
-    let storeRole: UserProfile['storeRole'] = undefined;
-
-    if (email === 'admin@zumbo.com') {
-      finalRole = 'store_owner';
-      storeId = '1234567';
-      storeRole = 'admin';
-    } else if (email === 'manager@zumbo.com') {
-      finalRole = 'store_employee';
-      storeId = '1234567';
-      storeRole = 'manager';
-    } else if (email === 'kitchen@zumbo.com') {
-      finalRole = 'store_employee';
-      storeId = '1234567';
-      storeRole = 'kitchen_staff';
-    } else if (email === 'cashier@zumbo.com') {
-      finalRole = 'store_employee';
-      storeId = '1234567';
-      storeRole = 'cashier';
-    }
+    // storeId always equals the owner's uid — consistent with security rules.
+    const storeId = role === 'store_owner' ? uid : undefined;
 
     const profileDoc: UserProfile = {
       uid,
       email,
       fullName,
-      role: finalRole,
-      ...(storeRole && { storeRole }),
-      ...(storeId && { storeId, storeName: storeName || 'Zumbo Pizza' }),
+      role,
+      ...(storeId && { storeId, storeName }),
     };
 
     await setDoc(doc(db, 'users', uid), { ...profileDoc, createdAt: serverTimestamp() }, { merge: true });
@@ -269,29 +197,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(p);
   }, []);
 
-  const computedIsAdmin = useMemo(() => {
-    if (window.location.hostname === 'localhost' && import.meta.env.DEV && simulatedRole) {
-      return simulatedRole === 'platform_admin';
-    }
-    return profile?.role === 'admin';
-  }, [profile, simulatedRole]);
-
-  const computedIsStoreOwner = useMemo(() => {
-    if (window.location.hostname === 'localhost' && import.meta.env.DEV && simulatedRole) {
-      return ['store_admin', 'store_employee', 'merchant'].includes(simulatedRole);
-    }
-    return profile?.role === 'store_owner' || profile?.role === 'store_employee';
-  }, [profile, simulatedRole]);
-
   return (
     <AuthCtx.Provider value={{
       profile,
       loading,
       isAuthenticated: !!profile,
-      isStoreOwner: computedIsStoreOwner,
-      isAdmin: computedIsAdmin,
-      simulatedRole,
-      switchSimulatedRole,
+      isStoreOwner: profile?.role === 'store_owner',
+      isAdmin: profile?.role === 'admin',
       loginOrRegister,
       loginAsAdmin,
       loginLocal,
