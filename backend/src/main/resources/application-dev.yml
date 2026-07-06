@@ -5,6 +5,14 @@ spring:
       hibernate:
         format_sql: true
 
+# Redis and mail servers are optional in local dev — don't fail the health check without them.
+management:
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
+
 logging:
   level:
     com.mislice: DEBUG
