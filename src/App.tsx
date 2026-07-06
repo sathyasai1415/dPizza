@@ -12,7 +12,7 @@ import { LocalDeals } from './components/LocalDeals';
 import { DealsHub } from './components/DealsHub';
 import { PizzaConfig, DeliveryType, Review, Order, OrderItem } from './types';
 import { calculateQuotes } from './lib/pricing';
-import { Heart, Search, ShoppingBag } from 'lucide-react';
+import { Heart, Search, ShoppingBag, Star } from 'lucide-react';
 
 import { SidebarNavigation, ViewState } from './components/SidebarNavigation';
 import { Cart } from './components/Cart';
@@ -34,8 +34,9 @@ import { useAuth } from './store/AuthContext';
 import { Loader2 } from 'lucide-react';
 import {
   getUserData, saveUserCart, saveUserSavedPizzas,
-  saveCustomerOrder, watchCustomerOrders,
+  saveCustomerOrder, watchCustomerOrders, addReview,
 } from './lib/db';
+import { ReviewModal } from './components/ReviewModal';
 import { registerFcmToken, listenForMessages } from './lib/fcm';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from './lib/firebase';
@@ -218,13 +219,33 @@ export default function App() {
   // Big, bright in-app push popup (shown when an FCM message arrives while the
   // tab is focused — the browser suppresses the OS notification in that case).
   const [pushPopup, setPushPopup] = useState<{ title: string; body: string } | null>(null);
-  const pushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showPushPopup = (title: string, body: string) => {
+    // Stays on the page until the user dismisses it (no auto-dismiss).
     setPushPopup({ title, body });
-    if (pushTimer.current) clearTimeout(pushTimer.current);
-    pushTimer.current = setTimeout(() => setPushPopup(null), 7000);
     // buzz the device if supported
     try { navigator.vibrate?.([120, 60, 120]); } catch { /* no-op */ }
+  };
+
+  // Reviews — customer rates a past order
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+  const [reviewedIds, setReviewedIds] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('miSliceReviewed') || '[]')); }
+    catch { return new Set(); }
+  });
+  const submitReview = async (rating: number, comment: string) => {
+    if (!reviewOrder) return;
+    await addReview({
+      storeId: reviewOrder.storeId,
+      orderId: reviewOrder.id,
+      userId: uid || 'local',
+      customerName: profile?.fullName || 'Customer',
+      rating,
+      comment,
+    });
+    const next = new Set(reviewedIds); next.add(reviewOrder.id);
+    setReviewedIds(next);
+    localStorage.setItem('miSliceReviewed', JSON.stringify([...next]));
+    showToast('⭐ Thanks for your review!');
   };
 
   // Cart — all local/localStorage, no auth needed
@@ -423,7 +444,7 @@ export default function App() {
     saveCart(cart.filter(c => c.id !== id));
   };
 
-  const placeOrder = async (address: string, notes: string) => {
+  const placeOrder = async (address: string, notes: string, paymentMethod: 'cash_on_delivery' | 'pay_at_store' = 'cash_on_delivery') => {
     const subtotal = cart.reduce((sum, item) => sum + (item.deliveryOption ? item.deliveryOption.priceBreakdown.subtotal : item.price_per_item * item.quantity), 0);
     const deliveryFee = cart.reduce((sum, item) => sum + (item.deliveryOption ? item.deliveryOption.priceBreakdown.deliveryFee * item.quantity : 0), 0);
     const tax = cart.reduce((sum, item) => sum + (item.deliveryOption ? item.deliveryOption.priceBreakdown.tax * item.quantity : item.price_per_item * item.quantity * 0.0825), 0);
@@ -451,7 +472,8 @@ export default function App() {
       platformServiceFee,
       couponDiscount: 0,
       finalTotal,
-      paymentStatus: 'paid',
+      paymentStatus: 'unpaid',
+      paymentMethod,
       createdAt: new Date().toISOString(),
       items: cart.map(item => ({
         id: item.id,
@@ -650,6 +672,14 @@ export default function App() {
           </motion.button>
         )}
       </AnimatePresence>
+
+      {/* Review modal */}
+      <ReviewModal
+        open={!!reviewOrder}
+        storeName={reviewOrder?.storeName || ''}
+        onClose={() => setReviewOrder(null)}
+        onSubmit={submitReview}
+      />
 
       {/* Toast */}
       {toast && (
@@ -883,12 +913,26 @@ export default function App() {
                         <p className="font-black text-stone-800 text-xl">${order.finalTotal.toFixed(2)}</p>
                       </div>
                       <p className="text-stone-500 text-sm mb-4">{order.items.map(i => i.pizzaName).join(', ')}</p>
-                      <button
-                        onClick={() => reorder(order)}
-                        className="clay-accent text-stone-900 font-bold py-2 px-6 text-sm"
-                      >
-                        Reorder
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => reorder(order)}
+                          className="clay-accent text-stone-900 font-bold py-2 px-6 text-sm"
+                        >
+                          Reorder
+                        </button>
+                        {reviewedIds.has(order.id) ? (
+                          <span className="text-xs font-bold text-green-600 flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 fill-green-600" /> Reviewed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setReviewOrder(order)}
+                            className="text-sm font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1.5"
+                          >
+                            <Star className="w-4 h-4" /> Leave a review
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -367,3 +367,56 @@ export function watchCustomerOrders(uid: string, cb: (orders: any[]) => void): (
     console.error('watchCustomerOrders failed', err);
   });
 }
+
+// ── Reviews ──────────────────────────────────────────────────────────────────
+// Customers leave a review after an order; store owners can reply. Ratings are
+// aggregated from this collection at read time (no store-doc write needed, so
+// customers don't need write access to the store document).
+
+export interface ReviewDoc {
+  id?: string;
+  storeId: string;
+  orderId?: string;
+  userId: string;
+  customerName: string;
+  rating: number;        // 1-5
+  comment: string;
+  reply?: string;
+  createdAt?: string;
+}
+
+export async function addReview(review: Omit<ReviewDoc, 'id' | 'createdAt'>): Promise<string> {
+  const ref = await addDoc(collection(db, 'reviews'), {
+    ...review,
+    reply: '',
+    createdAt: new Date().toISOString(),
+  });
+  return ref.id;
+}
+
+export async function replyToReview(reviewId: string, reply: string): Promise<void> {
+  await updateDoc(doc(db, 'reviews', reviewId), { reply, updatedAt: serverTimestamp() });
+}
+
+/** Live subscription to one store's reviews, newest first. Returns unsubscribe. */
+export function watchStoreReviews(storeId: string, cb: (reviews: ReviewDoc[]) => void): () => void {
+  return onSnapshot(
+    query(collection(db, 'reviews'), where('storeId', '==', storeId)),
+    (snap) => {
+      const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }) as ReviewDoc);
+      rows.sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+      cb(rows);
+    },
+    (err) => console.error('watchStoreReviews failed', err),
+  );
+}
+
+/** Whether the current user already reviewed a given order. */
+export async function hasReviewedOrder(userId: string, orderId: string): Promise<boolean> {
+  const snap = await getDocs(query(
+    collection(db, 'reviews'),
+    where('userId', '==', userId),
+    where('orderId', '==', orderId),
+  ));
+  return !snap.empty;
+}

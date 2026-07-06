@@ -1,30 +1,45 @@
-import React, { useState } from 'react';
-import { Star, ThumbsUp, ThumbsDown, MessageSquare, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
+import { watchStoreReviews, replyToReview, ReviewDoc } from '../../../lib/db';
 
 interface Props { storeData: any; orders: any[]; }
 
-const MOCK_REVIEWS = [
-  { id: '1', customer: 'Alex M.', rating: 5, comment: 'Best pizza in Farmington! Crust was perfect and delivery was super fast.', date: '2026-06-28', reply: '', order: 'Pepperoni Large' },
-  { id: '2', customer: 'Sarah K.', rating: 4, comment: 'Really good pizza, would order again. The BBQ chicken was amazing.', date: '2026-06-26', reply: '', order: 'BBQ Chicken' },
-  { id: '3', customer: 'James T.', rating: 3, comment: 'Pizza was good but delivery took a bit longer than expected.', date: '2026-06-24', reply: 'Thank you for the feedback! We\'re working on improving delivery times.', order: 'Veggie Supreme' },
-  { id: '4', customer: 'Maria L.', rating: 5, comment: 'Absolutely delicious! The crust is thin and crispy just the way I like it.', date: '2026-06-22', reply: '', order: 'Margherita' },
-  { id: '5', customer: 'David R.', rating: 2, comment: 'Pizza arrived cold. Taste was okay but temperature was disappointing.', date: '2026-06-20', reply: '', order: 'Cheese Large' },
-];
-
-export function FeedbackTab({ storeData, orders }: Props) {
+export function FeedbackTab({ storeData }: Props) {
+  const storeId = storeData?.id;
+  const [reviews, setReviews] = useState<ReviewDoc[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'positive' | 'negative' | 'unreplied'>('all');
-  const [replies, setReplies] = useState<Record<string, string>>({});
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [posting, setPosting] = useState<string | null>(null);
 
-  const avgRating = MOCK_REVIEWS.reduce((s, r) => s + r.rating, 0) / MOCK_REVIEWS.length;
-  const dist = [5, 4, 3, 2, 1].map(s => ({ stars: s, count: MOCK_REVIEWS.filter(r => r.rating === s).length }));
+  useEffect(() => {
+    if (!storeId) { setLoading(false); return; }
+    const unsub = watchStoreReviews(storeId, rows => { setReviews(rows); setLoading(false); });
+    return unsub;
+  }, [storeId]);
 
-  const filtered = MOCK_REVIEWS.filter(r => {
+  const total = reviews.length;
+  const avgRating = total > 0 ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / total : 0;
+  const dist = [5, 4, 3, 2, 1].map(s => ({ stars: s, count: reviews.filter(r => r.rating === s).length }));
+
+  const filtered = reviews.filter(r => {
     if (filter === 'positive') return r.rating >= 4;
     if (filter === 'negative') return r.rating <= 2;
-    if (filter === 'unreplied') return !r.reply && !replies[r.id];
+    if (filter === 'unreplied') return !r.reply;
     return true;
   });
+
+  const postReply = async (id: string) => {
+    const text = drafts[id]?.trim();
+    if (!text) return;
+    setPosting(id);
+    try {
+      await replyToReview(id, text);
+      setDrafts(d => ({ ...d, [id]: '' }));
+    } finally {
+      setPosting(null);
+    }
+  };
 
   function Stars({ n, size = 'sm' }: { n: number; size?: 'sm' | 'lg' }) {
     return (
@@ -40,9 +55,20 @@ export function FeedbackTab({ storeData, orders }: Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-black text-white">Customer Feedback</h2>
-        <span className="text-xs text-stone-500">{MOCK_REVIEWS.length} reviews</span>
+        <span className="text-xs text-stone-500">{total} review{total !== 1 ? 's' : ''}</span>
       </div>
 
+      {loading && <p className="text-center text-stone-500 text-sm py-8">Loading reviews…</p>}
+
+      {!loading && total === 0 && (
+        <div className="bg-black/40 border border-white/10 rounded-2xl p-12 text-center">
+          <MessageSquare className="w-10 h-10 text-stone-700 mx-auto mb-3" />
+          <p className="text-sm font-black text-stone-400 mb-1">No reviews yet</p>
+          <p className="text-xs text-stone-600">Reviews from customers who complete an order will appear here.</p>
+        </div>
+      )}
+
+      {!loading && total > 0 && (<>
       {/* Rating summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-black/40 border border-white/10 rounded-2xl p-5 flex flex-col items-center justify-center">
@@ -58,7 +84,7 @@ export function FeedbackTab({ storeData, orders }: Props) {
               <div className="flex-1 h-2 bg-white/8 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-yellow-400/70 rounded-full"
-                  style={{ width: `${(d.count / MOCK_REVIEWS.length) * 100}%` }}
+                  style={{ width: `${total > 0 ? (d.count / total) * 100 : 0}%` }}
                 />
               </div>
               <span className="text-xs font-bold text-stone-500 w-4">{d.count}</span>
@@ -70,9 +96,9 @@ export function FeedbackTab({ storeData, orders }: Props) {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Positive',  value: MOCK_REVIEWS.filter(r => r.rating >= 4).length, icon: ThumbsUp,  color: 'text-green-400' },
-          { label: 'Neutral',   value: MOCK_REVIEWS.filter(r => r.rating === 3).length, icon: MessageSquare, color: 'text-yellow-400' },
-          { label: 'Negative',  value: MOCK_REVIEWS.filter(r => r.rating <= 2).length, icon: ThumbsDown, color: 'text-red-400' },
+          { label: 'Positive',  value: reviews.filter(r => r.rating >= 4).length, icon: ThumbsUp,  color: 'text-green-400' },
+          { label: 'Neutral',   value: reviews.filter(r => r.rating === 3).length, icon: MessageSquare, color: 'text-yellow-400' },
+          { label: 'Negative',  value: reviews.filter(r => r.rating <= 2).length, icon: ThumbsDown, color: 'text-red-400' },
         ].map(s => {
           const Icon = s.icon;
           return (
@@ -98,17 +124,19 @@ export function FeedbackTab({ storeData, orders }: Props) {
       {/* Reviews list */}
       <div className="space-y-3">
         {filtered.map(review => {
-          const replied = review.reply || replies[review.id];
+          const rid = review.id!;
+          const replied = review.reply;
+          const when = review.createdAt ? new Date(review.createdAt).toLocaleDateString() : '';
           return (
-            <div key={review.id} className="bg-black/40 border border-white/10 rounded-2xl p-4">
+            <div key={rid} className="bg-black/40 border border-white/10 rounded-2xl p-4">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white font-black text-xs shrink-0">
-                    {review.customer.charAt(0)}
+                    {(review.customerName || 'A').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-xs font-black text-white">{review.customer}</p>
-                    <p className="text-[9px] text-stone-600">{review.date} · {review.order}</p>
+                    <p className="text-xs font-black text-white">{review.customerName || 'Customer'}</p>
+                    <p className="text-[9px] text-stone-600">{when}</p>
                   </div>
                 </div>
                 <Stars n={review.rating} />
@@ -123,22 +151,18 @@ export function FeedbackTab({ storeData, orders }: Props) {
               ) : (
                 <div className="mt-2">
                   <textarea
-                    value={drafts[review.id] || ''}
-                    onChange={e => setDrafts(d => ({ ...d, [review.id]: e.target.value }))}
+                    value={drafts[rid] || ''}
+                    onChange={e => setDrafts(d => ({ ...d, [rid]: e.target.value }))}
                     placeholder="Write a reply..."
                     rows={2}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-red-500 resize-none transition-colors"
                   />
                   <button
-                    onClick={() => {
-                      if (drafts[review.id]?.trim()) {
-                        setReplies(r => ({ ...r, [review.id]: drafts[review.id] }));
-                        setDrafts(d => ({ ...d, [review.id]: '' }));
-                      }
-                    }}
-                    className="mt-1.5 px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-lg transition-colors"
+                    onClick={() => postReply(rid)}
+                    disabled={posting === rid || !drafts[rid]?.trim()}
+                    className="mt-1.5 px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-lg transition-colors disabled:opacity-40"
                   >
-                    Post Reply
+                    {posting === rid ? 'Posting…' : 'Post Reply'}
                   </button>
                 </div>
               )}
@@ -149,6 +173,7 @@ export function FeedbackTab({ storeData, orders }: Props) {
           <p className="text-center text-stone-600 text-sm py-8">No reviews match this filter.</p>
         )}
       </div>
+      </>)}
     </div>
   );
 }

@@ -88,7 +88,8 @@ export interface Order {
   couponCode?: string;
   couponDiscount: number;
   finalTotal: number;
-  paymentStatus: "pending" | "paid" | "failed";
+  paymentStatus: "pending" | "paid" | "failed" | "unpaid";
+  paymentMethod?: "cash_on_delivery" | "pay_at_store";
   createdAt: string;
   items: OrderItem[];
   deliveryAddress?: string;

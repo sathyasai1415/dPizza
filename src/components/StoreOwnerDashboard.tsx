@@ -16,6 +16,12 @@ import {
   watchStoreRichOrders, setOrderStatus, updateOrderFields,
 } from '../lib/db';
 import { AdminOnboarding } from './admin/AdminOnboarding';
+import { ReportsTab } from './admin/tabs/ReportsTab';
+import { MarketingTab } from './admin/tabs/MarketingTab';
+import { FeedbackTab } from './admin/tabs/FeedbackTab';
+import { OnlineOrderingTab } from './admin/tabs/OnlineOrderingTab';
+import { HolidayHoursTab } from './admin/tabs/HolidayHoursTab';
+import { UsersTab } from './admin/tabs/UsersTab';
 
 interface Props { storeId: string; storeName: string; onLogout: () => void; }
 
@@ -177,13 +183,12 @@ export function StoreOwnerDashboard({ storeId, storeName, onLogout }: Props) {
           {tab === 'deals'     && <DealsManager storeId={storeId} deals={deals} reload={reloadDeals} flash={flash} />}
           {tab === 'insights'  && <AIInsights orders={orders} />}
           {tab === 'earnings'  && <Earnings orders={orders} />}
-          {['reports','marketing','ratings','online','hours','team'].includes(tab) && (
-            <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center shadow-sm">
-              <Settings2 className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm font-black text-gray-500 mb-1">Coming Soon</p>
-              <p className="text-xs text-gray-600">This section is not available yet.</p>
-            </div>
-          )}
+          {tab === 'reports'   && <ReportsTab orders={orders} storeData={store} />}
+          {tab === 'marketing' && <MarketingTab />}
+          {tab === 'ratings'   && <FeedbackTab storeData={store} orders={orders} />}
+          {tab === 'online'    && <OnlineOrderingTab />}
+          {tab === 'hours'     && <HolidayHoursTab />}
+          {tab === 'team'      && <UsersTab />}
         </div>
       </main>
 
