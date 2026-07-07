@@ -2,7 +2,6 @@ package com.mislice.domain.user.dto;
 
 import com.mislice.domain.user.AccountStatus;
 import com.mislice.domain.user.Role;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -17,5 +16,11 @@ public record UserDto(
         boolean emailVerified,
         boolean vegetarian,
         String preferredCrust,
+        String[] dietaryPrefs,
+        String[] meatPrefs,
+        String[] favoriteToppings,
+        String budgetRange,
+        String avatarUrl,
+        boolean notificationsEnabled,
         List<AddressDto> addresses
 ) {}

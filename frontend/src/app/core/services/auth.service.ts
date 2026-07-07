@@ -1,0 +1,114 @@
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, catchError, throwError, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AuthResponse, UserProfile } from '../../shared/models';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.apiUrl;
+
+  // Reactive state using Angular Signals
+  readonly currentUser = signal<UserProfile | null>(null);
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
+  readonly isAdmin = computed(() => this.currentUser()?.roles.includes('ADMIN') ?? false);
+  readonly isStoreOwner = computed(() => {
+    const roles = this.currentUser()?.roles ?? [];
+    return roles.includes('RESTAURANT_OWNER') || roles.includes('RESTAURANT_STAFF');
+  });
+
+  constructor() {
+    this.loadCachedSession();
+  }
+
+  private loadCachedSession() {
+    const cachedUser = localStorage.getItem('mislice_user');
+    const token = localStorage.getItem('mislice_token');
+    if (cachedUser && token) {
+      try {
+        this.currentUser.set(JSON.parse(cachedUser));
+      } catch {
+        this.clearSession();
+      }
+    }
+  }
+
+  register(email: string, password: string, fullName: string, phone?: string, role: string = 'CUSTOMER'): Observable<AuthResponse> {
+    const body = { email, password, fullName, phone, roles: [role] };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, body).pipe(
+      tap(res => this.saveSession(res)),
+      catchError(err => throwError(() => err))
+    );
+  }
+
+  login(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
+      tap(res => this.saveSession(res)),
+      catchError(err => throwError(() => err))
+    );
+  }
+
+  refreshSession(): Observable<AuthResponse | null> {
+    const refreshToken = localStorage.getItem('mislice_refresh');
+    if (!refreshToken) {
+      this.clearSession();
+      return of(null);
+    }
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken }).pipe(
+      tap(res => this.saveSession(res)),
+      catchError(err => {
+        this.clearSession();
+        return throwError(() => err);
+      })
+    );
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/logout`, {}).pipe(
+      tap(() => this.clearSession()),
+      catchError(err => {
+        this.clearSession();
+        return of(void 0);
+      })
+    );
+  }
+
+  getProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.apiUrl}/users/me`).pipe(
+      tap(user => {
+        this.currentUser.set(user);
+        localStorage.setItem('mislice_user', JSON.stringify(user));
+      })
+    );
+  }
+
+  updateProfile(profile: Partial<UserProfile>): Observable<UserProfile> {
+    return this.http.patch<UserProfile>(`${this.apiUrl}/users/me`, profile).pipe(
+      tap(user => {
+        this.currentUser.set(user);
+        localStorage.setItem('mislice_user', JSON.stringify(user));
+      })
+    );
+  }
+
+  private saveSession(res: AuthResponse) {
+    localStorage.setItem('mislice_token', res.accessToken);
+    localStorage.setItem('mislice_refresh', res.refreshToken);
+    localStorage.setItem('mislice_user', JSON.stringify(res.user));
+    this.currentUser.set(res.user);
+  }
+
+  private clearSession() {
+    localStorage.removeItem('mislice_token');
+    localStorage.removeItem('mislice_refresh');
+    localStorage.removeItem('mislice_user');
+    this.currentUser.set(null);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('mislice_token');
+  }
+}

@@ -67,6 +67,25 @@ public class User extends BaseEntity {
     @Column(name = "preferred_crust")
     private String preferredCrust;
 
+    @Column(name = "dietary_prefs", columnDefinition = "text[]")
+    private String[] dietaryPrefs;
+
+    @Column(name = "meat_prefs", columnDefinition = "text[]")
+    private String[] meatPrefs;
+
+    @Column(name = "favorite_toppings", columnDefinition = "text[]")
+    private String[] favoriteToppings;
+
+    @Column(name = "budget_range", length = 20)
+    private String budgetRange;
+
+    @Column(name = "avatar_url", length = 512)
+    private String avatarUrl;
+
+    @Column(name = "notifications_enabled", nullable = false)
+    @Builder.Default
+    private boolean notificationsEnabled = true;
+
     @OneToMany(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();
