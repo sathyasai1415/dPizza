@@ -1,0 +1,55 @@
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-contact',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="w-full max-w-2xl mx-auto py-2 space-y-6">
+      <div>
+        <h1 class="text-3xl font-black text-white">Contact Us</h1>
+        <p class="text-white/50 mt-1">Questions, feedback, or partnership inquiries — we'd love to hear from you.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div class="glass rounded-2xl p-4 text-center">
+          <p class="text-2xl mb-1">📧</p><p class="text-xs font-bold text-white">Email</p>
+          <p class="text-[11px] text-white/50">hello&#64;mislice.online</p>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center">
+          <p class="text-2xl mb-1">📍</p><p class="text-xs font-bold text-white">Based in</p>
+          <p class="text-[11px] text-white/50">Detroit, Michigan</p>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center">
+          <p class="text-2xl mb-1">⏱️</p><p class="text-xs font-bold text-white">Response</p>
+          <p class="text-[11px] text-white/50">Within 24 hours</p>
+        </div>
+      </div>
+
+      <form class="glass rounded-3xl p-6 space-y-4" (submit)="send($event)">
+        <div>
+          <label class="block text-xs font-bold text-white/40 uppercase mb-1">Name</label>
+          <input [(ngModel)]="name" name="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-white/40 uppercase mb-1">Email</label>
+          <input type="email" [(ngModel)]="email" name="email" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-white/40 uppercase mb-1">Message</label>
+          <textarea [(ngModel)]="message" name="message" rows="4" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500 resize-none"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 transition">
+          {{ sent() ? '✓ Message Sent' : 'Send Message' }}
+        </button>
+      </form>
+    </div>
+  `,
+})
+export class ContactComponent {
+  name = ''; email = ''; message = '';
+  sent = signal(false);
+  send(e: Event): void { e.preventDefault(); this.sent.set(true); }
+}

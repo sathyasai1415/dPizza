@@ -1,0 +1,11 @@
+runtime: python311
+service: default
+
+handlers:
+  - url: /(.*\..+)$
+    static_files: dist/frontend/browser/\1
+    upload: dist/frontend/browser/(.*\..+)$
+
+  - url: /.*
+    static_files: dist/frontend/browser/index.html
+    upload: dist/frontend/browser/index.html
