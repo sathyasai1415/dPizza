@@ -5,7 +5,7 @@ export const environment = {
   stripePublishableKey: 'pk_test_mock',
   firebase: {
     apiKey: 'AIzaSyBmXLVjI0DbsaZK6FMYUtKF3g1XCZ8K3Rw',
-    authDomain: 'mislice.online',
+    authDomain: 'xx-1-2e007.firebaseapp.com',
     projectId: 'xx-1-2e007',
     storageBucket: 'xx-1-2e007.firebasestorage.app',
     messagingSenderId: '115055699187',
