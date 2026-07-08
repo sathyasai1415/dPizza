@@ -1,13 +1,17 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ChainCompareService } from '../../core/services/chain-compare.service';
+import { CartService } from '../../core/services/cart.service';
+import { OrderService } from '../../core/services/order.service';
+import { RestaurantService } from '../../core/services/restaurant.service';
 import { Quote } from '../../shared/models';
 
 @Component({
   selector: 'app-comparison-cards',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
     <div class="space-y-8 max-w-5xl mx-auto">
       
@@ -16,6 +20,18 @@ import { Quote } from '../../shared/models';
         <h2 class="text-3xl font-black text-white">Compare Pizza Quotes</h2>
         <p class="text-xs sm:text-sm text-white/50">Configure your pizza and see live compared quotes from local national chains.</p>
       </div>
+
+      <!-- SUCCESS / ERROR BANNERS -->
+      @if (successMsg()) {
+        <div class="glass border border-emerald-500/30 rounded-2xl p-4 text-center text-emerald-400 font-bold text-sm">
+          ✅ {{ successMsg() }}
+        </div>
+      }
+      @if (errorMsg()) {
+        <div class="glass border border-red-500/30 rounded-2xl p-4 text-center text-red-400 font-bold text-sm">
+          ⚠️ {{ errorMsg() }}
+        </div>
+      }
 
       <!-- PIZZA PRICE SHOWCASE -->
       <div class="relative overflow-hidden rounded-[24px] select-none mb-8 max-w-2xl mx-auto border border-orange-500/25 shadow-[0_40px_120px_-40px_rgba(220,38,0,0.5)]"
@@ -194,6 +210,12 @@ import { Quote } from '../../shared/models';
                       {{ optBadge }}
                     </span>
                   </div>
+
+                  <!-- ORDER / CHECKOUT BUTTON -->
+                  <button (click)="placeOrder(quote, opt)" [disabled]="submitting()"
+                    class="w-full mt-2 py-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-black text-[10px] tracking-wider transition uppercase disabled:opacity-50">
+                    {{ submitting() ? 'Placing Order...' : 'Order Now' }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -259,9 +281,16 @@ import { Quote } from '../../shared/models';
 })
 export class ComparisonCardsComponent implements OnInit {
   private readonly chainCompareService = inject(ChainCompareService);
+  private readonly cartService = inject(CartService);
+  private readonly orderService = inject(OrderService);
+  private readonly restaurantService = inject(RestaurantService);
+  private readonly router = inject(Router);
 
   quotes = signal<Quote[]>([]);
   loading = signal(false);
+  submitting = signal(false);
+  successMsg = signal('');
+  errorMsg = signal('');
 
   // Configuration state
   size = 'Large';
@@ -330,6 +359,67 @@ export class ComparisonCardsComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+      }
+    });
+  }
+
+  placeOrder(quote: Quote, option: any): void {
+    this.submitting.set(true);
+    this.errorMsg.set('');
+    this.successMsg.set('');
+
+    // Fetch live restaurants to resolve correct store UUID
+    this.restaurantService.getRestaurants().subscribe({
+      next: (stores) => {
+        const matched = stores.find(s => 
+          s.name.toLowerCase().includes(quote.chainName.toLowerCase()) || 
+          quote.chainName.toLowerCase().includes(s.name.toLowerCase())
+        );
+
+        if (!matched) {
+          this.submitting.set(false);
+          this.errorMsg.set(`Unable to find a registered marketplace restaurant for ${quote.chainName}.`);
+          return;
+        }
+
+        const cartReq = {
+          restaurantId: matched.id,
+          quantity: this.quantity,
+          size: this.size,
+          crust: this.crust,
+          sauce: 'Robust Inspired Tomato Sauce',
+          toppings: this.toppings,
+          notes: `Comparison quote order via ${option.providerName}. Size: ${this.size}, Crust: ${this.crust}. Toppings: ${this.toppings.join(', ')}`,
+        };
+
+        this.cartService.addToCart(cartReq).subscribe({
+          next: () => {
+            this.orderService.placeOrder({
+              deliveryType: this.deliveryType === 'delivery' ? 'STORE_DELIVERY' : 'PICKUP',
+              deliveryAddress: 'Detroit, MI',
+              deliveryNotes: `Provider: ${option.providerName}`,
+              tip: 0,
+              paymentMethod: 'CASH',
+            }).subscribe({
+              next: (order) => {
+                this.submitting.set(false);
+                this.successMsg.set(`🎉 Order #${order.orderNumber} successfully placed at ${quote.chainName}! The owner dashboard has been updated.`);
+              },
+              error: (e: any) => {
+                this.submitting.set(false);
+                this.errorMsg.set(e?.error?.message ?? 'Failed to place order. Try logging in first.');
+              }
+            });
+          },
+          error: (e: any) => {
+            this.submitting.set(false);
+            this.errorMsg.set(e?.error?.message ?? 'Failed to add pizza to cart. Try logging in first.');
+          }
+        });
+      },
+      error: () => {
+        this.submitting.set(false);
+        this.errorMsg.set('Failed to connect to marketplace restaurant listing data.');
       }
     });
   }
