@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
@@ -9,7 +10,7 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, GridScanComponent, VideoIntroComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, GridScanComponent, VideoIntroComponent],
   template: `
     <app-video-intro *ngIf="showIntro()" (done)="dismissIntro()"></app-video-intro>
     <div class="min-h-screen flex text-white bg-[#0A0D18] relative">
@@ -147,18 +148,40 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
 
       <!-- MAIN CONTENT WRAPPER -->
       <div class="flex-1 flex flex-col lg:pl-64 min-w-0">
-        <!-- TOP NAV HEADER -->
-        <header class="h-16 border-b border-white/10 flex items-center justify-between px-6 lg:px-8 z-30 bg-[#0A0D18]/40 backdrop-blur-md sticky top-0">
-          <div>
-            <!-- Section title or breadcrumb -->
+        <!-- TOP NAV HEADER — slim: search · location · bell · cart -->
+        <header class="h-16 border-b border-white/10 flex items-center gap-3 px-6 lg:px-8 z-30 bg-[#0A0D18]/40 backdrop-blur-md sticky top-0">
+
+          <!-- Smart search (customers) -->
+          <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
+            class="hidden sm:flex items-center gap-2.5 flex-1 max-w-md glass-soft rounded-full px-4 py-2">
+            <span class="text-white/35 text-sm">🔍</span>
+            <input
+              [(ngModel)]="searchQuery"
+              (keydown.enter)="submitSearch()"
+              placeholder="Search pizza, stores, deals…"
+              class="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none" />
           </div>
-          
-          <div class="flex items-center gap-4">
-            <!-- Cart Button for Customers -->
+          <div class="flex-1 sm:hidden"></div>
+          <div *ngIf="authService.isStoreOwner() || authService.isAdmin()" class="flex-1"></div>
+
+          <div class="flex items-center gap-2">
+            <!-- Location chip -->
+            <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
+              class="hidden md:flex items-center gap-1.5 glass-soft rounded-full px-3.5 py-2 text-xs font-bold text-white/70 hover:text-white transition">
+              <span>📍</span> Detroit, MI
+            </button>
+
+            <!-- Notifications bell -->
+            <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
+              routerLink="/notifications"
+              class="relative p-2 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition">
+              <span>🔔</span>
+            </a>
+
+            <!-- Cart with badge -->
             <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
                routerLink="/cart" class="relative p-2 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition">
               <span>🛒</span>
-              <!-- Cart Badge -->
               <span *ngIf="cartService.cartItemCount() > 0" class="absolute top-0 right-0 w-4 h-4 bg-red-600 rounded-full text-[9px] font-black flex items-center justify-center text-white">
                 {{ cartService.cartItemCount() }}
               </span>
@@ -181,6 +204,13 @@ export class LayoutComponent implements OnInit {
   private readonly router = inject(Router);
 
   showIntro = signal(false);
+  searchQuery = '';
+
+  submitSearch() {
+    const q = this.searchQuery.trim();
+    if (!q) return;
+    this.router.navigate(['/home'], { queryParams: { q } });
+  }
 
   ngOnInit() {
     if (this.authService.isAuthenticated()) {

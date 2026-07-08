@@ -24,6 +24,16 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
       <div class="fixed inset-0 z-[1] pointer-events-none"
         style="background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%);"></div>
 
+      <!-- Floating ingredient emojis -->
+      <div class="fixed inset-0 z-[2] pointer-events-none select-none" aria-hidden="true">
+        @for (ing of ingredients; track ing.emoji) {
+          <span class="floating-ingredient text-2xl sm:text-3xl opacity-25"
+            [style.left]="ing.x" [style.top]="ing.y"
+            [style.animation]="'float ' + ing.dur + 's ease-in-out infinite'"
+            [style.animation-delay]="ing.delay + 's'">{{ ing.emoji }}</span>
+        }
+      </div>
+
       <div class="relative z-10 w-full max-w-md">
         <!-- Brand -->
         <div class="flex flex-col items-center text-center mb-7">
@@ -208,11 +218,50 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
           </div>
 
         </div>
+
+        <!-- Showcase: same pizza, compared -->
+        <div class="mt-6">
+          <p class="text-center text-[10px] font-black uppercase tracking-widest text-white/30 mb-3">
+            Same large pepperoni — compared live
+          </p>
+          <div class="grid grid-cols-3 gap-2">
+            @for (s of showcase; track s.store) {
+              <div class="glass-soft rounded-2xl p-3 text-center relative"
+                [class.ring-1]="s.best" [class.ring-red-500]="s.best">
+                <span *ngIf="s.best"
+                  class="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black uppercase tracking-wider bg-gradient-to-r from-red-600 to-orange-500 text-white px-2 py-0.5 rounded-full">
+                  Best
+                </span>
+                <p class="text-lg">{{ s.emoji }}</p>
+                <p class="text-[10px] font-bold text-white/60 truncate">{{ s.store }}</p>
+                <p class="text-sm font-black" [class.text-orange-400]="s.best" [class.text-white]="!s.best">{{ s.price }}</p>
+                <p class="text-[9px] text-white/35">{{ s.eta }}</p>
+              </div>
+            }
+          </div>
+        </div>
       </div>
     </div>
   `
 })
 export class WelcomeComponent {
+  // Floating ingredient atmosphere (spec: 🌿 🧀 🍅 🫒 🌶️ 🧅)
+  ingredients = [
+    { emoji: '🌿', x: '8%',  y: '18%', dur: 7,  delay: 0 },
+    { emoji: '🧀', x: '85%', y: '12%', dur: 9,  delay: 1.2 },
+    { emoji: '🍅', x: '12%', y: '72%', dur: 8,  delay: 0.6 },
+    { emoji: '🫒', x: '88%', y: '65%', dur: 10, delay: 2 },
+    { emoji: '🌶️', x: '75%', y: '85%', dur: 7.5, delay: 0.3 },
+    { emoji: '🧅', x: '20%', y: '42%', dur: 8.5, delay: 1.8 },
+  ];
+
+  // Demo comparison strip (spec: cheapest highlighted as "Best")
+  showcase = [
+    { store: "Domino's",    emoji: '🍕', price: '$14.99', eta: '25 min', best: false },
+    { store: 'Shamz Pizza', emoji: '🔥', price: '$11.99', eta: '18 min', best: true },
+    { store: 'Pizza Hut',   emoji: '🍕', price: '$13.49', eta: '30 min', best: false },
+  ];
+
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
