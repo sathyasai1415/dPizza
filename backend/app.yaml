@@ -7,7 +7,7 @@ env_variables:
   SPRING_DATASOURCE_USERNAME: "postgres"
   SPRING_DATASOURCE_PASSWORD: "mislicepassword123"
   SPRING_PROFILES_ACTIVE: "prod"
-  CORS_ORIGINS: "https://mislice.online,https://www.mislice.online"
+  CORS_ORIGINS: "https://mislice.online,https://www.mislice.online,http://mislice.online,http://www.mislice.online,https://xx-1-2e007.uc.r.appspot.com"
   JWT_SECRET: "c2VjdXJlLXByb2R1Y3Rpb24tc2VjcmV0LWtleS1taXNsaWNlMjAyNg=="
   REDIS_HOST: "10.66.194.219"
   MAIL_HOST: "smtp-relay.gmail.com"
