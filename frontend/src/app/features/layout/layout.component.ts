@@ -51,61 +51,61 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
         </a>
 
         <!-- Navigation Links -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav class="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
           <!-- Customer navigation -->
           <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
-            <a routerLink="/home" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30" [routerLinkActiveOptions]="{exact: true}"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>🏠</span> Home / Browse
-            </a>
-            <a routerLink="/builder" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>🍕</span> Build a Pizza
-            </a>
-            <a routerLink="/compare" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>⚖️</span> Compare Prices
-            </a>
-            <a routerLink="/orders" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>📦</span> Order History
-            </a>
-            <a routerLink="/rewards" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>🎁</span> Rewards Hub
-            </a>
-            <a routerLink="/deals" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>🏷️</span> Deals &amp; Offers
-            </a>
-            <a routerLink="/favorite-stores" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>⭐</span> Favorite Stores
-            </a>
-            <a routerLink="/saved-pizzas" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>💾</span> Saved Pizzas
-            </a>
-            <a routerLink="/notifications" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>🔔</span> Notifications
-            </a>
-            <a routerLink="/profile" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>👤</span> Dietary Profile
-            </a>
-            <div class="pt-3 mt-3 border-t border-white/10 space-y-2">
-              <a routerLink="/how-it-works" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-                class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/5 hover:text-white transition">
+            <!-- Section 1: Core Marketplace -->
+            <div class="space-y-1">
+              <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">Marketplace</p>
+              <a routerLink="/home" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20" [routerLinkActiveOptions]="{exact: true}"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>🏠</span> Home / Discover
+              </a>
+              <a routerLink="/builder" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>🍕</span> Build a Pizza
+              </a>
+              <a routerLink="/compare" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>⚖️</span> Compare Prices
+              </a>
+              <a routerLink="/deals" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>🏷️</span> Deals &amp; Offers
+              </a>
+            </div>
+
+            <!-- Section 2: Personal Account -->
+            <div class="space-y-1 pt-2 border-t border-white/5">
+              <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">My Account</p>
+              <a routerLink="/orders" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>📦</span> Order History
+              </a>
+              <a routerLink="/rewards" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>🎁</span> Rewards Hub
+              </a>
+              <a routerLink="/saved-pizzas" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>💾</span> Saved Creations
+              </a>
+              <a routerLink="/profile" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
+                <span>👤</span> Dietary Profile
+              </a>
+            </div>
+
+            <!-- Section 3: Help & Info -->
+            <div class="space-y-1 pt-2 border-t border-white/5">
+              <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">Support</p>
+              <a routerLink="/how-it-works" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:bg-white/5 hover:text-white transition">
                 <span>❓</span> How It Works
               </a>
-              <a routerLink="/contact" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-                class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/5 hover:text-white transition">
-                <span>✉️</span> Contact
-              </a>
-              <a routerLink="/legal" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-                class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/5 hover:text-white transition">
-                <span>📄</span> Legal
+              <a routerLink="/contact" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:bg-white/5 hover:text-white transition">
+                <span>✉️</span> Contact Support
               </a>
             </div>
           </ng-container>
