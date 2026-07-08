@@ -13,8 +13,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
   standalone: true,
   imports: [CommonModule, FormsModule, LightfallComponent],
   template: `
-    <div class="relative min-h-screen w-full flex items-center justify-center px-4 py-12 overflow-hidden"
-      style="background: #0f0005;">
+    <div class="relative min-h-screen w-full flex items-center justify-center px-4 py-12 overflow-hidden bg-transparent">
 
       <!-- Lightfall animated background -->
       <div class="fixed inset-0 z-0 pointer-events-none">

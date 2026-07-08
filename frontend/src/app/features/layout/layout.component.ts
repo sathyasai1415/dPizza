@@ -13,7 +13,7 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
   imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, GridScanComponent, VideoIntroComponent],
   template: `
     <app-video-intro *ngIf="showIntro()" (done)="dismissIntro()"></app-video-intro>
-    <div class="min-h-screen flex text-white bg-[#0A0D18] relative">
+    <div class="min-h-screen flex text-white bg-transparent relative">
 
       <!-- BACKGROUND ANIMATED ORBS -->
       <div class="fixed top-12 left-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-[100px] pointer-events-none"></div>

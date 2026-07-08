@@ -138,6 +138,11 @@ interface Opt { label: string; emoji?: string; price?: number; }
             class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-emerald-600 to-green-500 shadow-lg shadow-emerald-600/30 hover:from-emerald-500 hover:to-green-400 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
             {{ loading() ? '⏳ Placing...' : '⚡ Order Now' }}
           </button>
+
+          <button (click)="savePizza()"
+            class="w-full py-3.5 rounded-2xl font-bold text-white bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-center gap-2">
+            💾 Save Creation
+          </button>
           <p class="text-center text-white/30 text-[11px]">Order goes live to the restaurant instantly.</p>
         </div>
       </div>
@@ -270,5 +275,32 @@ export class BuilderComponent implements OnInit {
       },
       error: (e: any) => { this.loading.set(false); this.errorMsg.set(e?.error?.message ?? 'Failed to add to cart.'); },
     });
+  }
+
+  savePizza(): void {
+    const name = prompt('Enter a name for your custom creation:', 'My Custom Pizza');
+    if (name === null) return; // cancelled
+    
+    this.errorMsg.set('');
+    this.successMsg.set('');
+    
+    try {
+      const existingRaw = localStorage.getItem('mislice_saved_pizzas');
+      const list = existingRaw ? JSON.parse(existingRaw) : [];
+      
+      const newPizza = {
+        id: Date.now().toString(),
+        name: name.trim() || 'My Custom Pizza',
+        size: this.config.size,
+        crust: this.config.crust,
+        toppings: [...this.config.toppings]
+      };
+      
+      list.push(newPizza);
+      localStorage.setItem('mislice_saved_pizzas', JSON.stringify(list));
+      this.successMsg.set('💾 Pizza saved successfully! You can view and reorder it from your Saved Pizzas page.');
+    } catch (err) {
+      this.errorMsg.set('Failed to save pizza configuration.');
+    }
   }
 }
