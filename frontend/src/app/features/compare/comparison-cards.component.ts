@@ -382,14 +382,28 @@ export class ComparisonCardsComponent implements OnInit {
           return;
         }
 
+        const mappedToppings = this.toppings.map(t => ({
+          toppingId: null,
+          toppingName: t,
+          price: 1.25
+        }));
+
+        // Calculate a reasonable comparison estimate price
+        const basePrice = quote.basePrice || 14.99;
+        const totalToppingsCost = this.toppings.length * 1.25;
+        const estimatedUnitPrice = basePrice + totalToppingsCost;
+
         const cartReq = {
           restaurantId: matched.id,
-          quantity: this.quantity,
+          menuItemId: null,
+          itemName: 'Comparison Custom Pizza',
           size: this.size,
           crust: this.crust,
           sauce: 'Robust Inspired Tomato Sauce',
-          toppings: this.toppings,
-          notes: `Comparison quote order via ${option.providerName}. Size: ${this.size}, Crust: ${this.crust}. Toppings: ${this.toppings.join(', ')}`,
+          quantity: this.quantity,
+          unitPrice: estimatedUnitPrice,
+          notes: `Comparison quote order via ${option.providerName}. Size: ${this.size}, Crust: ${this.crust}.`,
+          toppings: mappedToppings
         };
 
         this.cartService.addToCart(cartReq).subscribe({

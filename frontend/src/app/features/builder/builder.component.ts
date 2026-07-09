@@ -230,14 +230,25 @@ export class BuilderComponent implements OnInit {
     this.loading.set(true);
     this.errorMsg.set('');
     this.successMsg.set('');
+    
+    // Map toppings list of strings to list of objects for the backend AddToCartRequest
+    const mappedToppings = this.config.toppings.map(t => ({
+      toppingId: null,
+      toppingName: t,
+      price: 1.25
+    }));
+
     this.cartService.addToCart({
       restaurantId: this.selectedStore()!.id,
-      quantity: 1,
+      menuItemId: null,
+      itemName: 'Custom Builder Pizza',
       size: this.config.size,
       crust: this.config.crust,
       sauce: this.config.sauce,
-      toppings: this.config.toppings,
-      notes: `${this.config.size} ${this.config.crust}, ${this.config.sauce} sauce, toppings: ${this.config.toppings.join(', ')}`,
+      quantity: 1,
+      unitPrice: this.price(),
+      notes: `${this.config.size} ${this.config.crust}, ${this.config.sauce} sauce`,
+      toppings: mappedToppings
     }).subscribe({
       next: () => { this.loading.set(false); this.successMsg.set('Added to cart! Click "Order Now" to place your order.'); },
       error: (e: any) => { this.loading.set(false); this.errorMsg.set(e?.error?.message ?? 'Failed to add to cart. Please log in first.'); },
@@ -249,19 +260,30 @@ export class BuilderComponent implements OnInit {
     this.loading.set(true);
     this.errorMsg.set('');
     this.successMsg.set('');
+
+    const mappedToppings = this.config.toppings.map(t => ({
+      toppingId: null,
+      toppingName: t,
+      price: 1.25
+    }));
+
+    // First ensure item is in cart, then place the order
     this.cartService.addToCart({
       restaurantId: this.selectedStore()!.id,
-      quantity: 1,
+      menuItemId: null,
+      itemName: 'Custom Builder Pizza',
       size: this.config.size,
       crust: this.config.crust,
       sauce: this.config.sauce,
-      toppings: this.config.toppings,
+      quantity: 1,
+      unitPrice: this.price(),
       notes: `${this.config.size} ${this.config.crust}, ${this.config.sauce} sauce`,
+      toppings: mappedToppings
     }).subscribe({
       next: () => {
         this.orderService.placeOrder({
           deliveryType: 'STORE_DELIVERY',
-          deliveryAddress: '',
+          deliveryAddress: 'Detroit, MI',
           deliveryNotes: '',
           tip: 0,
           paymentMethod: 'CASH',
