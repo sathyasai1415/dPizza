@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/mislice
+    url: jdbc:postgresql:///mislice?socketFactory=com.google.cloud.sql.postgres.SocketFactory&cloudSqlInstance=xx-1-2e007:us-central1:mislice-db
     username: postgres
     password: mislicepassword123
   jpa:
