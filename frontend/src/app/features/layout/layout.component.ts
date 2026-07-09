@@ -6,11 +6,21 @@ import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { GridScanComponent } from '../../shared/gridscan/gridscan.component';
 import { VideoIntroComponent } from '../../shared/video-intro/video-intro.component';
+import { ElectricBorderComponent } from '../../shared/electric-border/electric-border.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, GridScanComponent, VideoIntroComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    GridScanComponent,
+    VideoIntroComponent,
+    ElectricBorderComponent
+  ],
   template: `
     <app-video-intro *ngIf="showIntro()" (done)="dismissIntro()"></app-video-intro>
     <div class="min-h-screen flex text-white bg-transparent relative">
@@ -39,90 +49,128 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
         </div>
         <div class="relative z-10 flex flex-col h-full">
 
-        <!-- Sidebar Brand Logo -->
-        <a routerLink="/home" class="flex items-center gap-3 px-6 py-6 border-b border-white/10 hover:bg-white/5 transition duration-150">
-          <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-to-br from-red-600 to-red-500 shadow-md">
-            🍕
+        <!-- Sidebar Brand Logo with ElectricBorder trigger -->
+        <div (click)="toggleLogoAnimation($event)" class="cursor-pointer px-4 py-5 border-b border-white/10 select-none">
+          <app-electric-border *ngIf="logoActive()" [borderRadius]="16" [chaos]="0.07" [speed]="1.3" color="#e80505">
+            <div class="flex items-center gap-3 p-3 bg-red-950/10 rounded-2xl border border-red-500/20">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-600 to-orange-500 shadow-md text-sm">
+                🍕
+              </div>
+              <div class="text-left">
+                <span class="font-black text-base tracking-tight block text-white leading-none">MiSlice</span>
+                <span class="text-[9px] text-red-500 font-bold tracking-widest uppercase mt-1 block">Pizza Tech</span>
+              </div>
+            </div>
+          </app-electric-border>
+          
+          <div *ngIf="!logoActive()" class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-2xl transition duration-150">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-600 to-red-500 shadow-md text-sm">
+              🍕
+            </div>
+            <div class="text-left">
+              <span class="font-black text-base tracking-tight block text-white leading-none">MiSlice</span>
+              <span class="text-[9px] text-white/40 font-medium tracking-widest uppercase mt-1 block">Pizza Tech</span>
+            </div>
           </div>
-          <div class="text-left">
-            <span class="font-black text-lg tracking-tight block text-white">MiSlice</span>
-            <span class="text-[10px] text-white/40 font-medium tracking-widest uppercase">Pizza Tech</span>
-          </div>
-        </a>
+        </div>
 
-        <!-- Navigation Links -->
+        <!-- Navigation Links with GlareHover -->
         <nav class="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
           <!-- Customer navigation -->
           <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
             <!-- Section 1: Core Marketplace -->
             <div class="space-y-1">
               <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">Marketplace</p>
-              <a routerLink="/home" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20" [routerLinkActiveOptions]="{exact: true}"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>🏠</span> Home / Discover
+              <a routerLink="/home" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: true}"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>🏠</span> Home / Discover
+                </span>
               </a>
-              <a routerLink="/builder" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>🍕</span> Build a Pizza
+              <a routerLink="/builder" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>🍕</span> Build a Pizza
+                </span>
               </a>
-              <a routerLink="/compare" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>⚖️</span> Compare Prices
+              <a routerLink="/compare" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>⚖️</span> Compare Prices
+                </span>
               </a>
-              <a routerLink="/deals" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>🏷️</span> Deals &amp; Offers
+              <a routerLink="/deals" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>🏷️</span> Deals &amp; Offers
+                </span>
               </a>
             </div>
 
             <!-- Section 2: Personal Account -->
             <div class="space-y-1 pt-2 border-t border-white/5">
               <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">My Account</p>
-              <a routerLink="/orders" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>📦</span> Order History
+              <a routerLink="/orders" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>📦</span> Order History
+                </span>
               </a>
-              <a routerLink="/rewards" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>🎁</span> Rewards Hub
+              <a routerLink="/rewards" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>🎁</span> Rewards Hub
+                </span>
               </a>
-              <a routerLink="/saved-pizzas" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>💾</span> Saved Creations
+              <a routerLink="/saved-pizzas" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>💾</span> Saved Creations
+                </span>
               </a>
-              <a routerLink="/profile" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:bg-white/5 hover:text-white transition">
-                <span>👤</span> Dietary Profile
+              <a routerLink="/profile" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>👤</span> Dietary Profile
+                </span>
               </a>
             </div>
 
             <!-- Section 3: Help & Info -->
             <div class="space-y-1 pt-2 border-t border-white/5">
               <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">Support</p>
-              <a routerLink="/how-it-works" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:bg-white/5 hover:text-white transition">
-                <span>❓</span> How It Works
+              <a routerLink="/how-it-works" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>❓</span> How It Works
+                </span>
               </a>
-              <a routerLink="/contact" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/20"
-                class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:bg-white/5 hover:text-white transition">
-                <span>✉️</span> Contact Support
+              <a routerLink="/contact" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>✉️</span> Contact Support
+                </span>
               </a>
             </div>
           </ng-container>
 
           <!-- Store Owner Navigation -->
           <ng-container *ngIf="authService.isStoreOwner()">
-            <a routerLink="/owner" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>📊</span> Merchant Portal
+            <a routerLink="/owner" routerLinkActive="active-tab"
+              class="glare-hover flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition">
+              <span class="relative z-10 flex items-center gap-3">
+                <span>📊</span> Merchant Portal
+              </span>
             </a>
           </ng-container>
 
           <!-- Platform Admin Navigation -->
           <ng-container *ngIf="authService.isAdmin()">
-            <a routerLink="/admin" routerLinkActive="bg-red-600/20 text-red-400 border border-red-500/30"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 hover:text-white transition">
-              <span>🛡️</span> Admin Console
+            <a routerLink="/admin" routerLinkActive="active-tab"
+              class="glare-hover flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition">
+              <span class="relative z-10 flex items-center gap-3">
+                <span>🛡️</span> Admin Console
+              </span>
             </a>
           </ng-container>
         </nav>
@@ -139,8 +187,10 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
             </div>
           </div>
           <button (click)="handleLogout()"
-            class="w-full py-2.5 rounded-xl border border-white/10 hover:border-red-500 hover:bg-red-600/10 text-xs font-bold text-white/70 hover:text-red-400 transition flex items-center justify-center gap-2">
-            <span>🚪</span> Sign Out
+            class="glare-hover w-full py-2.5 rounded-xl border border-white/10 hover:border-red-500 hover:bg-red-600/10 text-xs font-bold text-white/70 hover:text-red-400 transition flex items-center justify-center gap-2">
+            <span class="relative z-10 flex items-center gap-2">
+              <span>🚪</span> Sign Out
+            </span>
           </button>
         </div>
         </div><!-- /relative z-10 wrapper -->
@@ -196,7 +246,48 @@ import { VideoIntroComponent } from '../../shared/video-intro/video-intro.compon
       </div>
 
     </div>
-  `
+  `,
+  styles: [`
+    .glare-hover {
+      --gh-angle: -30deg;
+      --gh-rgba: rgba(232, 5, 5, 0.4);
+      --gh-duration: 900ms;
+      --gh-size: 200%;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .glare-hover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        var(--gh-angle),
+        rgba(0, 0, 0, 0) 50%,
+        var(--gh-rgba) 65%,
+        rgba(0, 0, 0, 0) 80%
+      );
+      transition: background-position var(--gh-duration) cubic-bezier(0.16, 1, 0.3, 1);
+      background-size: var(--gh-size) var(--gh-size);
+      background-repeat: no-repeat;
+      background-position: -150% -150%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .glare-hover:hover::before {
+      background-position: 150% 150%;
+    }
+
+    .active-tab {
+      background: rgba(220, 38, 38, 0.25) !important;
+      color: #fca5a5 !important;
+      border: 1px solid rgba(239, 68, 68, 0.4) !important;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.15);
+    }
+  `]
 })
 export class LayoutComponent implements OnInit {
   readonly authService = inject(AuthService);
@@ -205,6 +296,12 @@ export class LayoutComponent implements OnInit {
 
   showIntro = signal(false);
   searchQuery = '';
+  logoActive = signal(false);
+
+  toggleLogoAnimation(event: Event) {
+    event.preventDefault();
+    this.logoActive.update(v => !v);
+  }
 
   submitSearch() {
     const q = this.searchQuery.trim();

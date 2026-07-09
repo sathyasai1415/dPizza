@@ -96,12 +96,14 @@ interface PayoutRecord {
         <div class="flex flex-row lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none shrink-0">
           @for (tab of tabs; track tab.id) {
             <button (click)="activeTab.set(tab.id)"
-              [class]="'text-left px-4 py-3 rounded-2xl text-xs font-black transition flex items-center gap-3 whitespace-nowrap min-w-[140px] lg:min-w-0 ' +
+              [class]="'glare-hover text-left px-4 py-3 rounded-2xl text-xs font-black transition whitespace-nowrap min-w-[140px] lg:min-w-0 ' +
                 (activeTab() === tab.id
                   ? 'bg-gradient-to-r from-red-700/80 to-orange-600/50 text-white border border-red-500/30'
-                  : 'text-white/60 hover:bg-white/5 hover:text-white')">
-              <span class="text-sm">{{ tab.icon }}</span>
-              {{ tab.name }}
+                  : 'text-white/60 hover:text-white')">
+              <span class="relative z-10 flex items-center gap-3">
+                <span class="text-sm">{{ tab.icon }}</span>
+                {{ tab.name }}
+              </span>
             </button>
           }
         </div>
@@ -827,6 +829,36 @@ interface PayoutRecord {
     }
     .animate-fadeIn {
       animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .glare-hover {
+      --gh-angle: -30deg;
+      --gh-rgba: rgba(232, 5, 5, 0.4);
+      --gh-duration: 900ms;
+      --gh-size: 200%;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .glare-hover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        var(--gh-angle),
+        rgba(0, 0, 0, 0) 50%,
+        var(--gh-rgba) 65%,
+        rgba(0, 0, 0, 0) 80%
+      );
+      transition: background-position var(--gh-duration) cubic-bezier(0.16, 1, 0.3, 1);
+      background-size: var(--gh-size) var(--gh-size);
+      background-repeat: no-repeat;
+      background-position: -150% -150%;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .glare-hover:hover::before {
+      background-position: 150% 150%;
     }
   `]
 })
