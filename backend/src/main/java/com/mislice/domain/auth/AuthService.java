@@ -12,6 +12,8 @@ import com.mislice.domain.user.Role;
 import com.mislice.domain.user.User;
 import com.mislice.domain.user.UserMapper;
 import com.mislice.domain.user.UserRepository;
+import com.mislice.domain.restaurant.Restaurant;
+import com.mislice.domain.restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,27 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final RestaurantRepository restaurantRepository;
     private final com.mislice.security.JwtService jwtService;
+
+    public String resolveOwnerEmailByStoreId(String storeId) {
+        Restaurant restaurant = null;
+        try {
+            UUID uuid = UUID.fromString(storeId);
+            restaurant = restaurantRepository.findById(uuid)
+                    .filter(r -> !r.isDeleted())
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
+            // Not a UUID, fallback to slug
+        }
+        if (restaurant == null) {
+            restaurant = restaurantRepository.findBySlugAndDeletedFalse(storeId).orElse(null);
+        }
+        if (restaurant == null || restaurant.getOwner() == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "STORE_NOT_FOUND", "No active restaurant found for ID: " + storeId);
+        }
+        return restaurant.getOwner().getEmail();
+    }
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {

@@ -31,6 +31,11 @@ export class RestaurantService {
     return this.http.get<Store>(`${this.apiUrl}/${id}`);
   }
 
+  // Restaurants owned by the currently authenticated user (for the owner console).
+  getMyRestaurants(): Observable<Store[]> {
+    return this.http.get<Store[]>(`${this.apiUrl}/mine`);
+  }
+
   getHours(id: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${id}/hours`);
   }

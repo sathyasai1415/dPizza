@@ -42,6 +42,13 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantBySlug(slug));
     }
 
+    @Operation(summary = "Get restaurants owned by the currently authenticated user")
+    @GetMapping("/mine")
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'RESTAURANT_STAFF', 'ADMIN')")
+    public ResponseEntity<List<RestaurantDto>> getMyRestaurants() {
+        return ResponseEntity.ok(restaurantService.getRestaurantsOwnedBy(SecurityUtils.currentUserId()));
+    }
+
     @Operation(summary = "Get restaurant details by ID")
     @GetMapping("/{id}")
     public ResponseEntity<RestaurantDto> getRestaurantById(@PathVariable("id") UUID id) {

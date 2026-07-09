@@ -114,6 +114,12 @@ export class AuthService {
     );
   }
 
+  resolveStoreOwnerEmail(storeId: string): Observable<{ email: string }> {
+    return this.http.get<{ email: string }>(`${this.apiUrl}/auth/resolve-store-owner`, {
+      params: { storeId }
+    });
+  }
+
   loginWithGoogle(): Observable<AuthResponse> {
     const provider = new GoogleAuthProvider();
     return from(signInWithPopup(this.firebaseAuth, provider)).pipe(

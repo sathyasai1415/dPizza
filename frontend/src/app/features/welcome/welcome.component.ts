@@ -98,11 +98,29 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
 
           <!-- TRADITIONAL LOGIN -->
           <div *ngIf="mode() === 'login'">
-            <h2 class="text-xl font-bold text-white mb-6">Sign In</h2>
+            <h2 class="text-xl font-bold text-white mb-4">Sign In</h2>
+
+            <!-- Sub-tabs for Customer vs Store Owner -->
+            <div class="flex gap-1.5 p-1 bg-white/5 rounded-2xl mb-5">
+              <button type="button" (click)="loginType.set('customer'); error.set('')"
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (loginType() === 'customer' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                🍕 Customer
+              </button>
+              <button type="button" (click)="loginType.set('owner'); error.set('')"
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (loginType() === 'owner' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                🏪 Store Owner
+              </button>
+            </div>
+
             <form (submit)="handleLogin($event)" class="space-y-4">
-              <div>
+              <div *ngIf="loginType() === 'customer'">
                 <label class="block text-xs font-bold text-white/40 uppercase mb-1">Email Address</label>
-                <input type="email" [(ngModel)]="email" name="email" required
+                <input type="email" [(ngModel)]="email" name="email" [required]="loginType() === 'customer'"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+              </div>
+              <div *ngIf="loginType() === 'owner'">
+                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Store ID / Slug</label>
+                <input type="text" [(ngModel)]="storeId" name="storeId" [required]="loginType() === 'owner'" placeholder="e.g. shamz-pizza"
                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
               </div>
               <div>
@@ -265,10 +283,12 @@ export class WelcomeComponent {
   private readonly router = inject(Router);
 
   mode = signal<Mode>('login');
+  loginType = signal<'customer' | 'owner'>('customer');
   loading = signal(false);
   error = signal('');
 
   email = '';
+  storeId = '';
   password = '';
   fullName = '';
   regRole = 'CUSTOMER';
@@ -282,17 +302,43 @@ export class WelcomeComponent {
     e.preventDefault();
     this.error.set('');
     this.loading.set(true);
-    
-    this.authService.login(this.email, this.password).subscribe({
-      next: (res) => {
+
+    if (this.loginType() === 'owner') {
+      if (!this.storeId.trim()) {
+        this.error.set('Please enter a Store ID.');
         this.loading.set(false);
-        this.redirectUser(res.user);
-      },
-      error: (err) => {
-        this.loading.set(false);
-        this.error.set(err.error?.message || err.message || 'Login failed. Please verify credentials.');
+        return;
       }
-    });
+      this.authService.resolveStoreOwnerEmail(this.storeId.trim()).subscribe({
+        next: (res) => {
+          this.authService.login(res.email, this.password).subscribe({
+            next: (loginRes) => {
+              this.loading.set(false);
+              this.redirectUser(loginRes.user);
+            },
+            error: (err) => {
+              this.loading.set(false);
+              this.error.set(err.error?.message || err.message || 'Login failed. Please verify password.');
+            }
+          });
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.error.set('Store ID not found or no owner associated.');
+        }
+      });
+    } else {
+      this.authService.login(this.email, this.password).subscribe({
+        next: (res) => {
+          this.loading.set(false);
+          this.redirectUser(res.user);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.error.set(err.error?.message || err.message || 'Login failed. Please verify credentials.');
+        }
+      });
+    }
   }
 
   handleGoogleLogin() {

@@ -11,9 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,6 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+
+    @Operation(summary = "Resolve the owner's email address by restaurant store ID (slug or UUID)")
+    @GetMapping("/resolve-store-owner")
+    public ResponseEntity<java.util.Map<String, String>> resolveStoreOwnerEmail(@RequestParam String storeId) {
+        String email = authService.resolveOwnerEmailByStoreId(storeId);
+        return ResponseEntity.ok(java.util.Map.of("email", email));
+    }
 
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;

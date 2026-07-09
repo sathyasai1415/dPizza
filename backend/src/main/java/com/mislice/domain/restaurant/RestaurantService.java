@@ -170,6 +170,10 @@ public class RestaurantService {
         return restaurantMapper.toDtoList(restaurantRepository.findAll());
     }
 
+    public List<RestaurantDto> getRestaurantsOwnedBy(UUID ownerId) {
+        return restaurantMapper.toDtoList(restaurantRepository.findByOwnerIdAndDeletedFalse(ownerId));
+    }
+
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "restaurants", allEntries = true),
