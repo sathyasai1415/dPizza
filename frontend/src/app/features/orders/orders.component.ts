@@ -1,158 +1,235 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { OrderService } from '../../core/services/order.service';
-import { ReviewService } from '../../core/services/review.service';
 import { OrderDto } from '../../shared/models';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule, RouterLink],
   template: `
-    <div class="max-w-4xl mx-auto py-8 space-y-8">
-      <div>
-        <h2 class="text-3xl font-black text-white">Your Orders</h2>
-        <p class="text-xs sm:text-sm text-white/50">Track live orders and view order history.</p>
+    <div class="max-w-6xl mx-auto py-8 space-y-8">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 class="text-3xl font-black text-white tracking-tight">📦 Order History</h1>
+          <p class="text-white/40 text-sm mt-1">All your orders saved in the database</p>
+        </div>
+        <button (click)="load()" class="px-4 py-2 rounded-xl text-xs font-bold bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition">
+          🔄 Refresh
+        </button>
       </div>
 
-      <div *ngIf="loading()" class="flex justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+      <!-- Loading -->
+      <div *ngIf="loading()" class="flex justify-center py-16">
+        <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-red-500"></div>
       </div>
 
-      <div *ngIf="!loading() && orders().length === 0" class="text-center py-12 glass rounded-3xl">
-        <p class="text-white/40">You have no orders placed yet.</p>
-      </div>
-
-      <!-- ORDERS LIST -->
-      <div *ngIf="!loading() && orders().length > 0" class="space-y-6">
-        <div *ngFor="let order of orders()" class="glass rounded-[2rem] p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-white/10 pb-4">
-            <div>
-              <span class="text-[10px] font-black text-red-400 uppercase tracking-widest">{{ order.restaurantName }}</span>
-              <h3 class="text-base font-bold text-white mt-0.5">Order #{{ order.orderNumber }}</h3>
-              <p class="text-[10px] text-white/40 mt-0.5">Placed at {{ order.placedAt | date:'medium' }}</p>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-3">
-              <!-- Status Badge -->
-              <span [class]="getStatusClass(order.status)" class="text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
-                {{ order.status }}
-              </span>
-              <!-- Delivery status / Actions -->
-              <a *ngIf="order.status === 'OUT_FOR_DELIVERY'" [routerLink]="['/orders/tracking', order.id]"
-                class="text-[10px] bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-xl font-bold transition">
-                Track Courier 🚴
-              </a>
-            </div>
-          </div>
-
-          <!-- Items list -->
-          <div class="space-y-2">
-            <div *ngFor="let item of order.items" class="flex justify-between items-center text-xs text-white/70">
-              <span>{{ item.quantity }}x {{ item.itemName }} ({{ item.size }})</span>
-              <span class="font-bold">{{ item.lineTotal | currency }}</span>
-            </div>
-          </div>
-
-          <!-- Total cost -->
-          <div class="flex justify-between items-center pt-4 border-t border-white/5 text-sm">
-            <span class="text-white/50">Total Charge</span>
-            <span class="font-black text-green-400 text-lg">{{ order.total | currency }}</span>
-          </div>
-
-          <!-- Review Form (if delivered) -->
-          <div *ngIf="order.status === 'DELIVERED'" class="bg-white/5 p-4 rounded-2xl space-y-3">
-            <h4 class="text-xs font-bold text-white">Rate your order</h4>
-            
-            <div class="flex items-center gap-2">
-              <span *ngFor="let star of [1,2,3,4,5]" (click)="setRating(order.id, star)" class="cursor-pointer text-lg">
-                {{ star <= getRating(order.id) ? '★' : '☆' }}
-              </span>
-            </div>
-
-            <div class="flex gap-2">
-              <input type="text" [(ngModel)]="comments[order.id]" placeholder="Leave a review comment..."
-                class="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-red-500" />
-              <button (click)="submitReview(order)" class="bg-red-600 hover:bg-red-500 px-4 rounded-xl text-xs font-bold transition">
-                Submit
-              </button>
-            </div>
-            <p *ngIf="reviewStatus[order.id]" class="text-[10px] text-green-400 font-bold">{{ reviewStatus[order.id] }}</p>
-          </div>
-
+      <!-- Empty State -->
+      <div *ngIf="!loading() && orders().length === 0" class="text-center py-20 glass rounded-3xl">
+        <div class="text-7xl mb-4">📦</div>
+        <h2 class="text-2xl font-black text-white mb-2">No orders yet</h2>
+        <p class="text-white/40 mb-8">Place your first order from the Pizza Builder or Compare page</p>
+        <div class="flex gap-3 justify-center">
+          <a routerLink="/builder" class="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-red-700 to-red-600 text-white hover:from-red-600 hover:to-red-500 transition">
+            🍕 Build a Pizza
+          </a>
         </div>
       </div>
+
+      <!-- Orders Table -->
+      <div *ngIf="!loading() && orders().length > 0" class="glass rounded-3xl overflow-hidden">
+        <!-- Table Header Meta -->
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+          <h2 class="text-base font-black text-white flex items-center gap-2">
+            Orders
+            <span class="text-xs text-white/40 font-normal">({{ orders().length }} record{{ orders().length > 1 ? 's' : '' }} in database)</span>
+          </h2>
+          <div class="flex gap-2">
+            <span *ngFor="let s of statuses" (click)="filterStatus.set(s)"
+              [class]="filterStatus() === s ? 'bg-red-600/30 text-red-300 border border-red-500/40' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white cursor-pointer'"
+              class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition cursor-pointer">
+              {{ s === 'ALL' ? 'All' : s }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-[10px] font-black uppercase tracking-widest text-white/30 border-b border-white/10 bg-white/2">
+                <th class="text-left px-5 py-3">Order #</th>
+                <th class="text-left px-5 py-3">Restaurant</th>
+                <th class="text-left px-5 py-3">Items</th>
+                <th class="text-left px-5 py-3">Type</th>
+                <th class="text-center px-5 py-3">Status</th>
+                <th class="text-right px-5 py-3">Total</th>
+                <th class="text-right px-5 py-3">Placed At</th>
+                <th class="text-center px-5 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let order of filteredOrders(); let i = index">
+                <!-- Order Row -->
+                <tr (click)="toggleExpand(order.id)"
+                  class="border-b border-white/5 hover:bg-white/3 transition cursor-pointer group"
+                  [class.bg-white-2]="expanded() === order.id">
+                  <td class="px-5 py-4">
+                    <span class="font-black text-red-400 text-xs">{{ order.orderNumber }}</span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <span class="text-white font-semibold text-xs">{{ order.restaurantName || '—' }}</span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <span class="text-white/60 text-xs">{{ order.items?.length || 0 }} item{{ (order.items?.length || 0) !== 1 ? 's' : '' }}</span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <span class="text-white/50 text-xs">
+                      {{ order.deliveryType === 'STORE_DELIVERY' ? '🚚 Delivery' : '🏪 Pickup' }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4 text-center">
+                    <span [class]="statusClass(order.status)"
+                      class="text-[9px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
+                      {{ order.status }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4 text-right">
+                    <span class="font-black text-white text-sm">{{ order.total | currency }}</span>
+                  </td>
+                  <td class="px-5 py-4 text-right">
+                    <span class="text-white/40 text-xs">{{ order.placedAt | date:'MMM d, h:mm a' }}</span>
+                  </td>
+                  <td class="px-5 py-4 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <a *ngIf="order.status === 'OUT_FOR_DELIVERY'" [routerLink]="['/orders/tracking', order.id]"
+                        (click)="$event.stopPropagation()"
+                        class="text-[9px] bg-blue-600/30 border border-blue-500/30 text-blue-300 px-2 py-1 rounded-lg font-bold hover:bg-blue-600/50 transition">
+                        Track 🚴
+                      </a>
+                      <span class="text-white/20 text-lg group-hover:text-white/50 transition">
+                        {{ expanded() === order.id ? '▲' : '▼' }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Expanded Items Sub-Table -->
+                <tr *ngIf="expanded() === order.id" class="bg-black/20">
+                  <td colspan="8" class="px-5 py-4">
+                    <div class="rounded-xl border border-white/10 overflow-hidden">
+                      <div class="px-4 py-2 bg-white/5 border-b border-white/10">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Order Items — {{ order.orderNumber }}</span>
+                      </div>
+                      <table class="w-full text-xs">
+                        <thead>
+                          <tr class="text-[9px] font-black uppercase tracking-widest text-white/20 border-b border-white/10">
+                            <th class="text-left px-4 py-2">Item</th>
+                            <th class="text-left px-4 py-2">Size / Crust</th>
+                            <th class="text-left px-4 py-2">Toppings</th>
+                            <th class="text-center px-4 py-2">Qty</th>
+                            <th class="text-right px-4 py-2">Unit $</th>
+                            <th class="text-right px-4 py-2">Line Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let item of order.items" class="border-b border-white/5">
+                            <td class="px-4 py-2.5 font-semibold text-white">{{ item.itemName }}</td>
+                            <td class="px-4 py-2.5 text-white/50">
+                              {{ item.size }}{{ item.crust ? ' · ' + item.crust : '' }}
+                            </td>
+                            <td class="px-4 py-2.5">
+                              <div class="flex flex-wrap gap-1">
+                                <span *ngFor="let t of item.toppings"
+                                  class="bg-red-600/15 text-red-300 text-[8px] px-1.5 py-0.5 rounded-full border border-red-500/20 font-bold">
+                                  {{ t }}
+                                </span>
+                                <span *ngIf="!item.toppings || item.toppings.length === 0" class="text-white/20">—</span>
+                              </div>
+                            </td>
+                            <td class="px-4 py-2.5 text-center text-white/70">{{ item.quantity }}</td>
+                            <td class="px-4 py-2.5 text-right text-white/60">{{ item.unitPrice | currency }}</td>
+                            <td class="px-4 py-2.5 text-right font-bold text-white">{{ item.lineTotal | currency }}</td>
+                          </tr>
+                        </tbody>
+                        <tfoot class="border-t border-white/10 bg-white/3">
+                          <tr>
+                            <td colspan="5" class="px-4 py-2 text-right text-[10px] font-black text-white/30 uppercase tracking-widest">Grand Total</td>
+                            <td class="px-4 py-2 text-right font-black text-green-400">{{ order.total | currency }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+
+                      <!-- DB record badge -->
+                      <div class="px-4 py-2 bg-black/20 border-t border-white/5 flex items-center gap-2">
+                        <span class="text-green-400 text-xs">✅</span>
+                        <span class="text-[10px] text-white/30 font-mono">Database ID: {{ order.id }}</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add to cart CTA -->
+      <div *ngIf="!loading() && orders().length > 0" class="flex justify-center">
+        <a routerLink="/builder" class="px-6 py-3 rounded-xl font-bold bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition text-sm">
+          🍕 Order Another Pizza
+        </a>
+      </div>
+
     </div>
   `
 })
 export class OrdersComponent implements OnInit {
   private readonly orderService = inject(OrderService);
-  private readonly reviewService = inject(ReviewService);
 
   orders = signal<OrderDto[]>([]);
   loading = signal(true);
+  expanded = signal<string | null>(null);
+  filterStatus = signal('ALL');
 
-  // Review states per order
-  ratings: Record<string, number> = {};
-  comments: Record<string, string> = {};
-  reviewStatus: Record<string, string> = {};
+  statuses = ['ALL', 'PENDING', 'CONFIRMED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'];
 
-  ngOnInit() {
-    this.loadOrders();
+  filteredOrders() {
+    if (this.filterStatus() === 'ALL') return this.orders();
+    return this.orders().filter(o => o.status === this.filterStatus());
   }
 
-  loadOrders() {
+  ngOnInit() { this.load(); }
+
+  load() {
     this.loading.set(true);
     this.orderService.getMyOrders().subscribe({
-      next: (orders) => {
-        this.orders.set(orders);
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : res.content ?? [];
+        this.orders.set(list);
         this.loading.set(false);
       },
-      error: () => {
-        this.loading.set(false);
-      }
+      error: () => this.loading.set(false)
     });
   }
 
-  getStatusClass(status: string): string {
-    switch (status.toUpperCase()) {
-      case 'DELIVERED': return 'bg-green-500/20 text-green-400';
-      case 'CANCELLED': return 'bg-red-500/20 text-red-400';
-      case 'OUT_FOR_DELIVERY': return 'bg-blue-500/20 text-blue-400';
-      case 'PREPARING': return 'bg-yellow-500/20 text-yellow-400';
-      default: return 'bg-white/10 text-white/70';
-    }
+  toggleExpand(id: string) {
+    this.expanded.set(this.expanded() === id ? null : id);
   }
 
-  setRating(orderId: string, rating: number) {
-    this.ratings[orderId] = rating;
-  }
-
-  getRating(orderId: string): number {
-    return this.ratings[orderId] || 5;
-  }
-
-  submitReview(order: OrderDto) {
-    const rating = this.getRating(order.id);
-    const comment = this.comments[order.id] || '';
-
-    const reviewRequest = {
-      restaurantId: order.restaurantId,
-      orderId: order.id,
-      rating: rating,
-      comment: comment
+  statusClass(status: string): string {
+    const map: Record<string, string> = {
+      PENDING: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
+      CONFIRMED: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+      PREPARING: 'bg-orange-500/20 text-orange-300 border border-orange-500/30',
+      OUT_FOR_DELIVERY: 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
+      DELIVERED: 'bg-green-500/20 text-green-300 border border-green-500/30',
+      CANCELLED: 'bg-red-500/20 text-red-300 border border-red-500/30',
     };
-
-    this.reviewService.submitReview(reviewRequest).subscribe({
-      next: () => {
-        this.reviewStatus[order.id] = 'Review submitted. Thank you!';
-        this.comments[order.id] = '';
-      },
-      error: () => {
-        this.reviewStatus[order.id] = 'Failed to submit review.';
-      }
-    });
+    return map[status] ?? 'bg-white/10 text-white/50 border border-white/10';
   }
 }
