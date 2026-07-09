@@ -1,5 +1,6 @@
 package com.mislice.domain.order;
 
+import com.mislice.common.exception.ApiException;
 import com.mislice.common.exception.ResourceNotFoundException;
 import com.mislice.domain.cart.Cart;
 import com.mislice.domain.cart.CartRepository;
@@ -7,9 +8,11 @@ import com.mislice.domain.coupon.Coupon;
 import com.mislice.domain.order.dto.OrderDto;
 import com.mislice.domain.order.dto.PlaceOrderRequest;
 import com.mislice.domain.restaurant.Restaurant;
+import com.mislice.domain.restaurant.RestaurantRepository;
 import com.mislice.domain.user.User;
 import com.mislice.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +35,42 @@ public class OrderService {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
+    private final RestaurantRepository restaurantRepository;
     private final OrderMapper orderMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final SecureRandom secureRandom = new SecureRandom();
+
+    public void verifyRestaurantAccess(UUID restaurantId, UUID currentUserId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+            .orElseThrow(() -> new ResourceNotFoundException("Restaurant", restaurantId));
+        if (restaurant.getOwner() == null || !restaurant.getOwner().getId().equals(currentUserId)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "You do not own this restaurant");
+        }
+    }
+
+    public void verifyOrderAccess(OrderDto order, UUID currentUserId, List<String> roles) {
+        if (roles.contains("ROLE_ADMIN") || roles.contains("ADMIN")) {
+            return;
+        }
+        if (order.userId().equals(currentUserId)) {
+            return;
+        }
+        Order orderEntity = orderRepository.findById(order.id())
+            .orElseThrow(() -> new ResourceNotFoundException("Order", order.id()));
+        if (orderEntity.getRestaurant().getOwner() != null && 
+            orderEntity.getRestaurant().getOwner().getId().equals(currentUserId)) {
+            return;
+        }
+        throw new ApiException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "You do not have access to this order");
+    }
+
+    public void verifyOrderOwnership(UUID orderId, UUID currentUserId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
+        if (order.getRestaurant().getOwner() == null || !order.getRestaurant().getOwner().getId().equals(currentUserId)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "You do not own the restaurant for this order");
+        }
+    }
 
     public List<OrderDto> getOrdersForUser(UUID userId) {
         return orderRepository.findByUserIdOrderByPlacedAtDesc(userId).stream()
@@ -107,7 +145,7 @@ public class OrderService {
         BigDecimal total = subtotal.add(deliveryFee).add(providerServiceFee).add(platformServiceFee).add(tax).add(tip).subtract(discount);
 
         // 2. Build order entity
-        String orderNumber = "MS-" + System.currentTimeMillis() % 100000000;
+        String orderNumber = "MS-" + (System.currentTimeMillis() % 100000000) + String.format("%04d", secureRandom.nextInt(10000));
 
         Order order = Order.builder()
             .orderNumber(orderNumber)

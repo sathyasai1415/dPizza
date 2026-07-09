@@ -5,6 +5,7 @@ import com.mislice.domain.order.dto.PlaceOrderRequest;
 import com.mislice.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
@@ -28,22 +29,32 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersForUser(userId));
     }
 
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'RESTAURANT_STAFF', 'ADMIN')")
     @GetMapping("/restaurants/{restaurantId}")
     public ResponseEntity<List<OrderDto>> getRestaurantOrders(@PathVariable UUID restaurantId) {
+        // Verify the current user owns this restaurant
+        orderService.verifyRestaurantAccess(restaurantId, SecurityUtils.currentUserId());
         return ResponseEntity.ok(orderService.getOrdersForRestaurant(restaurantId));
     }
 
     @GetMapping("/number/{orderNumber}")
     public ResponseEntity<OrderDto> getOrderByNumber(@PathVariable String orderNumber) {
-        return ResponseEntity.ok(orderService.getOrderByNumber(orderNumber));
+        // Verify the current user is the order owner, the restaurant owner, or an admin
+        OrderDto order = orderService.getOrderByNumber(orderNumber);
+        orderService.verifyOrderAccess(order, SecurityUtils.currentUserId(), SecurityUtils.currentUserRoles());
+        return ResponseEntity.ok(order);
     }
 
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'RESTAURANT_STAFF', 'ADMIN')")
     @PutMapping("/{orderId}/status")
     public ResponseEntity<OrderDto> updateOrderStatus(
             @PathVariable UUID orderId,
             @RequestParam String status,
-            @RequestParam(required = false, defaultValue = "System") String changedBy,
             @RequestParam(required = false) String note) {
+        UUID currentUserId = SecurityUtils.currentUserId();
+        String changedBy = SecurityUtils.currentUserEmail();
+        // Verify the user owns the restaurant that this order belongs to
+        orderService.verifyOrderOwnership(orderId, currentUserId);
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status, changedBy, note));
     }
 }

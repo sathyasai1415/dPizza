@@ -3,10 +3,8 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { OrderService } from '../../core/services/order.service';
-import { Store, OrderDto } from '../../shared/models';
-
-interface StoreCoupon { code: string; discount: number; minSpend: number; active: boolean; }
-interface MenuItem { id: string; name: string; price: number; inStock: boolean; category: string; }
+import { MenuService } from '../../core/services/menu.service';
+import { Store, OrderDto, MenuItem, Deal } from '../../shared/models';
 
 @Component({
   selector: 'app-owner-dashboard',
@@ -14,7 +12,7 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
   imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe],
   template: `
     <div class="max-w-6xl mx-auto py-6 space-y-6">
-      
+
       <!-- HEADER & STATUS -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -27,7 +25,7 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
           <span class="text-xs font-bold" [class.text-emerald-400]="online()" [class.text-white/40]="!online()">
             {{ online() ? '🟢 Accepting Orders' : '🔴 Closed / Offline' }}
           </span>
-          <button (click)="online.set(!online())"
+          <button (click)="toggleOnline()" [disabled]="!selectedShop()"
             [class]="'w-9 h-5 rounded-full relative transition ' + (online() ? 'bg-emerald-500' : 'bg-white/15')">
             <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all" [style.left]="online() ? '18px' : '2px'"></span>
           </button>
@@ -52,9 +50,9 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
         <div class="flex flex-col gap-1.5">
           @for (tab of tabs; track tab.id) {
             <button (click)="activeTab.set(tab.id)"
-              [class]="'w-full text-left px-4 py-3 rounded-2xl text-xs font-black transition flex items-center gap-3 ' + 
-                (activeTab() === tab.id 
-                  ? 'bg-gradient-to-r from-red-700/80 to-red-600/50 text-white border border-red-500/30' 
+              [class]="'w-full text-left px-4 py-3 rounded-2xl text-xs font-black transition flex items-center gap-3 ' +
+                (activeTab() === tab.id
+                  ? 'bg-gradient-to-r from-red-700/80 to-red-600/50 text-white border border-red-500/30'
                   : 'text-white/60 hover:bg-white/5 hover:text-white')">
               <span>{{ tab.icon }}</span>
               {{ tab.name }}
@@ -64,11 +62,11 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
 
         <!-- Selected Tab view content -->
         <div class="glass rounded-[2rem] p-6 min-h-[400px] border border-white/5 bg-black/20">
-          
+
           <!-- TAB 1: OVERVIEW -->
           <div *ngIf="activeTab() === 'overview'" class="space-y-6">
             <h3 class="text-lg font-black text-white">📊 Performance Dashboard</h3>
-            
+
             <!-- KPI Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div class="glass rounded-xl p-4 border border-white/5">
@@ -87,9 +85,9 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
                 <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Active Kitchen</p>
               </div>
               <div class="glass rounded-xl p-4 border border-white/5">
-                <span class="text-base">★</span>
-                <p class="text-xl font-black text-white mt-1">{{ selectedShop()?.ratingAvg || 4.5 }}</p>
-                <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Shop Rating</p>
+                <span class="text-base">🍕</span>
+                <p class="text-xl font-black text-white mt-1">{{ menuItems().length }}</p>
+                <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Live Menu Items</p>
               </div>
             </div>
 
@@ -97,14 +95,13 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
             <div class="glass-soft rounded-2xl p-5 border border-white/5 space-y-4">
               <div class="flex items-center justify-between border-b border-white/5 pb-2">
                 <h4 class="text-xs font-black uppercase text-white/50 tracking-wider">📋 Partner Onboarding Tasks</h4>
-                <span class="text-[10px] font-black bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-md">80% Done</span>
+                <span class="text-[10px] font-black bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-md">{{ onboardingPct() }}% Done</span>
               </div>
               <div class="space-y-2.5 text-xs text-white/70">
-                <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Create store profile & address details</div>
-                <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Set minimum order amount and radius</div>
-                <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Upload menu catalog & set pricing</div>
-                <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Add initial store discount deal</div>
-                <div class="flex items-center gap-2 text-white/40"><span class="text-yellow-400">⏳</span> Pass platform verification review</div>
+                <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Create store profile &amp; address details</div>
+                <div class="flex items-center gap-2"><span [class]="menuItems().length > 0 ? 'text-emerald-500' : 'text-yellow-400'">{{ menuItems().length > 0 ? '✓' : '⏳' }}</span> Upload menu catalog &amp; set pricing</div>
+                <div class="flex items-center gap-2"><span [class]="deals().length > 0 ? 'text-emerald-500' : 'text-yellow-400'">{{ deals().length > 0 ? '✓' : '⏳' }}</span> Add initial store discount deal</div>
+                <div class="flex items-center gap-2"><span [class]="selectedShop()?.approved ? 'text-emerald-500' : 'text-yellow-400'">{{ selectedShop()?.approved ? '✓' : '⏳' }}</span> Pass platform verification review</div>
               </div>
             </div>
           </div>
@@ -140,7 +137,7 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
                     </span>
                   </div>
                   <p class="text-[10px] text-white/40">{{ order.placedAt | date:'medium' }}</p>
-                  
+
                   <div class="space-y-1">
                     <div *ngFor="let item of order.items" class="text-xs text-white/70">
                       🍕 {{ item.quantity }}x {{ item.itemName }} ({{ item.size }})
@@ -176,27 +173,59 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
           <!-- TAB 3: MENU MANAGER -->
           <div *ngIf="activeTab() === 'menu'" class="space-y-4">
             <h3 class="text-lg font-black text-white">🍕 Menu Catalog Manager</h3>
-            <p class="text-xs text-white/50">Update pricing and toggle stock statuses. Changes reflect live on customer search results.</p>
-            
-            <div class="space-y-2 pt-2">
-              <div *ngFor="let item of menuItems()" class="glass rounded-xl p-4 border border-white/5 flex items-center justify-between">
-                <div>
-                  <h4 class="text-sm font-bold text-white">{{ item.name }}</h4>
-                  <span class="text-[9px] bg-white/5 text-white/40 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ item.category }}</span>
+            <p class="text-xs text-white/50">Add items, update pricing, and toggle stock. Changes save to the database and reflect live on customer search &amp; comparison results.</p>
+
+            <!-- Add new item -->
+            <div class="glass rounded-2xl p-4 border border-white/5 space-y-3">
+              <h4 class="text-xs font-bold text-white/50 uppercase">Add Menu Item</h4>
+              <div class="grid sm:grid-cols-[1fr_110px_130px_auto] gap-2 text-xs">
+                <input type="text" [(ngModel)]="newItem.name" placeholder="Item name (e.g. Detroit Square Cheese)"
+                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                <input type="number" [(ngModel)]="newItem.basePrice" placeholder="Price $" min="0" step="0.01"
+                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                <select [(ngModel)]="newItem.itemType"
+                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500">
+                  <option class="bg-neutral-900" *ngFor="let t of itemTypes" [value]="t">{{ t }}</option>
+                </select>
+                <button (click)="addItem()" [disabled]="!newItem.name.trim() || savingItem()"
+                  class="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white font-bold rounded-lg transition whitespace-nowrap">
+                  + Add
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="loadingMenu()" class="flex justify-center py-12">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+            </div>
+
+            <div *ngIf="!loadingMenu() && menuItems().length === 0" class="text-center py-10 text-white/40 text-xs">
+              No menu items yet. Add your first pizza above.
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <div *ngFor="let item of menuItems()" class="glass rounded-xl p-4 border border-white/5 flex flex-wrap items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <h4 class="text-sm font-bold text-white truncate">{{ item.name }}</h4>
+                  <span class="text-[9px] bg-white/5 text-white/40 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ item.itemType }}</span>
                 </div>
-                
-                <div class="flex items-center gap-4">
+
+                <div class="flex items-center gap-3">
                   <!-- price input -->
                   <div class="flex items-center gap-1.5">
                     <span class="text-xs text-white/40">$</span>
-                    <input type="number" [(ngModel)]="item.price"
-                      class="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-center text-white outline-none focus:border-red-500" />
+                    <input type="number" [(ngModel)]="item.basePrice" min="0" step="0.01"
+                      class="w-20 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-center text-white outline-none focus:border-red-500" />
+                    <button (click)="saveItem(item)" [disabled]="savingItem()"
+                      class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white transition">Save</button>
                   </div>
                   <!-- toggle stock -->
-                  <button (click)="item.inStock = !item.inStock"
-                    [class]="'px-3 py-1 rounded-lg text-[10px] font-bold transition ' + (item.inStock ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400')">
-                    {{ item.inStock ? 'In Stock' : 'Out of Stock' }}
+                  <button (click)="toggleAvailability(item)"
+                    [class]="'px-3 py-1 rounded-lg text-[10px] font-bold transition ' + (item.available ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400')">
+                    {{ item.available ? 'In Stock' : 'Out of Stock' }}
                   </button>
+                  <!-- delete -->
+                  <button (click)="deleteItem(item)" title="Delete item"
+                    class="px-2 py-1 rounded-lg text-[10px] font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 transition">✕</button>
                 </div>
               </div>
             </div>
@@ -204,48 +233,62 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
 
           <!-- TAB 4: DEALS MANAGER -->
           <div *ngIf="activeTab() === 'deals'" class="space-y-4">
-            <h3 class="text-lg font-black text-white">🏷️ Store Coupon Deals</h3>
-            <p class="text-xs text-white/50">Set up custom discounts and BOGO offers to attract local pizza buyers.</p>
+            <h3 class="text-lg font-black text-white">🏷️ Store Deals &amp; Offers</h3>
+            <p class="text-xs text-white/50">Publish featured deals with a sale price. Active deals appear to customers and feed the comparison engine.</p>
 
             <div class="grid sm:grid-cols-2 gap-4">
-              <!-- Add Coupon Form -->
+              <!-- Add Deal Form -->
               <div class="glass rounded-2xl p-4 border border-white/5 space-y-3">
                 <h4 class="text-xs font-bold text-white/50 uppercase">Create New Deal</h4>
                 <div class="space-y-2 text-xs">
                   <div>
-                    <label class="block text-[10px] text-white/40 mb-1">Coupon Code</label>
-                    <input type="text" [(ngModel)]="newCoupon.code" placeholder="e.g. SHAMZ20"
+                    <label class="block text-[10px] text-white/40 mb-1">Deal Title</label>
+                    <input type="text" [(ngModel)]="newDeal.title" placeholder="e.g. Large 2-Topping Special"
+                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-white/40 mb-1">Description</label>
+                    <input type="text" [(ngModel)]="newDeal.description" placeholder="Short description"
                       class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                   </div>
                   <div class="grid grid-cols-2 gap-2">
                     <div>
-                      <label class="block text-[10px] text-white/40 mb-1">Discount %</label>
-                      <input type="number" [(ngModel)]="newCoupon.discount" placeholder="20"
+                      <label class="block text-[10px] text-white/40 mb-1">Original $</label>
+                      <input type="number" [(ngModel)]="newDeal.originalPrice" placeholder="18.99" min="0" step="0.01"
                         class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                     </div>
                     <div>
-                      <label class="block text-[10px] text-white/40 mb-1">Min Spend $</label>
-                      <input type="number" [(ngModel)]="newCoupon.minSpend" placeholder="15"
+                      <label class="block text-[10px] text-white/40 mb-1">Sale $</label>
+                      <input type="number" [(ngModel)]="newDeal.discountedPrice" placeholder="13.99" min="0" step="0.01"
                         class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                     </div>
                   </div>
-                  <button (click)="addCoupon()"
-                    class="w-full py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition">
-                    Create Deal 🏷️
+                  <button (click)="addDeal()" [disabled]="!newDeal.title.trim() || savingDeal()"
+                    class="w-full py-2 bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white font-bold rounded-lg transition">
+                    Publish Deal 🏷️
                   </button>
                 </div>
               </div>
 
-              <!-- Active Coupons List -->
+              <!-- Active Deals List -->
               <div class="space-y-2">
-                <div *ngFor="let coupon of coupons()" class="glass rounded-xl p-3 border border-white/5 flex justify-between items-center text-xs">
-                  <div>
-                    <span class="font-black text-white uppercase bg-white/5 px-2 py-0.5 rounded">{{ coupon.code }}</span>
-                    <p class="text-[10px] text-white/50 mt-1">{{ coupon.discount }}% off · Min spend {{ coupon.minSpend | currency }}</p>
+                <div *ngIf="loadingDeals()" class="flex justify-center py-8">
+                  <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-red-500"></div>
+                </div>
+                <div *ngIf="!loadingDeals() && deals().length === 0" class="text-center py-8 text-white/40 text-xs">
+                  No deals yet. Create one to attract buyers.
+                </div>
+                <div *ngFor="let deal of deals()" class="glass rounded-xl p-3 border border-white/5 flex justify-between items-center text-xs gap-2">
+                  <div class="min-w-0">
+                    <span class="font-black text-white">{{ deal.title }}</span>
+                    <p class="text-[10px] text-white/50 mt-1">
+                      <span *ngIf="deal.originalPrice" class="line-through text-white/30">{{ deal.originalPrice | currency }}</span>
+                      <span *ngIf="deal.discountedPrice" class="text-emerald-400 font-bold ml-1">{{ deal.discountedPrice | currency }}</span>
+                    </p>
                   </div>
-                  <button (click)="coupon.active = !coupon.active"
-                    [class]="'px-2 py-1 rounded text-[10px] font-bold ' + (coupon.active ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10')">
-                    {{ coupon.active ? 'Active' : 'Disabled' }}
+                  <button (click)="toggleDeal(deal)"
+                    [class]="'px-2 py-1 rounded text-[10px] font-bold shrink-0 ' + (deal.active ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10')">
+                    {{ deal.active ? 'Active' : 'Disabled' }}
                   </button>
                 </div>
               </div>
@@ -255,26 +298,27 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
           <!-- TAB 5: AI INSIGHTS -->
           <div *ngIf="activeTab() === 'insights'" class="space-y-4">
             <h3 class="text-lg font-black text-white">🤖 Weekly Gemini Business Insights</h3>
-            
+            <p class="text-[10px] text-white/30 uppercase tracking-widest">Demo insights — live AI analysis coming in a future phase.</p>
+
             <div class="space-y-4">
               <div class="glass-soft rounded-2xl p-5 border border-red-500/20 space-y-2.5">
                 <p class="text-xs font-black text-red-400 uppercase tracking-widest">🔥 Demand Spike Alert</p>
                 <p class="text-xs text-white/70 leading-relaxed">
-                  Sales data shows a **34% week-over-week increase** in demand for extra-cheese and bacon toppings in the Detroit region.
+                  Sales data shows a <b>34% week-over-week increase</b> in demand for extra-cheese and bacon toppings in the Detroit region.
                 </p>
               </div>
 
               <div class="glass-soft rounded-2xl p-5 border border-blue-500/20 space-y-2.5">
                 <p class="text-xs font-black text-blue-400 uppercase tracking-widest">⏱️ Delivery Logistics</p>
                 <p class="text-xs text-white/70 leading-relaxed">
-                  Your kitchen average prep time during Friday rush is **18.2 minutes** — keeping you highly competitive compared to national chains (avg 26 min).
+                  Your kitchen average prep time during Friday rush is <b>18.2 minutes</b> — keeping you highly competitive compared to national chains (avg 26 min).
                 </p>
               </div>
 
               <div class="glass-soft rounded-2xl p-5 border border-orange-500/20 space-y-2.5">
                 <p class="text-xs font-black text-orange-400 uppercase tracking-widest">💡 Pricing Recommendations</p>
                 <p class="text-xs text-white/70 leading-relaxed">
-                  Jet's deep dish large is priced at $16.99. Setting your custom deep dish crust at **$13.99** puts you in the prime "cheapest option" slot for local search result grids.
+                  Jet's deep dish large is priced at $16.99. Setting your custom deep dish crust at <b>$13.99</b> puts you in the prime "cheapest option" slot for local search result grids.
                 </p>
               </div>
             </div>
@@ -282,46 +326,60 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
 
           <!-- TAB 6: SETTINGS -->
           <div *ngIf="activeTab() === 'settings'" class="space-y-4">
-            <h3 class="text-lg font-black text-white">⚙️ Store Settings &amp; Profile</h3>
-            
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-black text-white">⚙️ Store Settings &amp; Profile</h3>
+              <span *ngIf="settingsSaved()" class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md">✓ Saved</span>
+            </div>
+
             <div class="grid sm:grid-cols-2 gap-4 text-xs">
               <div class="space-y-3">
                 <div>
                   <label class="block text-[10px] text-white/40 mb-1">Store Name</label>
-                  <input type="text" [value]="selectedShop()?.name" disabled
-                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/40 cursor-not-allowed outline-none" />
+                  <input type="text" [(ngModel)]="selectedShop()!.name"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                 </div>
                 <div>
-                  <label class="block text-[10px] text-white/40 mb-1">Store Address</label>
-                  <input type="text" [value]="selectedShop()?.addressLine" disabled
-                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/40 cursor-not-allowed outline-none" />
+                  <label class="block text-[10px] text-white/40 mb-1">Phone</label>
+                  <input type="text" [(ngModel)]="selectedShop()!.phone"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                   <div>
-                    <label class="block text-[10px] text-white/40 mb-1">Minimum Order ($)</label>
-                    <input type="number" [(ngModel)]="selectedShop()!.minimumOrder"
+                    <label class="block text-[10px] text-white/40 mb-1">Min Order ($)</label>
+                    <input type="number" [(ngModel)]="selectedShop()!.minimumOrder" min="0" step="0.01"
                       class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                   </div>
                   <div>
-                    <label class="block text-[10px] text-white/40 mb-1">Avg Prep Time (min)</label>
-                    <input type="number" [(ngModel)]="selectedShop()!.averageEtaMinutes"
+                    <label class="block text-[10px] text-white/40 mb-1">Delivery Fee ($)</label>
+                    <input type="number" [(ngModel)]="selectedShop()!.deliveryFee" min="0" step="0.01"
+                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-white/40 mb-1">Prep (min)</label>
+                    <input type="number" [(ngModel)]="selectedShop()!.averageEtaMinutes" min="0"
                       class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
                   </div>
                 </div>
+                <button (click)="saveSettings()" [disabled]="savingSettings()"
+                  class="w-full py-2.5 bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white font-bold rounded-lg transition">
+                  {{ savingSettings() ? 'Saving…' : 'Save Settings' }}
+                </button>
               </div>
 
-              <!-- Holiday Hours -->
+              <!-- Store info (read-only reference) -->
               <div class="glass-soft rounded-2xl p-4 border border-white/5 space-y-3">
-                <h4 class="text-xs font-bold text-white/50 uppercase">Holiday / Working Hours</h4>
-                <div class="space-y-2">
-                  <div class="flex justify-between">
-                    <span>Monday - Friday:</span>
-                    <span class="font-bold text-white">11:00 AM - 11:00 PM</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span>Saturday - Sunday:</span>
-                    <span class="font-bold text-white">12:00 PM - 02:00 AM</span>
-                  </div>
+                <h4 class="text-xs font-bold text-white/50 uppercase">Store Address</h4>
+                <p class="text-white/70">{{ selectedShop()?.addressLine }}</p>
+                <p class="text-white/50">{{ selectedShop()?.city }}, {{ selectedShop()?.state }} {{ selectedShop()?.postalCode }}</p>
+                <div class="pt-2 border-t border-white/5 flex items-center justify-between">
+                  <span class="text-white/40">Status</span>
+                  <span [class]="selectedShop()?.approved ? 'text-emerald-400' : 'text-yellow-400'" class="font-bold">
+                    {{ selectedShop()?.approved ? 'Approved' : 'Pending review' }}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-white/40">Accepting orders</span>
+                  <span [class]="online() ? 'text-emerald-400' : 'text-red-400'" class="font-bold">{{ online() ? 'Yes' : 'No' }}</span>
                 </div>
               </div>
             </div>
@@ -336,13 +394,22 @@ interface MenuItem { id: string; name: string; price: number; inStock: boolean; 
 export class OwnerDashboardComponent implements OnInit {
   private readonly restaurantService = inject(RestaurantService);
   private readonly orderService = inject(OrderService);
+  private readonly menuService = inject(MenuService);
 
   shops = signal<Store[]>([]);
   selectedShop = signal<Store | null>(null);
   orders = signal<OrderDto[]>([]);
+  menuItems = signal<MenuItem[]>([]);
+  deals = signal<Deal[]>([]);
   activeTab = signal('overview');
   orderSubTab = signal('active');
   loadingOrders = signal(false);
+  loadingMenu = signal(false);
+  loadingDeals = signal(false);
+  savingItem = signal(false);
+  savingDeal = signal(false);
+  savingSettings = signal(false);
+  settingsSaved = signal(false);
   online = signal(true);
 
   tabs = [
@@ -354,26 +421,21 @@ export class OwnerDashboardComponent implements OnInit {
     { id: 'settings', name: 'Store Settings', icon: '⚙️' }
   ];
 
-  menuItems = signal<MenuItem[]>([
-    { id: '1', name: 'Detroit Square Cheese', price: 9.99, inStock: true, category: 'pizzas' },
-    { id: '2', name: 'Sathya Extra Spicy Supreme', price: 12.99, inStock: true, category: 'pizzas' },
-    { id: '3', name: 'Gluten Free Thin Crust Veggie', price: 11.49, inStock: false, category: 'pizzas' },
-    { id: '4', name: 'Bacon Double Pepperoni', price: 13.99, inStock: true, category: 'pizzas' }
-  ]);
+  itemTypes = ['PIZZA', 'SIDE', 'DRINK', 'DESSERT', 'COMBO'];
+  newItem: { name: string; basePrice: number; itemType: string } = { name: '', basePrice: 9.99, itemType: 'PIZZA' };
+  newDeal: { title: string; description: string; originalPrice: number | null; discountedPrice: number | null } =
+    { title: '', description: '', originalPrice: null, discountedPrice: null };
 
-  coupons = signal<StoreCoupon[]>([
-    { code: 'BOGO_TUESDAY', discount: 50, minSpend: 15, active: true },
-    { code: 'SHAMZ5', discount: 20, minSpend: 10, active: true }
-  ]);
-
-  newCoupon = { code: '', discount: 20, minSpend: 10 };
-
-  // KPI computeds (React store-owner overview parity)
+  // KPI computeds
   netEarnings = computed(() =>
     this.orders().reduce((sum, o) => sum + (Number(o.total) || 0), 0) * 0.8); // after 20% platform fee
   activeOrders = computed(() =>
     this.orders().filter(o => ['placed', 'confirmed', 'preparing', 'PENDING', 'CONFIRMED', 'PREPARING'].includes(o.status)).length);
-  
+  onboardingPct = computed(() => {
+    const done = [true, this.menuItems().length > 0, this.deals().length > 0, !!this.selectedShop()?.approved].filter(Boolean).length;
+    return Math.round((done / 4) * 100);
+  });
+
   filteredOrders = computed(() => {
     const list = this.orders();
     if (this.orderSubTab() === 'active') {
@@ -396,20 +458,39 @@ export class OwnerDashboardComponent implements OnInit {
 
   selectShop(shop: Store) {
     this.selectedShop.set(shop);
+    this.online.set(shop.acceptingOrders);
     this.loadOrders();
+    this.loadMenu();
+    this.loadDeals();
   }
 
   loadOrders() {
     const shop = this.selectedShop();
     if (!shop) return;
-
     this.loadingOrders.set(true);
     this.orderService.getRestaurantOrders(shop.id).subscribe({
-      next: (ordersList) => {
-        this.orders.set(ordersList);
-        this.loadingOrders.set(false);
-      },
+      next: (ordersList) => { this.orders.set(ordersList); this.loadingOrders.set(false); },
       error: () => this.loadingOrders.set(false)
+    });
+  }
+
+  loadMenu() {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.loadingMenu.set(true);
+    this.menuService.getMenuItems(shop.id).subscribe({
+      next: (items) => { this.menuItems.set(items); this.loadingMenu.set(false); },
+      error: () => this.loadingMenu.set(false)
+    });
+  }
+
+  loadDeals() {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.loadingDeals.set(true);
+    this.restaurantService.getRestaurantDeals(shop.id).subscribe({
+      next: (list) => { this.deals.set(list); this.loadingDeals.set(false); },
+      error: () => this.loadingDeals.set(false)
     });
   }
 
@@ -419,11 +500,110 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
-  addCoupon() {
-    const code = this.newCoupon.code.trim().toUpperCase();
-    if (!code) return;
-    this.coupons.update(list => [...list, { ...this.newCoupon, code, active: true }]);
-    this.newCoupon = { code: '', discount: 20, minSpend: 10 };
+  // --- Menu management ---
+  saveItem(item: MenuItem) {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.savingItem.set(true);
+    this.menuService.saveMenuItem(shop.id, item).subscribe({
+      next: () => this.savingItem.set(false),
+      error: () => this.savingItem.set(false)
+    });
+  }
+
+  toggleAvailability(item: MenuItem) {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    const next = !item.available;
+    this.menuService.updateAvailability(shop.id, item.id, next).subscribe({
+      next: () => this.menuItems.update(list => list.map(i => i.id === item.id ? { ...i, available: next } : i))
+    });
+  }
+
+  addItem() {
+    const shop = this.selectedShop();
+    if (!shop || !this.newItem.name.trim()) return;
+    this.savingItem.set(true);
+    this.menuService.saveMenuItem(shop.id, {
+      name: this.newItem.name.trim(),
+      basePrice: Number(this.newItem.basePrice) || 0,
+      itemType: this.newItem.itemType as MenuItem['itemType'],
+      available: true
+    }).subscribe({
+      next: () => {
+        this.newItem = { name: '', basePrice: 9.99, itemType: 'PIZZA' };
+        this.savingItem.set(false);
+        this.loadMenu();
+      },
+      error: () => this.savingItem.set(false)
+    });
+  }
+
+  deleteItem(item: MenuItem) {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.menuService.deleteMenuItem(shop.id, item.id).subscribe({
+      next: () => this.menuItems.update(list => list.filter(i => i.id !== item.id))
+    });
+  }
+
+  // --- Deals management ---
+  addDeal() {
+    const shop = this.selectedShop();
+    if (!shop || !this.newDeal.title.trim()) return;
+    this.savingDeal.set(true);
+    this.restaurantService.saveDeal(shop.id, {
+      title: this.newDeal.title.trim(),
+      description: this.newDeal.description.trim(),
+      originalPrice: this.newDeal.originalPrice ?? undefined,
+      discountedPrice: this.newDeal.discountedPrice ?? undefined,
+      active: true
+    }).subscribe({
+      next: () => {
+        this.newDeal = { title: '', description: '', originalPrice: null, discountedPrice: null };
+        this.savingDeal.set(false);
+        this.loadDeals();
+      },
+      error: () => this.savingDeal.set(false)
+    });
+  }
+
+  toggleDeal(deal: Deal) {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.restaurantService.saveDeal(shop.id, { ...deal, active: !deal.active }).subscribe({
+      next: () => this.loadDeals()
+    });
+  }
+
+  // --- Settings ---
+  toggleOnline() {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    const next = !this.online();
+    this.online.set(next);
+    const updated = { ...shop, acceptingOrders: next };
+    this.selectedShop.set(updated);
+    this.restaurantService.updateRestaurant(shop.id, updated).subscribe({
+      error: () => { this.online.set(!next); } // revert on failure
+    });
+  }
+
+  saveSettings() {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.savingSettings.set(true);
+    this.settingsSaved.set(false);
+    this.restaurantService.updateRestaurant(shop.id, shop).subscribe({
+      next: (saved) => {
+        this.selectedShop.set(saved);
+        this.shops.update(list => list.map(s => s.id === saved.id ? saved : s));
+        this.savingSettings.set(false);
+        this.settingsSaved.set(true);
+        setTimeout(() => this.settingsSaved.set(false), 2500);
+      },
+      error: () => this.savingSettings.set(false)
+    });
   }
 
   getStatusClass(status: string): string {

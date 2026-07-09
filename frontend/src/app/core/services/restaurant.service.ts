@@ -46,4 +46,12 @@ export class RestaurantService {
   getRestaurantDeals(id: string): Observable<Deal[]> {
     return this.http.get<Deal[]>(`${this.apiUrl}/${id}/deals`);
   }
+
+  updateRestaurant(id: string, dto: Partial<Store>): Observable<Store> {
+    return this.http.put<Store>(`${this.apiUrl}/${id}`, dto);
+  }
+
+  saveDeal(id: string, deal: Partial<Deal>): Observable<Deal> {
+    return this.http.post<Deal>(`${this.apiUrl}/${id}/deals`, deal);
+  }
 }

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { MenuItem, PizzaOptionsResponse } from '../../shared/models';
@@ -17,5 +17,19 @@ export class MenuService {
 
   getPizzaOptions(restaurantId: string): Observable<PizzaOptionsResponse> {
     return this.http.get<PizzaOptionsResponse>(`${this.apiUrl}/restaurants/${restaurantId}/pizza-options`);
+  }
+
+  // Add a new item, or update an existing one (send an `id` to update — e.g. price edits).
+  saveMenuItem(restaurantId: string, item: Partial<MenuItem>): Observable<MenuItem> {
+    return this.http.post<MenuItem>(`${this.apiUrl}/restaurants/${restaurantId}/menu-items`, item);
+  }
+
+  deleteMenuItem(restaurantId: string, itemId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/restaurants/${restaurantId}/menu-items/${itemId}`);
+  }
+
+  updateAvailability(restaurantId: string, itemId: string, available: boolean): Observable<void> {
+    const params = new HttpParams().set('available', available);
+    return this.http.patch<void>(`${this.apiUrl}/restaurants/${restaurantId}/menu-items/${itemId}/availability`, null, { params });
   }
 }

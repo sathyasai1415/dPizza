@@ -15,6 +15,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -23,30 +24,46 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final com.mislice.security.RateLimitingFilter rateLimitingFilter;
 
     @Value("${mislice.cors.allowed-origins:*}")
     private List<String> allowedOrigins;
 
-    private static final String[] PUBLIC_ENDPOINTS = {
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
+    // Only auth + health are always public
+    private static final String[] PUBLIC_ENDPOINTS_ALWAYS = {
             "/api/v1/auth/**",
+            "/actuator/health/**"
+    };
+
+    // Swagger is only public in dev
+    private static final String[] SWAGGER_ENDPOINTS = {
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/actuator/health/**"
+            "/swagger-ui.html"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Build public endpoints list based on profile
+        List<String> publicEndpoints = new ArrayList<>(List.of(PUBLIC_ENDPOINTS_ALWAYS));
+        if (!"prod".equalsIgnoreCase(activeProfile)) {
+            publicEndpoints.addAll(List.of(SWAGGER_ENDPOINTS));
+        }
+
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(publicEndpoints.toArray(String[]::new)).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/restaurants/**", "/api/v1/menu/**", "/api/v1/deals/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

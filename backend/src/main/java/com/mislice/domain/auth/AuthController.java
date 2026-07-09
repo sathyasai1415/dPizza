@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,9 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
     @Operation(summary = "Register a new account (CUSTOMER, RESTAURANT_OWNER or DELIVERY_PARTNER)")
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -35,9 +39,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @Operation(summary = "Authenticate a demo account directly via custom JWT (bypass Firebase)")
+    @Operation(summary = "Authenticate a demo account directly via custom JWT (bypass Firebase). ONLY available in dev profile.")
     @PostMapping("/demo-login")
     public ResponseEntity<AuthResponse> demoLogin(@RequestBody com.mislice.domain.auth.dto.DemoLoginRequest request) {
+        if ("prod".equalsIgnoreCase(activeProfile)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new AuthResponse("", "", "Bearer", 0L, null));
+        }
         return ResponseEntity.ok(authService.demoLogin(request));
     }
 

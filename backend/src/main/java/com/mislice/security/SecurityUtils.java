@@ -1,9 +1,11 @@
 package com.mislice.security;
 
 import com.mislice.common.exception.ApiException;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Convenience accessors for the authenticated principal (the user's email). */
@@ -28,5 +30,15 @@ public final class SecurityUtils {
             return details.getId();
         }
         throw new ApiException(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", "Invalid principal type");
+    }
+
+    public static List<String> currentUserRoles() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", "No authenticated user");
+        }
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
     }
 }

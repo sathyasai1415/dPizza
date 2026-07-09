@@ -1,0 +1,36 @@
+# App Engine deployment config — TEMPLATE.
+# Copy to app.yaml and fill in real values. app.yaml is gitignored and must
+# NEVER be committed (it holds secrets). This template is safe to commit.
+
+runtime: java21
+instance_class: F2
+service: api
+
+automatic_scaling:
+  # min_instances: 1 keeps a warm instance to avoid ~30-40s Java cold starts (~$30/mo).
+  # Set to 0 to save cost at the expense of cold-start latency.
+  min_instances: 1
+  max_instances: 5
+
+env_variables:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql:///mislice?socketFactory=com.google.cloud.sql.postgres.SocketFactory&cloudSqlInstance=PROJECT_ID:REGION:INSTANCE_NAME"
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  SPRING_DATASOURCE_PASSWORD: "REPLACE_WITH_DB_PASSWORD"
+  SPRING_PROFILES_ACTIVE: "prod"
+  CORS_ORIGINS: "https://mislice.online,https://www.mislice.online,http://mislice.online,http://www.mislice.online"
+  # Base64-encoded 256-bit secret. Generate a fresh one:  openssl rand -base64 32
+  JWT_SECRET: "REPLACE_WITH_BASE64_256BIT_SECRET"
+  REDIS_HOST: "REPLACE_WITH_REDIS_HOST"
+
+  # --- Email / SMTP (optional; leave username/password blank to disable) ---
+  MAIL_HOST: "smtp-relay.gmail.com"
+  MAIL_PORT: "587"
+  MAIL_USERNAME: ""
+  MAIL_PASSWORD: ""
+  # Set SMTP_AUTH to "true" once you provide a real MAIL_USERNAME/MAIL_PASSWORD
+  # (e.g. a Gmail App Password or SendGrid API key).
+  SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "false"
+  SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+vpc_access_connector:
+  name: projects/PROJECT_ID/locations/REGION/connectors/CONNECTOR_NAME

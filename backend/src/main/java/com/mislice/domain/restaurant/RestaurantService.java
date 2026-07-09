@@ -103,6 +103,13 @@ public class RestaurantService {
         existing.setPopularItems(dto.getPopularItems());
         existing.setDeliveryPartners(dto.getDeliveryPartners());
 
+        // Operational settings managed from the owner dashboard
+        existing.setAcceptingOrders(dto.isAcceptingOrders());
+        if (dto.getDeliveryFee() != null) existing.setDeliveryFee(dto.getDeliveryFee());
+        if (dto.getDeliveryRadiusMiles() != null) existing.setDeliveryRadiusMiles(dto.getDeliveryRadiusMiles());
+        if (dto.getMinimumOrder() != null) existing.setMinimumOrder(dto.getMinimumOrder());
+        if (dto.getAverageEtaMinutes() != null) existing.setAverageEtaMinutes(dto.getAverageEtaMinutes());
+
         Restaurant saved = restaurantRepository.save(existing);
         return restaurantMapper.toDto(saved);
     }
