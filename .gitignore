@@ -9,3 +9,6 @@ coverage/
 serviceAccountKey.json
 .firebase/
 functions/lib/
+
+# Secrets - do not commit app.yaml with passwords
+backend/app.yaml

@@ -84,14 +84,13 @@ import { PaymentService } from '../../core/services/payment.service';
               <span *ngIf="paymentMethod() === 'PAY_AT_STORE'" class="text-red-500 font-bold">✓</span>
             </button>
 
-            <button (click)="setPaymentMethod('CARD')"
-              [class]="paymentMethod() === 'CARD' ? 'w-full flex items-center justify-between p-4 rounded-xl border border-red-500/50 bg-red-500/10 text-left' : 'w-full flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/5 text-left hover:border-white/20 transition'">
+            <div class="w-full flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/5 text-left opacity-50 cursor-not-allowed">
               <div>
-                <p class="text-sm font-bold text-white">Mock Stripe Card</p>
-                <p class="text-xs text-white/50">Simulate checkout using mock credit card flow</p>
+                <p class="text-sm font-bold text-white/50">💳 Credit / Debit Card</p>
+                <p class="text-xs text-white/30">Coming Soon — Stripe integration in progress</p>
               </div>
-              <span *ngIf="paymentMethod() === 'CARD'" class="text-red-500 font-bold">✓</span>
-            </button>
+              <span class="text-[10px] font-black text-yellow-400 bg-yellow-500/15 px-2 py-1 rounded-full">SOON</span>
+            </div>
           </div>
         </div>
 

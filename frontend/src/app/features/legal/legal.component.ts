@@ -6,39 +6,82 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="w-full max-w-3xl mx-auto py-2 space-y-6">
-      <h1 class="text-3xl font-black text-white">Legal &amp; Policies</h1>
+    <div class="max-w-4xl mx-auto py-8 space-y-8">
+      <h1 class="text-3xl font-black text-white tracking-tight">📄 Legal Information</h1>
 
-      <div class="flex flex-wrap gap-2">
-        @for (t of tabs; track t; let i = $index) {
-          <button (click)="active = i"
-            [class]="'px-4 py-2 rounded-xl text-xs font-black transition ' + (active === i ? 'bg-red-600 text-white' : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10')">
-            {{ t }}
-          </button>
-        }
+      <!-- Terms of Service -->
+      <div class="glass rounded-3xl p-8 space-y-4">
+        <h2 class="text-xl font-black text-white border-b border-white/10 pb-3">Terms of Service</h2>
+        <p class="text-xs text-white/30 font-medium">Last updated: July 9, 2026</p>
+
+        <div class="space-y-4 text-sm text-white/60 leading-relaxed">
+          <p>Welcome to MiSlice ("we", "our", "us"). By accessing or using mislice.online (the "Service"), you agree to be bound by these Terms of Service.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">1. Service Description</h3>
+          <p>MiSlice is a pizza price comparison and ordering marketplace serving Michigan. We connect customers with local pizzerias to compare prices and place orders.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">2. User Accounts</h3>
+          <p>You may create an account using Google Sign-In or email/password. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">3. Orders & Payments</h3>
+          <p>Prices displayed are estimates and may vary. Payment is processed at the time of order through the selected payment method. Refunds are handled on a case-by-case basis by contacting our support team.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">4. Restaurant Partners</h3>
+          <p>Restaurant partners ("Store Owners") are independent businesses. MiSlice is not responsible for food quality, preparation times, or delivery issues handled directly by the restaurant.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">5. Limitation of Liability</h3>
+          <p>MiSlice is provided "as is" without warranties of any kind. We are not liable for indirect, incidental, or consequential damages arising from your use of the Service.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">6. Changes to Terms</h3>
+          <p>We may update these terms at any time. Continued use of the Service constitutes acceptance of revised terms.</p>
+        </div>
       </div>
 
-      <div class="glass rounded-3xl p-6 space-y-4 text-sm text-white/60 leading-relaxed">
-        @if (active === 0) {
-          <h2 class="text-lg font-black text-white">Terms of Service</h2>
-          <p>By using MiSlice you agree to browse, build, and order pizza through our marketplace. MiSlice connects you with independent Michigan pizzerias; each store is responsible for preparing and fulfilling its own orders.</p>
-          <p>Prices shown are provided by partner stores and may change. Orders are placed directly with the store of your choice. Payment is collected on delivery or at the store.</p>
-        }
-        @if (active === 1) {
-          <h2 class="text-lg font-black text-white">Privacy Policy</h2>
-          <p>We collect only what we need to run the marketplace: your account details, order history, and dietary preferences you choose to save. We never sell your personal data.</p>
-          <p>Notification tokens are stored only to send you order and deal updates, and can be turned off any time from your notification settings.</p>
-        }
-        @if (active === 2) {
-          <h2 class="text-lg font-black text-white">Refund Policy</h2>
-          <p>Refunds and order issues are handled by the store that fulfilled your order. Contact the store directly, or reach our support team and we'll help mediate.</p>
-        }
+      <!-- Privacy Policy -->
+      <div class="glass rounded-3xl p-8 space-y-4">
+        <h2 class="text-xl font-black text-white border-b border-white/10 pb-3">Privacy Policy</h2>
+        <p class="text-xs text-white/30 font-medium">Last updated: July 9, 2026</p>
+
+        <div class="space-y-4 text-sm text-white/60 leading-relaxed">
+          <h3 class="text-base font-bold text-white/80 pt-2">1. Information We Collect</h3>
+          <ul class="list-disc list-inside space-y-1">
+            <li>Account information (name, email) via Google Sign-In or registration</li>
+            <li>Order history and preferences</li>
+            <li>Delivery addresses provided at checkout</li>
+            <li>Usage data and analytics</li>
+          </ul>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">2. How We Use Your Information</h3>
+          <ul class="list-disc list-inside space-y-1">
+            <li>To process and fulfill your pizza orders</li>
+            <li>To communicate order status and delivery updates</li>
+            <li>To personalize your experience and recommendations</li>
+            <li>To improve our Service</li>
+          </ul>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">3. Data Sharing</h3>
+          <p>We share order details with restaurant partners solely for order fulfillment. We do not sell your personal data to third parties.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">4. Data Security</h3>
+          <p>We use industry-standard encryption (SSL/TLS) and store data on Google Cloud Platform with enterprise-grade security. Passwords are hashed and never stored in plain text.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">5. Your Rights</h3>
+          <p>You may request deletion of your account and data at any time by contacting support&#64;mislice.online.</p>
+
+          <h3 class="text-base font-bold text-white/80 pt-2">6. Contact</h3>
+          <p>For privacy inquiries, email: <span class="text-red-400">support&#64;mislice.online</span></p>
+        </div>
       </div>
-      <p class="text-center text-[11px] text-white/25">MiSlice © 2026 · Michigan</p>
+
+      <!-- Cookie Policy -->
+      <div class="glass rounded-3xl p-8 space-y-4">
+        <h2 class="text-xl font-black text-white border-b border-white/10 pb-3">Cookie Policy</h2>
+        <div class="text-sm text-white/60 leading-relaxed space-y-3">
+          <p>MiSlice uses essential cookies and local storage to maintain your session, remember your cart, and store your preferences. We do not use third-party tracking cookies.</p>
+          <p>By continuing to use the Service, you consent to our use of essential cookies.</p>
+        </div>
+      </div>
     </div>
-  `,
+  `
 })
-export class LegalComponent {
-  tabs = ['Terms', 'Privacy', 'Refunds'];
-  active = 0;
-}
+export class LegalComponent {}
