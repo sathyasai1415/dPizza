@@ -48,10 +48,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @Operation(summary = "Authenticate a demo account directly via custom JWT (bypass Firebase). ONLY available in dev profile.")
+    @Operation(summary = "Authenticate a demo CUSTOMER or RESTAURANT_OWNER account via custom JWT (bypass Firebase). ADMIN demo is never allowed in prod.")
     @PostMapping("/demo-login")
     public ResponseEntity<AuthResponse> demoLogin(@RequestBody com.mislice.domain.auth.dto.DemoLoginRequest request) {
-        if ("prod".equalsIgnoreCase(activeProfile)) {
+        // Demo Customer/Owner sessions are allowed everywhere (used to showcase the app without signing in).
+        // Demo ADMIN access must NEVER be reachable in production — it would hand out platform-admin tokens.
+        if ("prod".equalsIgnoreCase(activeProfile) && "ADMIN".equalsIgnoreCase(request.role())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new AuthResponse("", "", "Bearer", 0L, null));
         }

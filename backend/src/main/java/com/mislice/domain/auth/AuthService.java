@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class AuthService {
     private final RestaurantRepository restaurantRepository;
     private final com.mislice.security.JwtService jwtService;
 
+    @Transactional(readOnly = true)
     public String resolveOwnerEmailByStoreId(String storeId) {
         Restaurant restaurant = null;
         try {
@@ -86,7 +88,30 @@ public class AuthService {
                 .accountStatus(AccountStatus.ACTIVE)
                 .emailVerified(true)
                 .build();
-        userRepository.save(user);
+        user = userRepository.save(user);
+
+        if (role == Role.RESTAURANT_OWNER) {
+            String restaurantName = req.restaurantName() != null ? req.restaurantName() : "My Pizza Shop";
+            String slug = generateSlug(restaurantName);
+            Restaurant restaurant = Restaurant.builder()
+                    .owner(user)
+                    .name(restaurantName)
+                    .slug(slug)
+                    .addressLine(req.addressLine() != null ? req.addressLine() : "123 Main St")
+                    .city(req.city() != null ? req.city() : "Detroit")
+                    .state(req.state() != null ? req.state() : "MI")
+                    .postalCode(req.postalCode() != null ? req.postalCode() : "48201")
+                    .description(req.description() != null ? req.description() : "Local pizza shop.")
+                    .website(req.website())
+                    .ratingAvg(BigDecimal.ZERO)
+                    .ratingCount(0)
+                    .acceptingOrders(true)
+                    .approved(true)
+                    .applicationStatus("APPROVED")
+                    .setupComplete(true)
+                    .build();
+            restaurantRepository.save(restaurant);
+        }
 
         return new AuthResponse(
                 "",
@@ -95,6 +120,21 @@ public class AuthService {
                 3600,
                 userMapper.toDto(user)
         );
+    }
+
+    private String generateSlug(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "restaurant-" + UUID.randomUUID().toString().substring(0, 8);
+        }
+        String baseSlug = name.toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-");
+        String slug = baseSlug;
+        int count = 1;
+        while (restaurantRepository.findBySlugAndDeletedFalse(slug).isPresent()) {
+            slug = baseSlug + "-" + count++;
+        }
+        return slug;
     }
 
     @Transactional
@@ -118,35 +158,39 @@ public class AuthService {
         final String email = tempEmail != null ? tempEmail.toLowerCase() : req.email().toLowerCase();
         final String name = tempName;
 
-        // Auto-provisioning and auto-healing logic
-        User user = userRepository.findByUidAndDeletedFalse(uid)
-                .orElseGet(() -> {
-                    // Try to link pre-seeded email accounts
-                    return userRepository.findByEmailIgnoreCaseAndDeletedFalse(email)
-                            .map(existing -> {
-                                existing.setUid(uid);
-                                return userRepository.save(existing);
-                            })
-                            .orElseGet(() -> {
-                                // Auto-provision new customer account in the database
-                                User newUser = User.builder()
-                                        .email(email)
-                                        .uid(uid)
-                                        .fullName(name)
-                                        .roles(Set.of(Role.CUSTOMER))
-                                        .accountStatus(AccountStatus.ACTIVE)
-                                        .emailVerified(true)
-                                        .build();
-                                return userRepository.save(newUser);
-                            });
-                });
+        // Retrieve existing user
+        var userOpt = userRepository.findByUidAndDeletedFalse(uid);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmailIgnoreCaseAndDeletedFalse(email);
+            if (userOpt.isPresent()) {
+                // Link pre-seeded email account
+                User existing = userOpt.get();
+                existing.setUid(uid);
+                userRepository.save(existing);
+            }
+        }
+
+        if (userOpt.isEmpty()) {
+            // New user requires role selection (Google flow first time)
+            return new AuthResponse(
+                    req.idToken(),
+                    "",
+                    "Bearer",
+                    3600,
+                    null,
+                    true
+            );
+        }
+
+        User user = userOpt.get();
 
         return new AuthResponse(
                 req.idToken(),
                 "",
                 "Bearer",
                 3600,
-                userMapper.toDto(user)
+                userMapper.toDto(user),
+                false
         );
     }
     @Transactional
@@ -156,11 +200,15 @@ public class AuthService {
         Role role;
 
         if ("RESTAURANT_OWNER".equals(req.role())) {
-            email = "owner@shamzpizza.com";
+            email = "demo.owner@mislice.com";
             name = "Demo Store Owner";
             role = Role.RESTAURANT_OWNER;
+        } else if ("ADMIN".equals(req.role())) {
+            email = "admin@mislice.com";
+            name = "Platform Admin";
+            role = Role.ADMIN;
         } else {
-            email = "demo@mislice.com";
+            email = "demo.customer@mislice.com";
             name = "Demo Customer";
             role = Role.CUSTOMER;
         }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { UserProfile } from '../../shared/models';
+import { UserProfile, AuthResponse } from '../../shared/models';
 import { LightfallComponent } from '../../shared/lightfall/lightfall.component';
 
 type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
@@ -33,7 +33,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
         }
       </div>
 
-      <div class="relative z-10 w-full max-w-md">
+      <div class="relative z-10 w-full max-w-lg">
         <!-- Brand -->
         <div class="flex flex-col items-center text-center mb-7">
           <div class="w-20 h-20 rounded-[28px] flex items-center justify-center mb-4"
@@ -49,14 +49,57 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
         </div>
 
         <!-- Glass container -->
-        <div class="glass rounded-[32px] overflow-hidden p-7 sm:p-9 border border-white/10 shadow-2xl">
+        <div class="glass rounded-[32px] overflow-hidden p-6 sm:p-8 border border-white/10 shadow-2xl bg-black/45">
           <!-- Error alert -->
-          <div *ngIf="error()" class="mb-4 p-3 rounded-2xl text-xs font-bold bg-red-500/15 border border-red-500/30 text-red-300">
-            {{ error() }}
+          <div *ngIf="error()" class="mb-4 p-3.5 rounded-2xl text-xs font-bold bg-red-500/15 border border-red-500/30 text-red-300">
+            ⚠️ {{ error() }}
+          </div>
+
+          <!-- ROLE SELECTION MODAL (For first time Google Registration) -->
+          <div *ngIf="roleRequired()" class="space-y-6 animate-fadeIn py-3">
+            <h2 class="text-xl font-black text-white text-center">Complete Registration</h2>
+            <p class="text-xs text-white/50 text-center">Choose your role to finalize setting up your account.</p>
+
+            <div class="grid grid-cols-2 gap-4">
+              <button type="button" (click)="selectedSocialRole.set('CUSTOMER')"
+                [class]="'p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 ' + (selectedSocialRole() === 'CUSTOMER' ? 'border-red-500 bg-red-500/10 text-white' : 'border-white/5 bg-white/5 text-white/60 hover:border-white/20')">
+                <span class="text-3xl">🍕</span>
+                <span class="text-xs font-black">Customer</span>
+              </button>
+              <button type="button" (click)="selectedSocialRole.set('RESTAURANT_OWNER')"
+                [class]="'p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 ' + (selectedSocialRole() === 'RESTAURANT_OWNER' ? 'border-red-500 bg-red-500/10 text-white' : 'border-white/5 bg-white/5 text-white/60 hover:border-white/20')">
+                <span class="text-3xl">🏪</span>
+                <span class="text-xs font-black">Restaurant Owner</span>
+              </button>
+            </div>
+
+            <!-- Optional Restaurant Info for Social Register -->
+            <div *ngIf="selectedSocialRole() === 'RESTAURANT_OWNER'" class="space-y-3.5 pt-3 border-t border-white/5 animate-fadeIn">
+              <p class="text-[10px] font-black text-white/30 uppercase tracking-widest">Business Details</p>
+              <div>
+                <label class="block text-xs font-bold text-white/40 mb-1">Restaurant Name</label>
+                <input type="text" [(ngModel)]="restaurantName" placeholder="e.g. Detroit Slice Shop" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-red-500" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-white/40 mb-1">City</label>
+                  <input type="text" [(ngModel)]="city" placeholder="Detroit" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 mb-1">ZIP Code</label>
+                  <input type="text" [(ngModel)]="postalCode" placeholder="48201" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-red-500" />
+                </div>
+              </div>
+            </div>
+
+            <button type="button" (click)="completeGoogleRegistration()" [disabled]="loading() || !selectedSocialRole()"
+              class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
+              {{ loading() ? 'Saving Profile...' : 'Complete Registration' }}
+            </button>
           </div>
 
           <!-- DEMO MODE SELECTION -->
-          <div *ngIf="mode() === 'demo'" class="space-y-3">
+          <div *ngIf="mode() === 'demo' && !roleRequired()" class="space-y-3">
             <button (click)="setMode('login')" class="text-xs font-bold text-white/40 hover:text-white/70 mb-2 flex items-center gap-1">
               ← Back to Sign In
             </button>
@@ -84,7 +127,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
               <span class="text-white/30">→</span>
             </button>
 
-            <button (click)="setMode('admin')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5 text-left transition hover:bg-white/10 hover:border-white/10">
+            <button (click)="startDemo('ADMIN')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5 text-left transition hover:bg-white/10 hover:border-white/10">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">🛡️</div>
                 <div>
@@ -97,7 +140,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
           </div>
 
           <!-- TRADITIONAL LOGIN -->
-          <div *ngIf="mode() === 'login'">
+          <div *ngIf="mode() === 'login' && !roleRequired()">
             <h2 class="text-xl font-bold text-white mb-4">Sign In</h2>
 
             <!-- Sub-tabs for Customer vs Store Owner -->
@@ -124,9 +167,16 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Password</label>
-                <input type="password" [(ngModel)]="password" name="password" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                <div class="flex justify-between items-center mb-1">
+                  <label class="block text-xs font-bold text-white/40 uppercase">Password</label>
+                </div>
+                <div class="relative">
+                  <input [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="password" name="password" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl pl-4 pr-11 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                  <button type="button" (click)="showPassword.set(!showPassword())" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 text-sm">
+                    {{ showPassword() ? '👁️' : '🙈' }}
+                  </button>
+                </div>
               </div>
               <button type="submit" [disabled]="loading()"
                 class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
@@ -134,14 +184,14 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
               </button>
             </form>
 
-            <!-- Google Sign In Separator -->
-            <div class="relative flex items-center justify-center my-5">
+            <!-- Google Sign In Separator (Only for customers) -->
+            <div *ngIf="loginType() === 'customer'" class="relative flex items-center justify-center my-5">
               <div class="absolute inset-x-0 h-px bg-white/10"></div>
-              <span class="relative z-10 px-3 bg-[#0f0005] text-[10px] font-bold text-white/30 uppercase tracking-widest">Or continue with</span>
+              <span class="relative z-10 px-3 bg-[#0c0507] text-[10px] font-bold text-white/30 uppercase tracking-widest">Or continue with</span>
             </div>
 
             <!-- Google Sign In Button -->
-            <button type="button" (click)="handleGoogleLogin()" [disabled]="loading()"
+            <button *ngIf="loginType() === 'customer'" type="button" (click)="handleGoogleLogin()" [disabled]="loading()"
               class="w-full py-3 rounded-xl font-bold text-white text-sm bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center gap-2.5 transition duration-200">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -163,32 +213,107 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
           </div>
 
           <!-- REGISTER -->
-          <div *ngIf="mode() === 'register'">
-            <h2 class="text-xl font-bold text-white mb-6">Register</h2>
+          <div *ngIf="mode() === 'register' && !roleRequired()">
+            <h2 class="text-xl font-bold text-white mb-4">Register</h2>
+
+            <!-- Sub-tabs for Customer vs Owner Register -->
+            <div class="flex gap-1.5 p-1 bg-white/5 rounded-2xl mb-5">
+              <button type="button" (click)="regRole = 'CUSTOMER'; error.set('')"
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (regRole === 'CUSTOMER' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                🍕 Customer
+              </button>
+              <button type="button" (click)="regRole = 'RESTAURANT_OWNER'; error.set('')"
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (regRole === 'RESTAURANT_OWNER' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                🏪 Store Owner
+              </button>
+            </div>
+
             <form (submit)="handleRegister($event)" class="space-y-4">
-              <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Full Name</label>
-                <input type="text" [(ngModel)]="fullName" name="fullName" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+              <!-- Customer Profile Specific Fields -->
+              <div *ngIf="regRole === 'CUSTOMER'" class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">First Name</label>
+                  <input type="text" [(ngModel)]="firstName" name="firstName" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Last Name</label>
+                  <input type="text" [(ngModel)]="lastName" name="lastName" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
               </div>
+
+              <!-- Owner Specific Business Fields -->
+              <div *ngIf="regRole === 'RESTAURANT_OWNER'" class="space-y-3.5">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest">Business Details</p>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Owner Name</label>
+                  <input type="text" [(ngModel)]="fullName" name="fullName" placeholder="e.g. John Doe" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Restaurant Name</label>
+                  <input type="text" [(ngModel)]="restaurantName" name="restaurantName" placeholder="e.g. Detroit Slice Shop" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Street Address</label>
+                  <input type="text" [(ngModel)]="addressLine" name="addressLine" placeholder="e.g. 123 Woodward Ave" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="col-span-2">
+                    <label class="block text-xs font-bold text-white/40 uppercase mb-1">City</label>
+                    <input type="text" [(ngModel)]="city" name="city" placeholder="Detroit" required
+                      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-white/40 uppercase mb-1">ZIP</label>
+                    <input type="text" [(ngModel)]="postalCode" name="postalCode" placeholder="48201" required
+                      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Restaurant Description</label>
+                  <textarea [(ngModel)]="description" name="description" placeholder="A brief description of your pizzeria..." required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500 h-20 resize-none"></textarea>
+                </div>
+              </div>
+
+              <!-- Shared credentials fields -->
+              <p class="text-[10px] font-black text-white/30 uppercase tracking-widest pt-2 border-t border-white/5">Credentials</p>
               <div>
                 <label class="block text-xs font-bold text-white/40 uppercase mb-1">Email Address</label>
                 <input type="email" [(ngModel)]="email" name="email" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Password</label>
-                <input type="password" [(ngModel)]="password" name="password" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Phone Number (optional)</label>
+                <input type="text" [(ngModel)]="phone" name="phone" placeholder="e.g. 313-555-0123"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
               </div>
-              <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">I am registering as</label>
-                <select [(ngModel)]="regRole" name="regRole"
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500">
-                  <option value="CUSTOMER">Customer</option>
-                  <option value="RESTAURANT_OWNER">Restaurant Owner</option>
-                </select>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Password</label>
+                  <input type="password" [(ngModel)]="password" name="password" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Confirm</label>
+                  <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                </div>
               </div>
+
+              <div class="flex items-start gap-2.5 pt-2 select-none">
+                <input type="checkbox" [(ngModel)]="acceptTerms" name="acceptTerms" required id="acceptTerms"
+                  class="mt-1 rounded border-white/10 bg-white/5 text-red-500 accent-red-600 focus:ring-0 focus:outline-none" />
+                <label for="acceptTerms" class="text-xs text-white/50 leading-snug">
+                  I accept the <a class="text-red-400 hover:underline">Terms of Service</a> &amp; <a class="text-red-400 hover:underline">Privacy Policy</a>.
+                </label>
+              </div>
+
               <button type="submit" [disabled]="loading()"
                 class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
                 {{ loading() ? 'Registering...' : 'Register' }}
@@ -203,7 +328,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
           </div>
 
           <!-- ADMIN LOGIN -->
-          <div *ngIf="mode() === 'admin'">
+          <div *ngIf="mode() === 'admin' && !roleRequired()">
             <button (click)="setMode('demo')" class="text-xs font-bold text-white/40 hover:text-white/70 mb-5 flex items-center gap-1">
               ← Back to Demo
             </button>
@@ -287,11 +412,38 @@ export class WelcomeComponent {
   loading = signal(false);
   error = signal('');
 
+  // Credentials
   email = '';
   storeId = '';
   password = '';
+  confirmPassword = '';
   fullName = '';
+  phone = '';
   regRole = 'CUSTOMER';
+  acceptTerms = false;
+
+  // Customer detailed name fields
+  firstName = '';
+  lastName = '';
+
+  // Restaurant details fields
+  restaurantName = '';
+  addressLine = '';
+  city = '';
+  state = 'MI';
+  postalCode = '';
+  description = '';
+  website = '';
+
+  // Google OAuth registration state
+  socialUid = '';
+  socialEmail = '';
+  socialName = '';
+  roleRequired = signal(false);
+  selectedSocialRole = signal<'CUSTOMER' | 'RESTAURANT_OWNER' | null>(null);
+
+  // Toggle Password
+  showPassword = signal(false);
 
   setMode(newMode: Mode) {
     this.error.set('');
@@ -312,10 +464,7 @@ export class WelcomeComponent {
       this.authService.resolveStoreOwnerEmail(this.storeId.trim()).subscribe({
         next: (res) => {
           this.authService.login(res.email, this.password).subscribe({
-            next: (loginRes) => {
-              this.loading.set(false);
-              this.redirectUser(loginRes.user);
-            },
+            next: (loginRes) => this.onLoginResult(loginRes),
             error: (err) => {
               this.loading.set(false);
               this.error.set(err.error?.message || err.message || 'Login failed. Please verify password.');
@@ -329,16 +478,33 @@ export class WelcomeComponent {
       });
     } else {
       this.authService.login(this.email, this.password).subscribe({
-        next: (res) => {
-          this.loading.set(false);
-          this.redirectUser(res.user);
-        },
+        next: (res) => this.onLoginResult(res),
         error: (err) => {
           this.loading.set(false);
           this.error.set(err.error?.message || err.message || 'Login failed. Please verify credentials.');
         }
       });
     }
+  }
+
+  /**
+   * Shared handling for a successful Firebase auth. If the account has no backend
+   * profile yet the API returns roleRequired=true with a null user — surface the
+   * role-selection modal instead of crashing on a null user.
+   */
+  private onLoginResult(res: AuthResponse) {
+    this.loading.set(false);
+    if (res.roleRequired || !res.user) {
+      const fbUser = (this.authService as any).firebaseAuth.currentUser;
+      if (fbUser) {
+        this.socialUid = fbUser.uid;
+        this.socialEmail = fbUser.email || this.email || '';
+        this.socialName = fbUser.displayName || (this.socialEmail ? this.socialEmail.split('@')[0] : 'User');
+      }
+      this.roleRequired.set(true);
+      return;
+    }
+    this.redirectUser(res.user);
   }
 
   handleGoogleLogin() {
@@ -348,7 +514,19 @@ export class WelcomeComponent {
     this.authService.loginWithGoogle().subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.redirectUser(res.user);
+        if (res.roleRequired) {
+          // Trigger the role selection modal!
+          // We can retrieve details from current Firebase Auth State
+          const fbUser = (this.authService as any).firebaseAuth.currentUser;
+          if (fbUser) {
+            this.socialUid = fbUser.uid;
+            this.socialEmail = fbUser.email || '';
+            this.socialName = fbUser.displayName || 'Google User';
+          }
+          this.roleRequired.set(true);
+        } else {
+          this.redirectUser(res.user!);
+        }
       },
       error: (err) => {
         this.loading.set(false);
@@ -357,15 +535,99 @@ export class WelcomeComponent {
     });
   }
 
-  handleRegister(e: Event) {
-    e.preventDefault();
+  completeGoogleRegistration() {
+    const role = this.selectedSocialRole();
+    if (!role) return;
+
     this.error.set('');
     this.loading.set(true);
 
-    this.authService.register(this.email, this.password, this.fullName, undefined, this.regRole).subscribe({
+    if (role === 'RESTAURANT_OWNER') {
+      if (!this.restaurantName.trim() || !this.city.trim() || !this.postalCode.trim()) {
+        this.error.set('Please fill out all required Business Details.');
+        this.loading.set(false);
+        return;
+      }
+    }
+
+    this.authService.registerSocialUser(
+      this.socialUid,
+      this.socialEmail,
+      this.socialName,
+      role,
+      undefined,
+      role === 'RESTAURANT_OWNER' ? this.restaurantName.trim() : undefined,
+      role === 'RESTAURANT_OWNER' ? this.addressLine.trim() : undefined,
+      role === 'RESTAURANT_OWNER' ? this.city.trim() : undefined,
+      role === 'RESTAURANT_OWNER' ? 'MI' : undefined,
+      role === 'RESTAURANT_OWNER' ? this.postalCode.trim() : undefined,
+      role === 'RESTAURANT_OWNER' ? this.description.trim() : undefined,
+      role === 'RESTAURANT_OWNER' ? this.website.trim() : undefined
+    ).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.redirectUser(res.user);
+        this.roleRequired.set(false);
+        this.redirectUser(res.user!);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.error.set(err.error?.message || err.message || 'Failed to complete registration.');
+      }
+    });
+  }
+
+  handleRegister(e: Event) {
+    e.preventDefault();
+    this.error.set('');
+
+    // Form validations
+    if (!this.acceptTerms) {
+      this.error.set('You must accept the Terms of Service & Privacy Policy.');
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      this.error.set('Passwords do not match.');
+      return;
+    }
+
+    // Password strength check (8+ chars, upper, lower, digit, special)
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(this.password)) {
+      this.error.set('Password must be at least 8 characters long and include an uppercase letter, lowercase letter, number, and special character.');
+      return;
+    }
+
+    if (this.regRole === 'RESTAURANT_OWNER') {
+      if (!this.restaurantName.trim() || !this.fullName.trim() || !this.addressLine.trim() || !this.city.trim() || !this.postalCode.trim()) {
+        this.error.set('Please fill out all required Business Details.');
+        return;
+      }
+    }
+
+    this.loading.set(true);
+
+    const resolvedName = this.regRole === 'CUSTOMER' 
+      ? `${this.firstName.trim()} ${this.lastName.trim()}`.trim()
+      : this.fullName.trim();
+
+    this.authService.register(
+      this.email.trim(),
+      this.password,
+      resolvedName,
+      this.phone ? this.phone.trim() : undefined,
+      this.regRole,
+      this.regRole === 'RESTAURANT_OWNER' ? this.restaurantName.trim() : undefined,
+      this.regRole === 'RESTAURANT_OWNER' ? this.addressLine.trim() : undefined,
+      this.regRole === 'RESTAURANT_OWNER' ? this.city.trim() : undefined,
+      this.regRole === 'RESTAURANT_OWNER' ? 'MI' : undefined,
+      this.regRole === 'RESTAURANT_OWNER' ? this.postalCode.trim() : undefined,
+      this.regRole === 'RESTAURANT_OWNER' ? this.description.trim() : undefined,
+      this.regRole === 'RESTAURANT_OWNER' ? this.website.trim() : undefined
+    ).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.redirectUser(res.user!);
       },
       error: (err) => {
         this.loading.set(false);
@@ -374,14 +636,14 @@ export class WelcomeComponent {
     });
   }
 
-  startDemo(role: 'CUSTOMER' | 'RESTAURANT_OWNER') {
+  startDemo(role: 'CUSTOMER' | 'RESTAURANT_OWNER' | 'ADMIN') {
     this.error.set('');
     this.loading.set(true);
 
     this.authService.demoLogin(role).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.redirectUser(res.user);
+        this.redirectUser(res.user!);
       },
       error: (err) => {
         this.loading.set(false);

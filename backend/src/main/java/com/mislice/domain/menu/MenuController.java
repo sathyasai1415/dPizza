@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import com.mislice.domain.menu.dto.OcrMenuItemSuggestion;
+import org.springframework.web.multipart.MultipartFile;
+
 @RestController
 @RequestMapping("/api/v1/restaurants/{restaurantId}")
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ import java.util.UUID;
 public class MenuController {
 
     private final MenuService menuService;
+    private final VisionService visionService;
 
     @Operation(summary = "Get menu categories for a restaurant")
     @GetMapping("/categories")
@@ -68,5 +72,14 @@ public class MenuController {
             @RequestParam("available") boolean available) {
         menuService.updateAvailability(itemId, available);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Process menu image via Google Cloud Vision OCR and return item suggestions")
+    @PostMapping(value = "/menu/import-ocr", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
+    public ResponseEntity<List<OcrMenuItemSuggestion>> importMenuOcr(
+            @PathVariable("restaurantId") UUID restaurantId,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(visionService.extractMenuItemsFromMenuImage(file));
     }
 }

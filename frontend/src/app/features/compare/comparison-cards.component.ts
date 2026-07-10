@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ChainCompareService } from '../../core/services/chain-compare.service';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
@@ -321,7 +321,19 @@ export class ComparisonCardsComponent implements OnInit {
     { emoji: '🧅', x: '16%', y: '86%', delay: '1.5s', dur: '3.9s' },
   ];
 
+  private readonly route = inject(ActivatedRoute);
+
   ngOnInit() {
+    const sizeParam = this.route.snapshot.queryParamMap.get('size');
+    const crustParam = this.route.snapshot.queryParamMap.get('crust');
+    const toppingsParam = this.route.snapshot.queryParamMap.get('toppings');
+
+    if (sizeParam) this.size = sizeParam;
+    if (crustParam) this.crust = crustParam;
+    if (toppingsParam) {
+      this.toppings = toppingsParam.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    }
+    
     this.updateQuotes();
   }
 

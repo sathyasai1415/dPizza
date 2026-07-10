@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, tap, catchError, throwError, of, switchMap } from 'rxjs';
+import { Observable, from, tap, catchError, throwError, of, switchMap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, UserProfile } from '../../shared/models';
 
@@ -58,14 +58,89 @@ export class AuthService {
     }
   }
 
-  register(email: string, password: string, fullName: string, phone?: string, role: string = 'CUSTOMER'): Observable<AuthResponse> {
+  register(
+    email: string,
+    password: string,
+    fullName: string,
+    phone?: string,
+    role: string = 'CUSTOMER',
+    restaurantName?: string,
+    addressLine?: string,
+    city?: string,
+    state?: string,
+    postalCode?: string,
+    description?: string,
+    website?: string
+  ): Observable<AuthResponse> {
     return from(createUserWithEmailAndPassword(this.firebaseAuth, email, password)).pipe(
       switchMap(async (cred) => {
         const token = await cred.user.getIdToken();
-        const body = { email, uid: cred.user.uid, fullName, phone, requestedRole: role };
+        const body = {
+          email,
+          uid: cred.user.uid,
+          fullName,
+          phone,
+          requestedRole: role,
+          restaurantName,
+          addressLine,
+          city,
+          state,
+          postalCode,
+          description,
+          website
+        };
         return { token, body };
       }),
       switchMap(({ token, body }) => {
+        return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, body).pipe(
+          tap(res => {
+            const finalRes: AuthResponse = {
+              accessToken: token,
+              refreshToken: '',
+              user: res.user
+            };
+            this.saveSession(finalRes);
+          })
+        );
+      }),
+      catchError(err => throwError(() => err))
+    );
+  }
+
+  registerSocialUser(
+    uid: string,
+    email: string,
+    fullName: string,
+    role: string,
+    phone?: string,
+    restaurantName?: string,
+    addressLine?: string,
+    city?: string,
+    state?: string,
+    postalCode?: string,
+    description?: string,
+    website?: string
+  ): Observable<AuthResponse> {
+    const user = this.firebaseAuth.currentUser;
+    if (!user) {
+      return throwError(() => new Error('No social login active.'));
+    }
+    return from(user.getIdToken()).pipe(
+      switchMap(token => {
+        const body = {
+          email,
+          uid,
+          fullName,
+          phone,
+          requestedRole: role,
+          restaurantName,
+          addressLine,
+          city,
+          state,
+          postalCode,
+          description,
+          website
+        };
         return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, body).pipe(
           tap(res => {
             const finalRes: AuthResponse = {
@@ -125,18 +200,22 @@ export class AuthService {
     return from(signInWithPopup(this.firebaseAuth, provider)).pipe(
       switchMap(async (cred) => {
         const token = await cred.user.getIdToken();
-        return { token, email: cred.user.email };
+        return { token, email: cred.user.email, name: cred.user.displayName, uid: cred.user.uid };
       }),
-      switchMap(({ token, email }) => {
+      switchMap(({ token, email, name, uid }) => {
         const body = { email: email || '', idToken: token };
         return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, body).pipe(
-          tap(res => {
+          map(res => {
             const finalRes: AuthResponse = {
               accessToken: token,
               refreshToken: '',
-              user: res.user
+              user: res.user,
+              roleRequired: res.roleRequired
             };
-            this.saveSession(finalRes);
+            if (!res.roleRequired) {
+              this.saveSession(finalRes);
+            }
+            return finalRes;
           })
         );
       }),

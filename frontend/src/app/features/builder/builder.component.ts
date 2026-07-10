@@ -320,7 +320,7 @@ export class BuilderComponent implements OnInit {
       
       list.push(newPizza);
       localStorage.setItem('mislice_saved_pizzas', JSON.stringify(list));
-      this.successMsg.set('💾 Pizza saved successfully! You can view and reorder it from your Saved Pizzas page.');
+      this.successMsg.set('❤️ Pizza saved to Favourites! You can view and reorder it from the Favourites page in the top menu.');
     } catch (err) {
       this.errorMsg.set('Failed to save pizza configuration.');
     }

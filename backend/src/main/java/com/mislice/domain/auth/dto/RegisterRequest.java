@@ -10,6 +10,16 @@ public record RegisterRequest(
         @NotBlank String uid,
         @NotBlank @Size(max = 120) String fullName,
         @Size(max = 30) String phone,
-        // Optional: defaults to CUSTOMER if null. RESTAURANT_OWNER/DELIVERY_PARTNER allowed; ADMIN is never self-assignable.
-        Role requestedRole
-) {}
+        Role requestedRole,
+        String restaurantName,
+        String addressLine,
+        String city,
+        String state,
+        String postalCode,
+        String description,
+        String website
+) {
+    public RegisterRequest(String email, String uid, String fullName, String phone, Role requestedRole) {
+        this(email, uid, fullName, phone, requestedRole, null, null, null, null, null, null, null);
+    }
+}

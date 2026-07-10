@@ -313,7 +313,8 @@ export interface Deal {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: UserProfile;
+  user: UserProfile | null;
+  roleRequired?: boolean;
 }
 
 export interface PizzaOptionsResponse {

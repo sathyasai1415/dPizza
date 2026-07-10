@@ -7,5 +7,10 @@ public record AuthResponse(
         String refreshToken,
         String tokenType,
         long expiresInSeconds,
-        UserDto user
-) {}
+        UserDto user,
+        boolean roleRequired
+) {
+    public AuthResponse(String accessToken, String refreshToken, String tokenType, long expiresInSeconds, UserDto user) {
+        this(accessToken, refreshToken, tokenType, expiresInSeconds, user, false);
+    }
+}

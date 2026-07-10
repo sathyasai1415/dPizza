@@ -122,12 +122,7 @@ import { ElectricBorderComponent } from '../../shared/electric-border/electric-b
                   <span>🎁</span> Rewards Hub
                 </span>
               </a>
-              <a routerLink="/saved-pizzas" routerLinkActive="active-tab"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
-                <span class="relative z-10 flex items-center gap-2.5">
-                  <span>💾</span> Saved Creations
-                </span>
-              </a>
+
               <a routerLink="/profile" routerLinkActive="active-tab"
                 class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white transition">
                 <span class="relative z-10 flex items-center gap-2.5">
@@ -215,6 +210,13 @@ import { ElectricBorderComponent } from '../../shared/electric-border/electric-b
           <div *ngIf="authService.isStoreOwner() || authService.isAdmin()" class="flex-1"></div>
 
           <div class="flex items-center gap-2">
+            <!-- Favourites top nav chip -->
+            <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
+               routerLink="/favourites" routerLinkActive="active-tab-top"
+               class="flex items-center gap-1.5 glass-soft rounded-full px-3.5 py-2 text-xs font-black text-white/70 hover:text-white transition-all hover:bg-white/10 border border-white/5 shadow-md">
+              <span class="text-red-500 animate-pulse">❤️</span> Favourites
+            </a>
+
             <!-- Location chip -->
             <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
               class="hidden md:flex items-center gap-1.5 glass-soft rounded-full px-3.5 py-2 text-xs font-bold text-white/70 hover:text-white transition">
@@ -286,6 +288,13 @@ import { ElectricBorderComponent } from '../../shared/electric-border/electric-b
       color: #fca5a5 !important;
       border: 1px solid rgba(239, 68, 68, 0.4) !important;
       box-shadow: 0 0 15px rgba(220, 38, 38, 0.15);
+    }
+
+    .active-tab-top {
+      background: rgba(220, 38, 38, 0.3) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(239, 68, 68, 0.6) !important;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.2);
     }
   `]
 })

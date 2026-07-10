@@ -32,4 +32,10 @@ export class MenuService {
     const params = new HttpParams().set('available', available);
     return this.http.patch<void>(`${this.apiUrl}/restaurants/${restaurantId}/menu-items/${itemId}/availability`, null, { params });
   }
+
+  importMenuOcr(restaurantId: string, file: File): Observable<any[]> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any[]>(`${this.apiUrl}/restaurants/${restaurantId}/menu/import-ocr`, formData);
+  }
 }

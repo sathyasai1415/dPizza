@@ -18,8 +18,7 @@ import { HowItWorksComponent } from './features/how-it-works/how-it-works.compon
 import { ContactComponent } from './features/contact/contact.component';
 import { LegalComponent } from './features/legal/legal.component';
 import { NotificationsComponent } from './features/notifications/notifications.component';
-import { SavedPizzasComponent } from './features/saved-pizzas/saved-pizzas.component';
-import { FavoriteStoresComponent } from './features/favorite-stores/favorite-stores.component';
+import { FavouritesComponent } from './features/favourites/favourites.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -42,8 +41,9 @@ export const routes: Routes = [
       { path: 'deals', component: DealsComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'notifications', component: NotificationsComponent },
-      { path: 'saved-pizzas', component: SavedPizzasComponent },
-      { path: 'favorite-stores', component: FavoriteStoresComponent },
+      { path: 'favourites', component: FavouritesComponent },
+      { path: 'saved-pizzas', redirectTo: 'favourites' },
+      { path: 'favorite-stores', redirectTo: 'favourites' },
       { path: 'how-it-works', component: HowItWorksComponent },
       { path: 'contact', component: ContactComponent },
       { path: 'legal', component: LegalComponent },
