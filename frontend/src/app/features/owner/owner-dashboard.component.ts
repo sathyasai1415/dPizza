@@ -16,16 +16,6 @@ interface StaffMember {
   joinedAt: string;
 }
 
-interface InventoryItem {
-  id: string;
-  name: string;
-  category: string;
-  stockQty: number;
-  unit: string;
-  minAlert: number;
-  available: boolean;
-}
-
 interface PayoutRecord {
   id: string;
   date: string;
@@ -109,14 +99,12 @@ interface PayoutRecord {
         <div class="flex flex-row lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none shrink-0">
           @for (tab of tabs; track tab.id) {
             <button (click)="activeTab.set(tab.id)"
-              [class]="'glare-hover text-left px-4 py-3 rounded-2xl text-xs font-black transition whitespace-nowrap min-w-[140px] lg:min-w-0 ' +
+              [class]="'glare-hover text-left px-4 py-3 rounded-2xl text-xs font-black transition whitespace-nowrap min-w-[140px] lg:min-w-0 flex items-center gap-3 ' +
                 (activeTab() === tab.id
                   ? 'bg-gradient-to-r from-red-700/80 to-orange-600/50 text-white border border-red-500/30 shadow-md shadow-red-600/10'
                   : 'text-white/60 hover:text-white')">
-              <span class="relative z-10 flex items-center gap-3">
-                <span class="text-sm">{{ tab.icon }}</span>
-                {{ tab.name }}
-              </span>
+              <span class="text-sm">{{ tab.icon }}</span>
+              {{ tab.name }}
             </button>
           }
         </div>
@@ -124,8 +112,8 @@ interface PayoutRecord {
         <!-- Selected Tab View Content -->
         <div class="glass rounded-[2rem] p-6 min-h-[500px] border border-white/10 bg-black/35 shadow-2xl space-y-6">
 
-          <!-- TAB 1: DASHBOARD (Overview KPIs, Quick Actions, AI Insights) -->
-          <div *ngIf="activeTab() === 'dashboard'" class="space-y-6 animate-fadeIn">
+          <!-- TAB 1: OVERVIEW (Overview KPIs, Quick Actions, AI Insights) -->
+          <div *ngIf="activeTab() === 'overview'" class="space-y-6 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/5 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">📊 Operations Dashboard</h3>
@@ -135,7 +123,7 @@ interface PayoutRecord {
             </div>
 
             <!-- QUICK ACTIONS PANEL -->
-            <div class="glass rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-neutral-900 to-red-950/10 space-y-3 shadow-md">
+            <div class="glass rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-neutral-900 to-red-955/10 space-y-3 shadow-md">
               <h4 class="text-xs font-black uppercase text-white/55 tracking-wider flex items-center gap-1.5">
                 ⚡ Quick Campaigns Launcher
               </h4>
@@ -169,7 +157,7 @@ interface PayoutRecord {
             </div>
 
             <!-- AI INSIGHTS & recommendations PANEL -->
-            <div class="glass rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-neutral-900 via-red-950/15 to-blue-950/10 space-y-3.5 shadow-lg relative overflow-hidden">
+            <div class="glass rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-neutral-900 via-red-955/15 to-blue-955/10 space-y-3.5 shadow-lg relative overflow-hidden">
               <!-- Ambient background decoration -->
               <div class="absolute right-0 top-0 w-24 h-24 bg-red-500/10 rounded-full blur-xl pointer-events-none"></div>
               
@@ -193,13 +181,6 @@ interface PayoutRecord {
                   <div class="text-xs">
                     <p class="font-bold text-white">Price Optimization Opportunity</p>
                     <p class="text-white/50 text-[11px] mt-0.5">Your "Detroit Deep Dish Pepperoni" has been compared 1,802 times this week with zero price bounce metrics. Standard margin parameters suggest raising its base price by $0.75 which would yield <b>+$135.15</b> weekly revenue with negligible volume loss.</p>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3 p-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition">
-                  <span class="text-lg shrink-0 mt-0.5">⏰</span>
-                  <div class="text-xs">
-                    <p class="font-bold text-white">Demand Forecast &amp; Hours Schedule</p>
-                    <p class="text-white/50 text-[11px] mt-0.5">Platform volume forecasts indicate a 22% peak order volume spike this Friday between 6:00 PM and 8:30 PM. Verify that your Chef and Driver teams are fully staffed and set to active status in the team directory.</p>
                   </div>
                 </div>
               </div>
@@ -243,436 +224,13 @@ interface PayoutRecord {
                 <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Customer Rating</p>
               </div>
             </div>
-
-            <!-- Double Column Layout: SVG Chart + MiSlice Insights -->
-            <div class="grid md:grid-cols-2 gap-6">
-              
-              <!-- Responsive Weekly Sales SVG Graph -->
-              <div class="glass rounded-3xl p-5 border border-white/5 bg-black/20 space-y-4">
-                <h4 class="text-xs font-black text-white/60 uppercase tracking-widest">Weekly Sales &amp; Traffic</h4>
-                <div class="h-44 w-full flex items-end">
-                  <svg viewBox="0 0 400 150" class="w-full h-full text-red-500 overflow-visible">
-                    <!-- Grid Lines -->
-                    <line x1="0" y1="20" x2="400" y2="20" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
-                    <line x1="0" y1="70" x2="400" y2="70" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
-                    <line x1="0" y1="120" x2="400" y2="120" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
-                    
-                    <!-- Line Path -->
-                    <path d="M 20 120 L 80 90 L 140 110 L 200 60 L 260 80 L 320 40 L 380 30" 
-                      fill="none" stroke="url(#gradient)" stroke-width="4" stroke-linecap="round"/>
-                    
-                    <!-- Area Fill -->
-                    <path d="M 20 120 L 80 90 L 140 110 L 200 60 L 260 80 L 320 40 L 380 30 L 380 150 L 20 150 Z" 
-                      fill="url(#areaGradient)" opacity="0.15"/>
-
-                    <!-- Data dots -->
-                    <circle cx="200" cy="60" r="5" fill="#f97316"/>
-                    <circle cx="380" cy="30" r="5" fill="#dc2626"/>
-
-                    <!-- X Axis Labels -->
-                    <text x="20" y="145" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">Mon</text>
-                    <text x="140" y="145" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">Wed</text>
-                    <text x="260" y="145" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">Fri</text>
-                    <text x="380" y="145" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">Today</text>
-
-                    <!-- Gradients -->
-                    <defs>
-                      <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#f97316"/>
-                        <stop offset="100%" stop-color="#dc2626"/>
-                      </linearGradient>
-                      <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#dc2626"/>
-                        <stop offset="100%" stop-color="transparent"/>
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-                <div class="flex justify-between items-center text-[10px] text-white/40">
-                  <p>Weekly peak ordering: <b>Fri 6:00 PM - 8:30 PM</b></p>
-                  <p>AOV: <b>$24.50</b></p>
-                </div>
-              </div>
-
-              <!-- MiSlice Exclusive Insights & Analytics -->
-              <div class="glass rounded-3xl p-5 border border-white/5 bg-black/20 space-y-4">
-                <h4 class="text-xs font-black text-white/60 uppercase tracking-widest">MiSlice Competitive Insights</h4>
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                  <div class="p-3 bg-white/5 border border-white/5 rounded-2xl text-center">
-                    <p class="text-[10px] font-bold text-white/40 uppercase tracking-wider">Price Competitiveness</p>
-                    <p class="text-xl font-black text-emerald-400 mt-1">94%</p>
-                    <p class="text-[9px] text-white/40 mt-0.5">Competitive in local area</p>
-                  </div>
-                  <div class="p-3 bg-white/5 border border-white/5 rounded-2xl text-center">
-                    <p class="text-[10px] font-bold text-white/40 uppercase tracking-wider">Search Ranking</p>
-                    <p class="text-xl font-black text-yellow-400 mt-1">#3</p>
-                    <p class="text-[9px] text-white/40 mt-0.5">In city search index</p>
-                  </div>
-                  <div class="p-3 bg-white/5 border border-white/5 rounded-2xl text-center">
-                    <p class="text-[10px] font-bold text-white/40 uppercase tracking-wider">Total Clicks</p>
-                    <p class="text-xl font-black text-white mt-1">1,402</p>
-                    <p class="text-[9px] text-white/40 mt-0.5">Customer views this week</p>
-                  </div>
-                  <div class="p-3 bg-white/5 border border-white/5 rounded-2xl text-center">
-                    <p class="text-[10px] font-bold text-white/40 uppercase tracking-wider">Leaderboard Rank</p>
-                    <p class="text-xl font-black text-red-400 mt-1">#2</p>
-                    <p class="text-[9px] text-white/40 mt-0.5">Most compared pepperoni</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
 
-          <!-- TAB 2: ACTIVE KITCHEN ORDERS -->
-          <div *ngIf="activeTab() === 'orders'" class="space-y-4 animate-fadeIn">
+          <!-- TAB 2: STORE PROFILE (Store settings, Operating Hours, info) -->
+          <div *ngIf="activeTab() === 'profile'" class="space-y-4 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <h3 class="text-lg font-black text-white">📦 Active Kitchen Orders</h3>
-                <p class="text-xs text-white/50 mt-0.5">Manage live order requests, accept/reject, and transition order states.</p>
-              </div>
-              <div class="flex gap-1 bg-white/5 p-1 rounded-xl">
-                <button *ngFor="let mode of ['active', 'history']" (click)="orderSubTab.set(mode)"
-                  [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize ' + (orderSubTab() === mode ? 'bg-red-600 text-white shadow-sm' : 'text-white/50 hover:text-white')">
-                  {{ mode }}
-                </button>
-              </div>
-            </div>
-
-            <div *ngIf="loadingOrders()" class="flex justify-center py-12">
-              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-            </div>
-
-            <div *ngIf="!loadingOrders() && filteredOrders().length === 0" class="text-center py-12 text-white/40 text-xs">
-              No orders found in this section.
-            </div>
-
-            <div *ngIf="!loadingOrders() && filteredOrders().length > 0" class="space-y-3">
-              <div *ngFor="let order of filteredOrders()" class="glass rounded-2xl p-5 border border-white/5 flex flex-col md:flex-row justify-between gap-4">
-                <div class="space-y-2">
-                  <div class="flex items-center gap-2">
-                    <h4 class="font-bold text-white text-sm">Order #{{ order.orderNumber }}</h4>
-                    <span [class]="getStatusClass(order.status)" class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
-                      {{ order.status }}
-                    </span>
-                    <span class="text-[9px] font-bold text-white/40 bg-white/5 px-2 py-0.5 rounded-full capitalize">
-                      {{ order.deliveryType?.replace('_', ' ') }}
-                    </span>
-                  </div>
-                  <p class="text-[10px] text-white/40">{{ order.placedAt | date:'medium' }}</p>
-
-                  <div class="space-y-1 pt-1">
-                    <div *ngFor="let item of order.items" class="text-xs text-white/80">
-                      🍕 <b class="text-white">{{ item.quantity }}x</b> {{ item.itemName }} ({{ item.size }})
-                      <div *ngIf="item.toppings?.length" class="text-[10px] text-white/40 ml-4">
-                        Toppings: {{ item.toppings.join(', ') }}
-                      </div>
-                    </div>
-                  </div>
-                  <p class="text-[10px] text-white/60 bg-white/5 p-2 rounded-xl border border-white/5 inline-block" *ngIf="order.deliveryAddress">
-                    📍 Delivery Address: {{ order.deliveryAddress }}
-                  </p>
-                </div>
-
-                <div class="flex flex-col justify-between items-end gap-3 min-w-[150px]">
-                  <span class="font-black text-white text-base">{{ order.total | currency }}</span>
-                  <div class="flex gap-2">
-                    <button *ngIf="order.status === 'PENDING' || order.status === 'PLACED'" (click)="updateStatus(order.id, 'PREPARING')"
-                      class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
-                      Accept &amp; Prepare
-                    </button>
-                    <button *ngIf="order.status === 'PREPARING' && order.deliveryType === 'PICKUP'" (click)="updateStatus(order.id, 'READY_FOR_PICKUP')"
-                      class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
-                      Ready for Pickup
-                    </button>
-                    <button *ngIf="order.status === 'PREPARING' && order.deliveryType !== 'PICKUP'" (click)="updateStatus(order.id, 'OUT_FOR_DELIVERY')"
-                      class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
-                      Out for Delivery
-                    </button>
-                    <button *ngIf="order.status === 'READY_FOR_PICKUP' || order.status === 'OUT_FOR_DELIVERY'" (click)="updateStatus(order.id, 'DELIVERED')"
-                      class="bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
-                      Mark Delivered
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB 3: MENU MANAGER (Manual & OCR Cloud Vision Importer) -->
-          <div *ngIf="activeTab() === 'menu'" class="space-y-4 animate-fadeIn">
-            <div>
-              <h3 class="text-lg font-black text-white">🍕 Menu Catalog &amp; Price Manager</h3>
-              <p class="text-xs text-white/50 mt-0.5">Control pricing types, available custom options, and add/edit menu pizzas.</p>
-            </div>
-
-            <!-- Add new item -->
-            <div class="glass rounded-2xl p-5 border border-white/5 space-y-3 bg-white/5">
-              <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider">Add Pizza or Side Item</h4>
-              <div class="grid sm:grid-cols-4 gap-2 text-xs">
-                <input type="text" [(ngModel)]="newItem.name" placeholder="Item name (e.g. Buffalo Chicken Pizza)"
-                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500 sm:col-span-2" />
-                <input type="number" [(ngModel)]="newItem.basePrice" placeholder="Base Price $" min="0" step="0.01"
-                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                <select [(ngModel)]="newItem.itemType"
-                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500">
-                  <option class="bg-neutral-900" *ngFor="let t of itemTypes" [value]="t">{{ t }}</option>
-                </select>
-              </div>
-              <div class="flex justify-end pt-1">
-                <button (click)="addItem()" [disabled]="!newItem.name.trim() || savingItem()"
-                  class="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-bold rounded-xl transition shadow-lg">
-                  + Add Item
-                </button>
-              </div>
-            </div>
-
-            <!-- Google Cloud Vision OCR Menu Import -->
-            <div class="glass rounded-2xl p-5 border border-white/5 space-y-4 bg-gradient-to-br from-neutral-900 to-red-955/20">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-white/5 pb-2">
-                <div>
-                  <h4 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-                    ✨ AI Menu Import (Cloud Vision OCR)
-                  </h4>
-                  <p class="text-[10px] text-white/50">Upload a photo of your paper menu or sign. Our AI extracts items and pricing instantly.</p>
-                </div>
-                <span class="text-[8px] font-black tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md">POWERED BY GOOGLE CLOUD VISION</span>
-              </div>
-
-              <!-- Upload Drag & Drop area -->
-              <div class="flex items-center justify-center w-full">
-                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-white/10 border-dashed rounded-2xl cursor-pointer bg-white/5 hover:bg-white/10 hover:border-red-500/50 transition">
-                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <span class="text-3xl mb-2">📸</span>
-                    <p class="text-xs font-bold text-white">Select or Drag Menu Photo</p>
-                    <p class="text-[10px] text-white/40 mt-0.5">Supports PNG, JPG, JPEG, WebP</p>
-                  </div>
-                  <input type="file" class="hidden" (change)="onMenuFileSelected($event)" accept="image/*" />
-                </label>
-              </div>
-
-              <!-- Loading Indicator -->
-              <div *ngIf="processingOcr()" class="flex flex-col items-center justify-center py-4 space-y-2">
-                <div class="animate-spin rounded-full h-7 w-7 border-t-2 border-red-500"></div>
-                <p class="text-[10px] text-white/50 font-bold animate-pulse">Running Cloud Vision OCR text extraction...</p>
-              </div>
-
-              <!-- OCR Suggestions Review Pane -->
-              <div *ngIf="ocrSuggestions().length > 0" class="space-y-3 pt-2">
-                <div class="flex items-center justify-between">
-                  <h5 class="text-xs font-black text-white/80">📋 Parsed Suggestions (Review &amp; Edit)</h5>
-                  <button (click)="ocrSuggestions.set([])" class="text-[10px] text-white/40 hover:text-white underline">Clear</button>
-                </div>
-                <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                  @for (s of ocrSuggestions(); track $index) {
-                    <div class="glass-soft rounded-xl p-3 border border-white/5 flex items-center gap-3 bg-black/20 text-xs">
-                      <input type="checkbox" [(ngModel)]="s.selected" class="w-4 h-4 accent-red-600 rounded cursor-pointer" />
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
-                        <input type="text" [(ngModel)]="s.name" placeholder="Item Name"
-                          class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs outline-none focus:border-red-500" />
-                        <div class="flex items-center gap-1">
-                          <span class="text-white/45">$</span>
-                          <input type="number" [(ngModel)]="s.basePrice" min="0" step="0.01"
-                            class="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs outline-none focus:border-red-500" />
-                        </div>
-                        <select [(ngModel)]="s.itemType"
-                          class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs outline-none focus:border-red-500">
-                          <option class="bg-neutral-900" *ngFor="let t of itemTypes" [value]="t">{{ t }}</option>
-                        </select>
-                      </div>
-                    </div>
-                  }
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                  <button (click)="importSelectedOcrItems()" [disabled]="importingOcr()"
-                    class="px-4 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-black text-xs rounded-xl transition shadow-lg shadow-red-500/10">
-                    {{ importingOcr() ? 'Importing...' : 'Confirm & Import Selected Items' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="loadingMenu()" class="flex justify-center py-12">
-              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-            </div>
-
-            <div *ngIf="!loadingMenu() && menuItems().length === 0" class="text-center py-10 text-white/40 text-xs">
-              No menu items yet. Add your first pizza above.
-            </div>
-
-            <div class="space-y-2 pt-1">
-              <div *ngFor="let item of menuItems()" class="glass rounded-xl p-4 border border-white/5 flex flex-wrap items-center justify-between gap-3 bg-white/5">
-                <div class="min-w-0">
-                  <h4 class="text-sm font-bold text-white truncate">{{ item.name }}</h4>
-                  <span class="text-[9px] bg-white/10 text-white/50 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ item.itemType }}</span>
-                </div>
-
-                <div class="flex items-center gap-3">
-                  <!-- price input -->
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-xs text-white/40">$</span>
-                    <input type="number" [(ngModel)]="item.basePrice" min="0" step="0.01"
-                      class="w-20 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-center text-white outline-none focus:border-red-500" />
-                    <button (click)="saveItem(item)" [disabled]="savingItem()"
-                      class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white transition">Save</button>
-                  </div>
-                  <!-- toggle stock -->
-                  <button (click)="toggleAvailability(item)"
-                    [class]="'px-3 py-1 rounded-lg text-[10px] font-bold transition ' + (item.available ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400')">
-                    {{ item.available ? 'In Stock' : 'Out of Stock' }}
-                  </button>
-                  <!-- delete -->
-                  <button (click)="deleteItem(item)" title="Delete item"
-                    class="px-2 py-1 rounded-lg text-[10px] font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 transition">✕</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB 4: DEALS & PROMOTIONS -->
-          <div *ngIf="activeTab() === 'deals'" class="space-y-4 animate-fadeIn">
-            <div>
-              <h3 class="text-lg font-black text-white">🏷️ Store Deals &amp; Promotions</h3>
-              <p class="text-xs text-white/50 mt-0.5">Publish special discount rates and campaign specials visible on the comparison board.</p>
-            </div>
-
-            <div class="grid sm:grid-cols-2 gap-6">
-              <!-- Add Deal Form -->
-              <div class="glass rounded-2xl p-5 border border-white/5 space-y-3 bg-white/5 flex flex-col justify-between">
-                <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider">Create Custom Promo / BOGO</h4>
-                <div class="space-y-3 text-xs">
-                  <div>
-                    <label class="block text-[10px] text-white/40 mb-1">Deal Title</label>
-                    <input type="text" [(ngModel)]="newDeal.title" placeholder="e.g. Double Play: 2 Mediums for $19.99"
-                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                  </div>
-                  <div>
-                    <label class="block text-[10px] text-white/40 mb-1">Description</label>
-                    <input type="text" [(ngModel)]="newDeal.description" placeholder="Include toppings limit or size details"
-                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                  </div>
-                  <div class="grid grid-cols-2 gap-2">
-                    <div>
-                      <label class="block text-[10px] text-white/40 mb-1">Original Price ($)</label>
-                      <input type="number" [(ngModel)]="newDeal.originalPrice" placeholder="24.99" min="0" step="0.01"
-                        class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                    </div>
-                    <div>
-                      <label class="block text-[10px] text-white/40 mb-1">Sale / Deal Price ($)</label>
-                      <input type="number" [(ngModel)]="newDeal.discountedPrice" placeholder="19.99" min="0" step="0.01"
-                        class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                    </div>
-                  </div>
-                  <button (click)="addDeal()" [disabled]="!newDeal.title.trim() || savingDeal()"
-                    class="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-black rounded-xl transition shadow-lg mt-2">
-                    Publish Campaign 🏷️
-                  </button>
-                </div>
-              </div>
-
-              <!-- Active Deals List -->
-              <div class="space-y-3">
-                <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider">Active Campaigns &amp; Conversion</h4>
-                <div *ngIf="loadingDeals()" class="flex justify-center py-8">
-                  <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-red-500"></div>
-                </div>
-                <div *ngIf="!loadingDeals() && deals().length === 0" class="text-center py-8 text-white/40 text-xs">
-                  No deals yet. Create one to attract buyers.
-                </div>
-                <div *ngFor="let deal of deals()" class="glass rounded-xl p-4 border border-white/5 flex justify-between items-center text-xs bg-white/5">
-                  <div class="min-w-0">
-                    <span class="font-black text-white text-sm">{{ deal.title }}</span>
-                    <p class="text-xs text-white/50 mt-0.5 truncate">{{ deal.description }}</p>
-                    <p class="text-[10px] text-white/40 mt-1">
-                      <span *ngIf="deal.originalPrice" class="line-through text-white/30">{{ deal.originalPrice | currency }}</span>
-                      <span *ngIf="deal.discountedPrice" class="text-emerald-400 font-bold ml-1">{{ deal.discountedPrice | currency }}</span>
-                    </p>
-                  </div>
-                  <div class="flex flex-col items-end gap-2 shrink-0">
-                    <button (click)="toggleDeal(deal)"
-                      [class]="'px-2.5 py-1 rounded-lg text-[10px] font-black transition ' + (deal.active ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20' : 'text-red-400 bg-red-500/10 border border-red-500/20')">
-                      {{ deal.active ? 'Active' : 'Disabled' }}
-                    </button>
-                    <span class="text-[9px] text-white/40">CTR: <b>8.4%</b></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB 5: REVIEWS & RATINGS -->
-          <div *ngIf="activeTab() === 'reviews'" class="space-y-6 animate-fadeIn">
-            <div>
-              <h3 class="text-lg font-black text-white">⭐ Customer Reviews &amp; Ratings Breakdown</h3>
-              <p class="text-xs text-white/50 mt-0.5">Read reviews, filter feedback, and monitor overall store rating parameters.</p>
-            </div>
-
-            <!-- Sentiment & Breakdown Cards -->
-            <div class="grid sm:grid-cols-2 gap-4">
-              <div class="glass p-5 rounded-2xl border border-white/5 bg-white/5 flex flex-col justify-between">
-                <p class="text-white/40 text-[10px] font-black uppercase tracking-wider">Overall Sentiment Meter</p>
-                <div class="flex items-center gap-3 mt-2">
-                  <div class="text-3xl">😊</div>
-                  <div>
-                    <p class="text-2xl font-black text-emerald-400">92% Positive</p>
-                    <p class="text-[9px] text-white/40 mt-0.5">Based on sentiment analysis of 24 reviews</p>
-                  </div>
-                </div>
-              </div>
-              <div class="glass p-5 rounded-2xl border border-white/5 bg-white/5 space-y-1.5 text-xs">
-                <p class="text-white/40 text-[10px] font-black uppercase tracking-wider mb-1">Stars Distribution</p>
-                <div class="flex items-center gap-2">
-                  <span class="w-10 text-[10px] text-white/50 text-right">5 ★</span>
-                  <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full bg-yellow-400" style="width: 80%"></div>
-                  </div>
-                  <span class="w-8 text-[10px] text-white/60 text-left">80%</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-10 text-[10px] text-white/50 text-right">4 ★</span>
-                  <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full bg-yellow-400" style="width: 15%"></div>
-                  </div>
-                  <span class="w-8 text-[10px] text-white/60 text-left">15%</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-10 text-[10px] text-white/50 text-right">3 ★</span>
-                  <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full bg-yellow-400" style="width: 5%"></div>
-                  </div>
-                  <span class="w-8 text-[10px] text-white/60 text-left">5%</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Review feeds -->
-            <div class="space-y-3">
-              <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider">Recent Feedback Feed</h4>
-              <div *ngFor="let rev of mockReviews" class="glass rounded-2xl p-4 border border-white/5 bg-white/5 space-y-2">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <span class="text-xs font-black text-white">{{ rev.author }}</span>
-                    <p class="text-[9px] text-white/40">{{ rev.date | date }}</p>
-                  </div>
-                  <span class="text-xs text-yellow-400 font-bold">★ {{ rev.rating }}.0</span>
-                </div>
-                <p class="text-xs text-white/70 leading-relaxed font-medium">"{{ rev.comment }}"</p>
-                
-                <!-- Response input -->
-                <div class="pt-2 border-t border-white/5 flex gap-2">
-                  <input type="text" placeholder="Write official merchant response..." 
-                    class="flex-1 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 text-[10px] text-white outline-none focus:border-red-500" />
-                  <button class="bg-red-600 hover:bg-red-500 px-3 py-1 rounded-lg text-[9px] font-black text-white transition">Send</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB 6: STORE HOURS -->
-          <div *ngIf="activeTab() === 'hours'" class="space-y-4 animate-fadeIn">
-            <div class="flex items-center justify-between border-b border-white/10 pb-3">
-              <div>
-                <h3 class="text-lg font-black text-white">⏰ Store Hours &amp; Operating Settings</h3>
+                <h3 class="text-lg font-black text-white">🏢 Store Profile &amp; Settings</h3>
                 <p class="text-xs text-white/50 mt-0.5">Control operating hours schedule, delivery parameters, and contact info.</p>
               </div>
               <span *ngIf="settingsSaved()" class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-xl border border-emerald-500/20 animate-fadeIn">✓ Saved successfully</span>
@@ -725,7 +283,7 @@ interface PayoutRecord {
 
                 <button (click)="saveSettings()" [disabled]="savingSettings()"
                   class="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-black rounded-xl transition shadow-lg mt-3">
-                  {{ savingSettings() ? 'Saving Hours & Settings...' : 'Save Operations Settings' }}
+                  {{ savingSettings() ? 'Saving Profile...' : 'Save Operations Settings' }}
                 </button>
               </div>
 
@@ -761,88 +319,271 @@ interface PayoutRecord {
             </div>
           </div>
 
-          <!-- TAB 7: INSIGHTS & SALES -->
-          <div *ngIf="activeTab() === 'insights'" class="space-y-6 animate-fadeIn">
+          <!-- TAB 3: MENU BUILDER (Category selector, Pizza list, OCR upload) -->
+          <div *ngIf="activeTab() === 'menu'" class="space-y-4 animate-fadeIn">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+              <div>
+                <h3 class="text-lg font-black text-white">🍕 Menu Builder</h3>
+                <p class="text-xs text-white/50 mt-0.5">Configure your categories and visual items catalog.</p>
+              </div>
+              <button (click)="showManualAdd.set(!showManualAdd())"
+                class="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl transition shadow-lg flex items-center gap-1.5">
+                ➕ Add Item
+              </button>
+            </div>
+
+            <!-- Manual Item Form -->
+            <div *ngIf="showManualAdd()" class="glass rounded-2xl p-5 border border-white/5 space-y-3 bg-white/5 animate-fadeIn">
+              <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider">Add Pizza or Side Item</h4>
+              <div class="grid sm:grid-cols-4 gap-2 text-xs">
+                <input type="text" [(ngModel)]="newItem.name" placeholder="Item name (e.g. Buffalo Chicken Pizza)"
+                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500 sm:col-span-2" />
+                <input type="number" [(ngModel)]="newItem.basePrice" placeholder="Base Price $" min="0" step="0.01"
+                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                <select [(ngModel)]="newItem.itemType"
+                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500">
+                  <option class="bg-neutral-900" *ngFor="let t of itemTypes" [value]="t">{{ t }}</option>
+                </select>
+              </div>
+              <div class="flex justify-end pt-1">
+                <button (click)="addItem()" [disabled]="!newItem.name.trim() || savingItem()"
+                  class="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-bold rounded-xl transition shadow-lg">
+                  + Add Item
+                </button>
+              </div>
+            </div>
+
+            <!-- Categories Selector Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div *ngFor="let cat of menuCategories; let i = index" (click)="selectedMenuCategory.set(cat)"
+                [class]="selectedMenuCategory() === cat 
+                  ? 'p-4 rounded-xl border font-bold text-center cursor-pointer transition bg-red-600/20 border-red-500 text-red-500' 
+                  : 'p-4 rounded-xl border font-bold text-center cursor-pointer transition bg-white/5 border-white/10 text-stone-400 hover:bg-white/10 hover:text-white'">
+                {{ cat }}
+              </div>
+            </div>
+
+            <!-- Google Cloud Vision OCR Menu Import -->
+            <div class="glass rounded-2xl p-5 border border-white/5 space-y-4 bg-gradient-to-br from-neutral-900 to-red-955/20">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-white/5 pb-2">
+                <div>
+                  <h4 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                    ✨ AI Menu Import (Cloud Vision OCR)
+                  </h4>
+                  <p class="text-[10px] text-white/50">Upload a photo of your paper menu or sign. Our AI extracts items and pricing instantly.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-center w-full">
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-white/10 border-dashed rounded-2xl cursor-pointer bg-white/5 hover:bg-white/10 hover:border-red-500/50 transition">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <span class="text-3xl mb-2">📸</span>
+                    <p class="text-xs font-bold text-white">Select or Drag Menu Photo</p>
+                    <p class="text-[10px] text-white/40 mt-0.5">Supports PNG, JPG, JPEG, WebP</p>
+                  </div>
+                  <input type="file" class="hidden" (change)="onMenuFileSelected($event)" accept="image/*" />
+                </label>
+              </div>
+
+              <div *ngIf="processingOcr()" class="flex flex-col items-center justify-center py-4 space-y-2">
+                <div class="animate-spin rounded-full h-7 w-7 border-t-2 border-red-500"></div>
+                <p class="text-[10px] text-white/50 font-bold animate-pulse">Running Cloud Vision OCR text extraction...</p>
+              </div>
+
+              <!-- OCR Suggestions Review Pane -->
+              <div *ngIf="ocrSuggestions().length > 0" class="space-y-3 pt-2">
+                <div class="flex items-center justify-between">
+                  <h5 class="text-xs font-black text-white/80">📋 Parsed Suggestions (Review &amp; Edit)</h5>
+                  <button (click)="ocrSuggestions.set([])" class="text-[10px] text-white/40 hover:text-white underline">Clear</button>
+                </div>
+                <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  @for (s of ocrSuggestions(); track $index) {
+                    <div class="glass-soft rounded-xl p-3 border border-white/5 flex items-center gap-3 bg-black/20 text-xs">
+                      <input type="checkbox" [(ngModel)]="s.selected" class="w-4 h-4 accent-red-600 rounded cursor-pointer" />
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                        <input type="text" [(ngModel)]="s.name" placeholder="Item Name"
+                          class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs outline-none focus:border-red-500" />
+                        <div class="flex items-center gap-1">
+                          <span class="text-white/45">$</span>
+                          <input type="number" [(ngModel)]="s.basePrice" min="0" step="0.01"
+                            class="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs outline-none focus:border-red-500" />
+                        </div>
+                        <select [(ngModel)]="s.itemType"
+                          class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs outline-none focus:border-red-500">
+                          <option class="bg-neutral-900" *ngFor="let t of itemTypes" [value]="t">{{ t }}</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                  <button (click)="importSelectedOcrItems()" [disabled]="importingOcr()"
+                    class="px-4 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-black text-xs rounded-xl transition shadow-lg shadow-red-500/10">
+                    {{ importingOcr() ? 'Importing...' : 'Confirm & Import Selected Items' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Menu Items List -->
+            <div *ngIf="loadingMenu()" class="flex justify-center py-12">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+            </div>
+
+            <div *ngIf="!loadingMenu() && filteredMenuItems().length === 0" class="text-center py-10 text-white/40 text-xs">
+              No items found in category "{{ selectedMenuCategory() }}".
+            </div>
+
+            <div class="space-y-4">
+              <div *ngFor="let item of filteredMenuItems()" class="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-stone-900 rounded-lg flex items-center justify-center text-xl">🍕</div>
+                  <div>
+                    <p class="text-white font-bold">{{ item.name }}</p>
+                    <p class="text-xs text-stone-500">Base Price: {{ item.basePrice | currency }}</p>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button (click)="saveItem(item)"
+                    class="text-xs font-bold text-stone-400 hover:text-white px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition">Save</button>
+                  <button (click)="toggleAvailability(item)"
+                    [class]="'text-xs font-bold px-3 py-1 rounded-lg transition ' + (item.available ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20' : 'text-red-400 bg-red-500/10 hover:bg-red-500/20')">
+                    {{ item.available ? 'Active' : 'Disable' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: PRICE MANAGER (Quick item list base price editor) -->
+          <div *ngIf="activeTab() === 'price'" class="space-y-4 animate-fadeIn">
             <div>
-              <h3 class="text-lg font-black text-white">📈 Sales Analytics &amp; Conversion</h3>
-              <p class="text-xs text-white/50 mt-0.5">Detailed metrics regarding average order value, conversion rates, and item performance.</p>
+              <h3 class="text-lg font-black text-white">💰 Price Manager</h3>
+              <p class="text-xs text-white/50 mt-0.5">Quickly edit all menu item prices on a single spreadsheet grid.</p>
             </div>
 
-            <!-- Stats grid -->
-            <div class="grid md:grid-cols-3 gap-4">
-              <div class="glass p-4 rounded-2xl border border-white/5 text-center bg-white/5">
-                <p class="text-white/40 text-[10px] font-black uppercase tracking-wider">AOV (Average Order Value)</p>
-                <p class="text-3xl font-black text-white mt-1">$28.15</p>
-                <p class="text-[9px] text-emerald-400 mt-1">▲ 5.4% from last month</p>
-              </div>
+            <div class="glass-soft rounded-2xl border border-white/5 overflow-hidden">
+              <table class="w-full text-xs text-left text-white/70">
+                <thead class="bg-white/5 text-[10px] uppercase font-black tracking-widest text-white/40 border-b border-white/5">
+                  <tr>
+                    <th class="px-4 py-3">Item Name</th>
+                    <th class="px-4 py-3">Category</th>
+                    <th class="px-4 py-3">Current Price</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 bg-black/10">
+                  <tr *ngFor="let item of menuItems()">
+                    <td class="px-4 py-3 text-white font-bold">{{ item.name }}</td>
+                    <td class="px-4 py-3"><span class="bg-white/5 px-2 py-0.5 rounded text-[10px] font-black uppercase">{{ item.itemType }}</span></td>
+                    <td class="px-4 py-3">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-white/40">$</span>
+                        <input type="number" [(ngModel)]="item.basePrice" min="0" step="0.01"
+                          class="w-24 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 text-white text-xs outline-none focus:border-red-500" />
+                      </div>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      <button (click)="saveItem(item)"
+                        class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1.5 rounded-lg transition text-[10px]">
+                        Save
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-              <div class="glass p-4 rounded-2xl border border-white/5 text-center bg-white/5">
-                <p class="text-white/40 text-[10px] font-black uppercase tracking-wider">Quote Conversion Rate</p>
-                <p class="text-3xl font-black text-white mt-1">4.82%</p>
-                <p class="text-[9px] text-emerald-400 mt-1">▲ 0.8% platform average</p>
+          <!-- TAB 5: LIVE ORDERS (4-Column Status Kanban Board) -->
+          <div *ngIf="activeTab() === 'orders'" class="space-y-6 animate-fadeIn">
+            <div class="flex justify-between items-center border-b border-white/5 pb-3">
+              <div>
+                <h3 class="text-lg font-black text-white">📦 Live Orders Board</h3>
+                <p class="text-xs text-white/50 mt-0.5">Drag-like pipeline for processing new, active, and ready orders.</p>
               </div>
-
-              <div class="glass p-4 rounded-2xl border border-white/5 text-center bg-white/5">
-                <p class="text-white/40 text-[10px] font-black uppercase tracking-wider">Customer Lifetime Value (CLV)</p>
-                <p class="text-3xl font-black text-white mt-1">$112.50</p>
-                <p class="text-[9px] text-white/35 mt-1">Target benchmark: $120</p>
-              </div>
+              <span class="text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-md border border-emerald-500/20">LIVE RADAR</span>
             </div>
 
-            <!-- Best vs Worst Selling Pizzas Table -->
-            <div class="glass rounded-3xl p-5 border border-white/5 bg-black/25 space-y-3">
-              <h4 class="text-xs font-black uppercase text-white/50 tracking-wider">Item Popularity Leaderboard</h4>
-              <div class="space-y-2">
-                <div class="flex justify-between items-center text-xs border-b border-white/5 pb-2 text-white/40 font-bold">
-                  <span>Pizza Name</span>
-                  <div class="flex gap-12">
-                    <span>Views</span>
-                    <span>Comparisons</span>
-                    <span>Conversion</span>
-                  </div>
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              <!-- Kanban columns -->
+              <div *ngFor="let col of kanbanColumns" class="bg-black/40 border border-white/10 rounded-2xl flex flex-col overflow-hidden h-[600px]">
+                <div class="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
+                  <h3 [class]="col.color" class="font-black text-xs uppercase tracking-wider">{{ col.title }}</h3>
+                  <span class="bg-white/10 px-2 py-0.5 rounded-full text-xs font-bold text-white">{{ col.items.length }}</span>
                 </div>
-                <div class="flex justify-between items-center text-xs py-1">
-                  <span class="text-white font-bold">Detroit Deep Dish Pepperoni</span>
-                  <div class="flex gap-14 text-white/70">
-                    <span>4,210</span>
-                    <span>1,802</span>
-                    <span class="text-emerald-400 font-bold">6.2%</span>
-                  </div>
-                </div>
-                <div class="flex justify-between items-center text-xs py-1">
-                  <span class="text-white font-bold">Ultimate Meat Lovers Classic</span>
-                  <div class="flex gap-14 text-white/70">
-                    <span>3,105</span>
-                    <span>1,204</span>
-                    <span class="text-emerald-400 font-bold">5.8%</span>
-                  </div>
-                </div>
-                <div class="flex justify-between items-center text-xs py-1">
-                  <span class="text-white font-bold">Garden Veggie Square</span>
-                  <div class="flex gap-14 text-white/70">
-                    <span>1,420</span>
-                    <span>680</span>
-                    <span class="text-yellow-400 font-bold">2.4%</span>
+                <div class="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-none cursor-pointer">
+                  <div *ngFor="let order of col.items" [class]="'bg-white/5 border ' + col.border + ' rounded-xl p-4 hover:bg-white/10 transition-colors'">
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="text-xs font-bold text-white">#{{ order.id.slice(-4).toUpperCase() }}</span>
+                      <span class="text-xs font-black text-emerald-400">{{ order.total | currency }}</span>
+                    </div>
+                    <div class="text-xs text-stone-300 space-y-1 mb-3">
+                      <div *ngFor="let item of order.items">
+                        <b class="text-white">{{ item.quantity }}x</b> {{ item.itemName }}
+                      </div>
+                    </div>
+                    
+                    <select [value]="order.status.toLowerCase()" 
+                      (change)="onOrderStatusDropdownChange(order.id, order.status, $event)"
+                      class="w-full bg-black border border-white/20 text-xs font-bold text-stone-300 rounded-lg p-2 focus:outline-none focus:border-red-500 capitalize">
+                      <option value="pending">Pending</option>
+                      <option value="preparing">Preparing</option>
+                      <option value="ready_for_pickup">Ready for Pickup</option>
+                      <option value="out_for_delivery">Out for Delivery</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- TAB 8: FINANCIALS / BILLING (Payout Request & Logs) -->
-          <div *ngIf="activeTab() === 'finance'" class="space-y-6 animate-fadeIn">
+          <!-- TAB 6: RECEIPTS (Completed Transactions History list) -->
+          <div *ngIf="activeTab() === 'receipts'" class="space-y-4 animate-fadeIn">
+            <div>
+              <h3 class="text-lg font-black text-white">🧾 Order Receipts History</h3>
+              <p class="text-xs text-white/50 mt-0.5">Monitor and export all completed receipt parameters for auditing.</p>
+            </div>
+
+            <div class="glass-soft rounded-2xl border border-white/5 overflow-hidden">
+              <table class="w-full text-xs text-left text-white/70">
+                <thead class="bg-white/5 text-[10px] uppercase font-black tracking-widest text-white/40 border-b border-white/5">
+                  <tr>
+                    <th class="px-4 py-3">Receipt ID</th>
+                    <th class="px-4 py-3">Customer Email</th>
+                    <th class="px-4 py-3">Discharge Date</th>
+                    <th class="px-4 py-3">Net Payment</th>
+                    <th class="px-4 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 bg-black/10">
+                  <tr *ngFor="let order of completedOrdersList()">
+                    <td class="px-4 py-3 font-mono text-[10px] text-white font-bold">REC-{{ order.id.slice(-6).toUpperCase() }}</td>
+                    <td class="px-4 py-3">{{ 'customer@mislice.com' }}</td>
+                    <td class="px-4 py-3">{{ order.placedAt | date:'medium' }}</td>
+                    <td class="px-4 py-3 text-emerald-400 font-bold">{{ order.total | currency }}</td>
+                    <td class="px-4 py-3 text-emerald-400">Paid</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 7: PAYMENTS & PAYOUTS -->
+          <div *ngIf="activeTab() === 'payouts'" class="space-y-6 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <h3 class="text-lg font-black text-white">💳 Financials &amp; Billing</h3>
-                <p class="text-xs text-white/50 mt-0.5">Request payouts, review payout history logs, and verify connected bank billing info.</p>
+                <h3 class="text-lg font-black text-white">💳 Payments &amp; Payouts</h3>
+                <p class="text-xs text-white/50 mt-0.5">Disburse weekly store earnings minus the platform commission.</p>
               </div>
               <button (click)="requestPayout()" [disabled]="netEarnings() <= 0"
                 class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-40 text-white font-black text-xs rounded-xl transition shadow-lg shadow-emerald-500/10">
-                💰 Request Instant Payout
+                Request Instant Payout 💰
               </button>
             </div>
 
-            <!-- Financial metrics overview -->
             <div class="grid sm:grid-cols-2 gap-4">
               <div class="glass p-5 rounded-2xl border border-white/5 bg-white/5">
                 <p class="text-white/40 text-[10px] font-black uppercase tracking-wider">Connected Bank Destination</p>
@@ -865,7 +606,6 @@ interface PayoutRecord {
                     <tr>
                       <th class="px-4 py-3">Payout ID</th>
                       <th class="px-4 py-3">Transfer Date</th>
-                      <th class="px-4 py-3">Routing Destination</th>
                       <th class="px-4 py-3">Amount</th>
                       <th class="px-4 py-3">Status</th>
                     </tr>
@@ -874,7 +614,6 @@ interface PayoutRecord {
                     <tr *ngFor="let p of payoutHistory">
                       <td class="px-4 py-3 font-mono text-[10px]">{{ p.id }}</td>
                       <td class="px-4 py-3">{{ p.date }}</td>
-                      <td class="px-4 py-3">{{ p.bankAccount }}</td>
                       <td class="px-4 py-3 text-white font-bold">{{ p.amount | currency }}</td>
                       <td class="px-4 py-3 text-emerald-400 font-bold">✓ {{ p.status }}</td>
                     </tr>
@@ -884,68 +623,124 @@ interface PayoutRecord {
             </div>
           </div>
 
-          <!-- TAB 9: TEAM MEMBERS -->
-          <div *ngIf="activeTab() === 'staff'" class="space-y-6 animate-fadeIn">
-            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <!-- TAB 8: DEALS & COUPONS (Quick campaign setup) -->
+          <div *ngIf="activeTab() === 'deals'" class="space-y-4 animate-fadeIn">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
               <div>
-                <h3 class="text-lg font-black text-white">👥 Staff &amp; Team Members</h3>
-                <p class="text-xs text-white/50 mt-0.5">Add managers, chefs, and employee accounts to restrict backend console permissions.</p>
+                <h3 class="text-lg font-black text-white">🏷️ Deals &amp; Offers</h3>
+                <p class="text-xs text-white/50 mt-0.5">Publish special discount rates and campaign specials visible on the comparison board.</p>
               </div>
-              <button (click)="showInviteStaff.set(true)" 
-                class="px-3 py-1.5 rounded-lg text-xs font-black text-white bg-red-600 hover:bg-red-500 transition shadow-lg shadow-red-500/10">
-                + Invite Staff
+              <button (click)="showManualDeal.set(!showManualDeal())"
+                class="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl transition shadow-lg flex items-center gap-1.5">
+                ➕ Create Deal
               </button>
             </div>
 
-            <!-- Invite Staff Modal -->
-            <div *ngIf="showInviteStaff()" class="glass rounded-2xl p-4 border border-white/10 bg-white/5 space-y-3 text-xs">
-              <h4 class="font-bold text-white uppercase tracking-wider">Send Team Invite</h4>
-              <div class="grid sm:grid-cols-3 gap-2">
-                <input type="text" [(ngModel)]="newStaff.name" placeholder="Full Name" 
-                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                <input type="email" [(ngModel)]="newStaff.email" placeholder="Email Address" 
-                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
-                <select [(ngModel)]="newStaff.role" 
-                  class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500">
-                  <option value="Manager">Manager</option>
-                  <option value="Chef">Chef</option>
-                  <option value="Cashier">Cashier</option>
-                  <option value="Driver">Driver</option>
-                </select>
-              </div>
-              <div class="flex justify-end gap-2">
-                <button (click)="showInviteStaff.set(false)" class="px-3 py-1.5 rounded-lg font-bold bg-white/10 hover:bg-white/15 text-white">Cancel</button>
-                <button (click)="inviteStaff()" class="px-3 py-1.5 rounded-lg font-black bg-red-600 hover:bg-red-500 text-white shadow-md">Invite</button>
+            <!-- Quick Template Deals Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+              <div *ngFor="let type of ['20% Off', 'Buy One Get One', 'Free Delivery']" (click)="applyQuickAction(type)"
+                class="bg-white/5 border border-white/10 p-6 rounded-2xl text-center hover:border-red-500/50 cursor-pointer transition-all">
+                <div class="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3">➕</div>
+                <p class="text-white font-bold text-sm">{{ type }}</p>
               </div>
             </div>
 
-            <!-- Staff table -->
-            <div class="glass-soft rounded-2xl border border-white/5 overflow-hidden">
-              <table class="w-full text-xs text-left text-white/70">
-                <thead class="bg-white/5 text-[10px] uppercase font-black tracking-widest text-white/40 border-b border-white/5">
-                  <tr>
-                    <th class="px-4 py-3">Name</th>
-                    <th class="px-4 py-3">Role</th>
-                    <th class="px-4 py-3">Email</th>
-                    <th class="px-4 py-3">Joined Date</th>
-                    <th class="px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5 bg-black/10">
-                  <tr *ngFor="let s of staffList">
-                    <td class="px-4 py-3 text-white font-bold">{{ s.name }}</td>
-                    <td class="px-4 py-3">{{ s.role }}</td>
-                    <td class="px-4 py-3">{{ s.email }}</td>
-                    <td class="px-4 py-3">{{ s.joinedAt }}</td>
-                    <td class="px-4 py-3">
-                      <span [class]="s.status === 'Active' ? 'text-emerald-400 bg-emerald-500/10' : 'text-yellow-400 bg-yellow-500/10'" 
-                        class="px-2 py-0.5 rounded-full font-bold text-[9px] uppercase border border-current/10">
-                        {{ s.status }}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Custom Deal Form -->
+            <div *ngIf="showManualDeal()" class="glass rounded-2xl p-5 border border-white/5 space-y-3 bg-white/5 animate-fadeIn">
+              <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider">Create Custom Promo / Coupon</h4>
+              <div class="space-y-3 text-xs">
+                <div>
+                  <label class="block text-[10px] text-white/40 mb-1 font-bold">Deal Title</label>
+                  <input type="text" [(ngModel)]="newDeal.title" placeholder="Double Play: 2 Mediums for $19.99"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-white/40 mb-1 font-bold">Description</label>
+                  <input type="text" [(ngModel)]="newDeal.description" placeholder="Include toppings limit or size details"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[10px] text-white/40 mb-1 font-bold">Original Price ($)</label>
+                    <input type="number" [(ngModel)]="newDeal.originalPrice" placeholder="24.99" min="0" step="0.01"
+                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-white/40 mb-1 font-bold">Sale / Deal Price ($)</label>
+                    <input type="number" [(ngModel)]="newDeal.discountedPrice" placeholder="19.99" min="0" step="0.01"
+                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                  </div>
+                </div>
+                <button (click)="addDeal()" [disabled]="!newDeal.title.trim() || savingDeal()"
+                  class="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 disabled:opacity-40 text-white font-black rounded-xl transition shadow-lg mt-2 text-xs">
+                  Publish Campaign 🏷️
+                </button>
+              </div>
+            </div>
+
+            <!-- Active Deals List -->
+            <div class="space-y-3">
+              <h3 class="text-sm font-bold text-white mb-4">Active Coupons</h3>
+              <div *ngIf="loadingDeals()" class="flex justify-center py-8">
+                <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-red-500"></div>
+              </div>
+              <div *ngIf="!loadingDeals() && deals().length === 0" class="text-center py-8 text-white/40 text-xs">
+                No active deals found.
+              </div>
+              <div *ngFor="let deal of deals()" class="glass rounded-xl p-4 border border-white/5 flex justify-between items-center text-xs bg-white/5">
+                <div>
+                  <p class="text-white font-bold text-sm">{{ deal.title }}</p>
+                  <p class="text-xs font-bold text-green-400 mt-1">
+                    {{ deal.discountedPrice | currency }}
+                    <span class="text-stone-500 line-through font-normal ml-1" *ngIf="deal.originalPrice">{{ deal.originalPrice | currency }}</span>
+                  </p>
+                </div>
+                <button (click)="toggleDeal(deal)"
+                  [class]="'text-xs font-bold px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition ' + (deal.active ? 'text-emerald-400' : 'text-red-400')">
+                  {{ deal.active ? 'Disable' : 'Enable' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 9: ANALYTICS -->
+          <div *ngIf="activeTab() === 'analytics'" class="space-y-6 animate-fadeIn">
+            <div>
+              <h3 class="text-lg font-black text-white">📊 Analytics</h3>
+              <p class="text-xs text-white/50 mt-0.5">Detailed metrics regarding average order value, conversion rates, and item performance.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <!-- Top Selling Pizzas -->
+              <div class="bg-black/40 backdrop-blur-2xl border border-white/10 p-6 rounded-3xl">
+                <h3 class="text-sm font-bold text-stone-500 uppercase tracking-widest mb-4">Top Selling Pizzas</h3>
+                <div class="space-y-4 text-xs">
+                  <div *ngFor="let pizza of topSellingPizzas">
+                    <div class="flex justify-between font-bold text-white mb-1">
+                      <span>{{ pizza.name }}</span>
+                      <span>{{ pizza.pct }}%</span>
+                    </div>
+                    <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                      <div class="bg-red-500 h-full rounded-full" [style.width.%]="pizza.pct"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery vs Pickup donut chart -->
+              <div class="bg-black/40 backdrop-blur-2xl border border-white/10 p-6 rounded-3xl flex flex-col items-center justify-center">
+                <h3 class="text-sm font-bold text-stone-500 uppercase tracking-widest mb-4 w-full text-left">Delivery vs Pickup</h3>
+                <div class="w-32 h-32 rounded-full border-[14px] border-red-500 border-r-blue-500 relative flex items-center justify-center">
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-xl font-black text-white">
+                    <span>65%</span>
+                    <span class="text-[8px] uppercase tracking-widest text-white/40">Delivery</span>
+                  </div>
+                </div>
+                <div class="flex justify-center gap-6 mt-6 text-xs font-bold">
+                  <span class="flex items-center gap-2 text-white"><div class="w-3 h-3 bg-red-500 rounded-sm"></div> Delivery</span>
+                  <span class="flex items-center gap-2 text-white"><div class="w-3 h-3 bg-blue-500 rounded-sm"></div> Pickup</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1006,8 +801,8 @@ export class OwnerDashboardComponent implements OnInit {
   menuItems = signal<MenuItem[]>([]);
   deals = signal<Deal[]>([]);
   
-  activeTab = signal('dashboard');
-  orderSubTab = signal('active');
+  activeTab = signal('overview');
+  selectedMenuCategory = signal('Pizzas');
   
   loadingOrders = signal(false);
   loadingMenu = signal(false);
@@ -1017,6 +812,9 @@ export class OwnerDashboardComponent implements OnInit {
   savingSettings = signal(false);
   settingsSaved = signal(false);
   online = signal(true);
+
+  showManualAdd = signal(false);
+  showManualDeal = signal(false);
   
   // OCR processing signals
   ocrSuggestions = signal<any[]>([]);
@@ -1025,51 +823,39 @@ export class OwnerDashboardComponent implements OnInit {
   ocrError = signal('');
   successMsg = signal('');
 
-  // Staff and Roles properties
-  showInviteStaff = signal(false);
-  newStaff = { name: '', email: '', role: 'Manager' as StaffMember['role'] };
-  staffList: StaffMember[] = [
-    { id: '1', name: 'Demo Store Owner', role: 'Owner', email: 'owner@shamzpizza.com', status: 'Active', joinedAt: '2026-01-10' },
-    { id: '2', name: 'Chef Mario', role: 'Chef', email: 'mario@shamzpizza.com', status: 'Active', joinedAt: '2026-03-12' },
-    { id: '3', name: 'Angela Lopez', role: 'Manager', email: 'angela@shamzpizza.com', status: 'Active', joinedAt: '2026-04-01' }
+  // 9 Tabs structure
+  tabs = [
+    { id: 'overview', name: 'Overview', icon: '📊' },
+    { id: 'profile', name: 'Store Profile', icon: '⚙️' },
+    { id: 'menu', name: 'Menu Builder', icon: '🍕' },
+    { id: 'price', name: 'Price Manager', icon: '💰' },
+    { id: 'orders', name: 'Live Orders', icon: '📦' },
+    { id: 'receipts', name: 'Receipts', icon: '🧾' },
+    { id: 'payouts', name: 'Payments & Payouts', icon: '💳' },
+    { id: 'deals', name: 'Deals & Coupons', icon: '🏷️' },
+    { id: 'analytics', name: 'Analytics', icon: '📈' }
   ];
 
-  // Inventory properties
-  inventoryList: InventoryItem[] = [
-    { id: '1', name: 'Pepperoni Slices', category: 'Meats', stockQty: 250, unit: 'oz', minAlert: 50, available: true },
-    { id: '2', name: 'Mozzarella Cheese Blend', category: 'Cheese', stockQty: 180, unit: 'lbs', minAlert: 40, available: true },
-    { id: '3', name: 'San Marzano Sauce', category: 'Sauce', stockQty: 80, unit: 'lbs', minAlert: 20, available: true },
-    { id: '4', name: 'Jalapeño Rings', category: 'Veggies', stockQty: 0, unit: 'oz', minAlert: 10, available: false }
+  menuCategories = ['Pizzas', 'Sizes', 'Crusts', 'Meat Tops', 'Veggie Tops', 'Drinks', 'Sides', 'Desserts'];
+
+  topSellingPizzas = [
+    { name: 'Pepperoni Square', pct: 34 },
+    { name: 'Ultimate Meat Lovers', pct: 22 },
+    { name: 'Classic Cheese Delight', pct: 18 }
   ];
 
-  // Payout History
   payoutHistory: PayoutRecord[] = [
     { id: 'PO-920482', date: '2026-07-01', amount: 1402.50, status: 'Completed', bankAccount: 'Chase Bank (...9821)' },
-    { id: 'PO-882104', date: '2026-06-15', amount: 1120.00, status: 'Completed', bankAccount: 'Chase Bank (...9821)' },
-    { id: 'PO-842918', date: '2026-06-01', amount: 980.75, status: 'Completed', bankAccount: 'Chase Bank (...9821)' }
+    { id: 'PO-882104', date: '2026-06-15', amount: 1120.00, status: 'Completed', bankAccount: 'Chase Bank (...9821)' }
   ];
 
-  // Reviews
   mockReviews = [
     { author: 'David K.', rating: 5, date: '2026-07-08', comment: 'The Detroit square deep dish is easily the best value for money in the city. The crust is amazingly crispy!' },
     { author: 'Sarah M.', rating: 4, date: '2026-07-06', comment: 'Super fast delivery and prices compared on MiSlice were accurate. The garlic butter crust flavor is fantastic.' }
   ];
 
-  // Exact 9 requested tabs
-  tabs = [
-    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
-    { id: 'orders', name: 'Orders', icon: '📦' },
-    { id: 'menu', name: 'Menu Manager', icon: '🍕' },
-    { id: 'deals', name: 'Deals & Promos', icon: '🏷️' },
-    { id: 'reviews', name: 'Reviews & Ratings', icon: '⭐' },
-    { id: 'hours', name: 'Store Hours', icon: '⏰' },
-    { id: 'insights', name: 'Insights & Sales', icon: '📈' },
-    { id: 'finance', name: 'Financials/Billing', icon: '💳' },
-    { id: 'staff', name: 'Team Members', icon: '👥' }
-  ];
-
   itemTypes = ['PIZZA', 'SIDE', 'DRINK', 'DESSERT', 'COMBO'];
-  newItem: { name: string; basePrice: number; itemType: string } = { name: '', basePrice: 9.99, itemType: 'PIZZA' };
+  newItem = { name: '', basePrice: 9.99, itemType: 'PIZZA' };
   newDeal: { title: string; description: string; originalPrice: number | null; discountedPrice: number | null } =
     { title: '', description: '', originalPrice: null, discountedPrice: null };
 
@@ -1079,14 +865,22 @@ export class OwnerDashboardComponent implements OnInit {
   activeOrders = computed(() =>
     this.orders().filter(o => ['placed', 'confirmed', 'preparing', 'PENDING', 'CONFIRMED', 'PREPARING'].includes(o.status)).length);
 
-  filteredOrders = computed(() => {
-    const list = this.orders();
-    if (this.orderSubTab() === 'active') {
-      return list.filter(o => !['delivered', 'cancelled', 'DELIVERED', 'CANCELLED'].includes(o.status.toUpperCase()));
-    } else {
-      return list.filter(o => ['delivered', 'cancelled', 'DELIVERED', 'CANCELLED'].includes(o.status.toUpperCase()));
-    }
-  });
+  // Kanban pipeline orders partitioning
+  pendingOrdersList = computed(() =>
+    this.orders().filter(o => ['pending', 'placed', 'confirmed', 'PENDING', 'PLACED', 'CONFIRMED'].includes(o.status.toLowerCase())));
+  preparingOrdersList = computed(() =>
+    this.orders().filter(o => ['preparing', 'PREPARING'].includes(o.status.toLowerCase())));
+  readyOrdersList = computed(() =>
+    this.orders().filter(o => ['ready_for_pickup', 'out_for_delivery', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'].includes(o.status.toLowerCase())));
+  completedOrdersList = computed(() =>
+    this.orders().filter(o => ['delivered', 'cancelled', 'DELIVERED', 'CANCELLED'].includes(o.status.toLowerCase())));
+
+  kanbanColumns = [
+    { title: 'New', color: 'text-blue-400', border: 'border-blue-500/30', items: [] as OrderDto[] },
+    { title: 'Preparing', color: 'text-amber-400', border: 'border-amber-500/30', items: [] as OrderDto[] },
+    { title: 'Ready / Out', color: 'text-green-400', border: 'border-green-500/30', items: [] as OrderDto[] },
+    { title: 'Completed', color: 'text-stone-400', border: 'border-white/10', items: [] as OrderDto[] }
+  ];
 
   ngOnInit() {
     this.restaurantService.getMyRestaurants().subscribe({
@@ -1114,9 +908,42 @@ export class OwnerDashboardComponent implements OnInit {
     if (!shop) return;
     this.loadingOrders.set(true);
     this.orderService.getRestaurantOrders(shop.id).subscribe({
-      next: (ordersList) => { this.orders.set(ordersList); this.loadingOrders.set(false); },
+      next: (ordersList) => { 
+        this.orders.set(ordersList); 
+        this.loadingOrders.set(false);
+        this.updateKanbanColumns(ordersList);
+      },
       error: () => this.loadingOrders.set(false)
     });
+  }
+
+  updateKanbanColumns(list: OrderDto[]) {
+    this.kanbanColumns = [
+      { 
+        title: 'New', 
+        color: 'text-blue-400', 
+        border: 'border-blue-500/30', 
+        items: list.filter(o => ['pending', 'placed', 'confirmed', 'PENDING', 'PLACED', 'CONFIRMED'].includes(o.status)) 
+      },
+      { 
+        title: 'Preparing', 
+        color: 'text-amber-400', 
+        border: 'border-amber-500/30', 
+        items: list.filter(o => ['preparing', 'PREPARING'].includes(o.status)) 
+      },
+      { 
+        title: 'Ready / Out', 
+        color: 'text-green-400', 
+        border: 'border-green-500/30', 
+        items: list.filter(o => ['ready_for_pickup', 'out_for_delivery', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'].includes(o.status)) 
+      },
+      { 
+        title: 'Completed', 
+        color: 'text-stone-400', 
+        border: 'border-white/10', 
+        items: list.filter(o => ['delivered', 'cancelled', 'DELIVERED', 'CANCELLED'].includes(o.status)) 
+      }
+    ];
   }
 
   loadMenu() {
@@ -1129,6 +956,22 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
+  filteredMenuItems = computed(() => {
+    const category = this.selectedMenuCategory().toUpperCase();
+    const items = this.menuItems();
+    if (category === 'PIZZAS') {
+      return items.filter(i => i.itemType === 'PIZZA');
+    } else if (category === 'DRINKS') {
+      return items.filter(i => i.itemType === 'DRINK');
+    } else if (category === 'SIDES') {
+      return items.filter(i => i.itemType === 'SIDE');
+    } else if (category === 'DESSERTS') {
+      return items.filter(i => i.itemType === 'DESSERT');
+    }
+    // Size, Crust, Meat Tops, Veggie Tops are handled dynamically (returning pizzas as default category filter)
+    return items.filter(i => i.itemType === 'PIZZA');
+  });
+
   loadDeals() {
     const shop = this.selectedShop();
     if (!shop) return;
@@ -1139,13 +982,17 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
+  onOrderStatusDropdownChange(orderId: string, oldStatus: string, event: any) {
+    const statusVal = event.target.value;
+    this.updateStatus(orderId, statusVal);
+  }
+
   updateStatus(orderId: string, status: string) {
-    this.orderService.updateOrderStatus(orderId, status, 'Kitchen Operator', `Transitioned to ${status}`).subscribe({
+    this.orderService.updateOrderStatus(orderId, status.toUpperCase(), 'Kitchen Operator', `Transitioned to ${status}`).subscribe({
       next: () => this.loadOrders()
     });
   }
 
-  // --- Menu management ---
   saveItem(item: MenuItem) {
     const shop = this.selectedShop();
     if (!shop) return;
@@ -1178,6 +1025,7 @@ export class OwnerDashboardComponent implements OnInit {
       next: () => {
         this.newItem = { name: '', basePrice: 9.99, itemType: 'PIZZA' };
         this.savingItem.set(false);
+        this.showManualAdd.set(false);
         this.loadMenu();
       },
       error: () => this.savingItem.set(false)
@@ -1192,7 +1040,6 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
-  // --- Deals management ---
   addDeal() {
     const shop = this.selectedShop();
     if (!shop || !this.newDeal.title.trim()) return;
@@ -1207,6 +1054,7 @@ export class OwnerDashboardComponent implements OnInit {
       next: () => {
         this.newDeal = { title: '', description: '', originalPrice: null, discountedPrice: null };
         this.savingDeal.set(false);
+        this.showManualDeal.set(false);
         this.loadDeals();
       },
       error: () => this.savingDeal.set(false)
@@ -1221,7 +1069,6 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
-  // --- Quick Actions Launcher ---
   applyQuickAction(type: string): void {
     const shop = this.selectedShop();
     if (!shop) return;
@@ -1229,25 +1076,25 @@ export class OwnerDashboardComponent implements OnInit {
     this.successMsg.set('');
 
     let dealData: any = {};
-    if (type === '10%') {
+    if (type === '10%' || type === '10% Off') {
       dealData = {
         title: '⚡ Flash 10% Off All Pizzas!',
         description: 'Get a quick 10% discount on all items in our menu catalog.',
         active: true
       };
-    } else if (type === '20%') {
+    } else if (type === '20%' || type === '20% Off') {
       dealData = {
         title: '🔥 Super Saver 20% Discount',
         description: 'Enjoy 20% discount on all orders placed via the MiSlice marketplace this week!',
         active: true
       };
-    } else if (type === 'BOGO') {
+    } else if (type === 'BOGO' || type === 'Buy One Get One') {
       dealData = {
         title: '🍕 Buy One Get One (BOGO) Special',
         description: 'Buy any large custom pizza and get a medium cheese pizza free!',
         active: true
       };
-    } else if (type === 'FREE_DELIVERY') {
+    } else if (type === 'FREE_DELIVERY' || type === 'Free Delivery') {
       dealData = {
         title: '🚗 Free Delivery Promotion',
         description: 'No delivery fee on all orders this weekend!',
@@ -1269,7 +1116,6 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
-  // --- Settings / Hours ---
   toggleOnline() {
     const shop = this.selectedShop();
     if (!shop) return;
@@ -1299,22 +1145,10 @@ export class OwnerDashboardComponent implements OnInit {
     });
   }
 
-  // --- Staff Management mock actions ---
   inviteStaff() {
-    if (!this.newStaff.name.trim() || !this.newStaff.email.trim()) return;
-    this.staffList.push({
-      id: Math.random().toString(),
-      name: this.newStaff.name.trim(),
-      role: this.newStaff.role,
-      email: this.newStaff.email.trim(),
-      status: 'Pending',
-      joinedAt: new Date().toISOString().split('T')[0]
-    });
-    this.newStaff = { name: '', email: '', role: 'Manager' };
-    this.showInviteStaff.set(false);
+    // Staff details logic placeholder
   }
 
-  // --- Financials Instant Payout Mock ---
   requestPayout(): void {
     const earnings = this.netEarnings();
     if (earnings <= 0) return;
