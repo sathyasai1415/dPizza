@@ -95,28 +95,39 @@ interface PayoutRecord {
       </div>
 
       <!-- MAIN TABS GRID -->
-      <div *ngIf="selectedShop()" class="grid lg:grid-cols-[240px_1fr] gap-6 items-start">
-        
-        <!-- Sidebar Navigation -->
-        <div class="flex flex-row lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none shrink-0">
+      <div *ngIf="selectedShop()" class="grid gap-6 items-start owner-grid" [class.nav-collapsed]="navCollapsed()">
+
+        <!-- Sidebar Navigation (collapsible) -->
+        <div class="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-none shrink-0 lg:w-full min-w-0">
+
+          <!-- Collapse toggle (desktop) -->
+          <button (click)="navCollapsed.set(!navCollapsed())" [title]="navCollapsed() ? 'Expand menu' : 'Collapse menu'"
+            class="hidden lg:flex items-center h-9 mb-1 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition"
+            [class.justify-center]="navCollapsed()" [class.justify-end]="!navCollapsed()" [class.px-3]="!navCollapsed()">
+            <span class="text-base">{{ navCollapsed() ? '»' : '«' }}</span>
+          </button>
+
           @for (tab of tabs; track tab.id) {
-            <button (click)="activeTab.set(tab.id)"
-              [class]="'glare-hover text-left px-4 py-3 rounded-2xl text-xs font-black transition whitespace-nowrap min-w-[140px] lg:min-w-0 flex items-center gap-3 ' +
+            <button (click)="activeTab.set(tab.id)" [title]="tab.name"
+              [class]="'glare-hover rounded-2xl text-xs font-black transition flex items-center gap-3 whitespace-nowrap min-w-[132px] lg:min-w-0 py-3 ' +
+                (navCollapsed() ? 'lg:justify-center lg:px-0 px-4' : 'px-4') + ' ' +
                 (activeTab() === tab.id
                   ? 'bg-gradient-to-r from-red-700/80 to-orange-600/50 text-white border border-red-500/30 shadow-md shadow-red-600/10'
                   : 'text-white/60 hover:text-white')">
-              <span class="text-sm">{{ tab.icon }}</span>
-              {{ tab.name }}
+              <span class="text-base leading-none">{{ tab.icon }}</span>
+              <span [class.lg:hidden]="navCollapsed()">{{ tab.name }}</span>
             </button>
           }
 
           <!-- Bottom: Help & Support -->
           <div class="hidden lg:block pt-3 mt-2 border-t border-white/10 space-y-1">
-            <a routerLink="/how-it-works" class="glare-hover flex items-center gap-3 px-4 py-2.5 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition">
-              <span class="text-sm">❓</span> Help Center
+            <a routerLink="/how-it-works" title="Help Center"
+              [class]="'glare-hover flex items-center gap-3 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition py-2.5 ' + (navCollapsed() ? 'justify-center px-0' : 'px-4')">
+              <span class="text-sm">❓</span><span [class.hidden]="navCollapsed()">Help Center</span>
             </a>
-            <a routerLink="/contact" class="glare-hover flex items-center gap-3 px-4 py-2.5 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition">
-              <span class="text-sm">✉️</span> Contact Support
+            <a routerLink="/contact" title="Contact Support"
+              [class]="'glare-hover flex items-center gap-3 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition py-2.5 ' + (navCollapsed() ? 'justify-center px-0' : 'px-4')">
+              <span class="text-sm">✉️</span><span [class.hidden]="navCollapsed()">Contact Support</span>
             </a>
           </div>
         </div>
@@ -517,7 +528,16 @@ interface PayoutRecord {
               <span class="text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-md border border-emerald-500/20">LIVE RADAR</span>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <!-- Status sub-tabs -->
+            <div class="flex gap-1 bg-white/5 p-1 rounded-xl w-fit overflow-x-auto scrollbar-none">
+              @for (st of orderStatusTabs; track st.id) {
+                <button (click)="orderStatusTab.set(st.id)"
+                  [class]="'px-3 py-1.5 rounded-lg text-[11px] font-black transition whitespace-nowrap ' + (orderStatusTab() === st.id ? 'bg-red-600 text-white' : 'text-white/50 hover:text-white')">{{ st.label }}</button>
+              }
+            </div>
+
+            <!-- Active pipeline (Kanban) -->
+            <div *ngIf="orderStatusTab() === 'active'" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
               <!-- Kanban columns -->
               <div *ngFor="let col of kanbanColumns" class="bg-black/40 border border-white/10 rounded-2xl flex flex-col overflow-hidden h-[600px]">
                 <div class="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
@@ -549,6 +569,17 @@ interface PayoutRecord {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Fulfilled / Cancelled / Refunded history -->
+            <div *ngIf="orderStatusTab() !== 'active'" class="space-y-2">
+              <div *ngFor="let o of ordersByStatus()" class="glass rounded-xl p-3 border border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="font-bold text-white">#{{ o.orderNumber }}</span>
+                <span [class]="getStatusClass(o.status)" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full">{{ o.status }}</span>
+                <span class="text-white/50">{{ o.placedAt | date:'MMM d, h:mm a' }}</span>
+                <span class="font-black text-white">{{ o.total | currency }}</span>
+              </div>
+              <p *ngIf="ordersByStatus().length === 0" class="text-xs text-white/40 text-center py-8">No {{ orderStatusTab() }} orders.</p>
             </div>
           </div>
 
@@ -756,6 +787,110 @@ interface PayoutRecord {
             </div>
           </div>
 
+          <!-- USERS / STAFF MANAGEMENT -->
+          <div *ngIf="showsPanel('users')" class="space-y-5 animate-fadeIn">
+            <div class="border-b border-white/5 pb-3">
+              <h3 class="text-lg font-black text-white">👥 Users &amp; Staff</h3>
+              <p class="text-xs text-white/50 mt-0.5">Invite team members and manage who can access this store.</p>
+            </div>
+
+            <!-- Add user -->
+            <div class="glass rounded-2xl p-4 border border-white/5">
+              <p class="text-xs font-black uppercase tracking-widest text-white/40 mb-3">Add a user</p>
+              <div class="grid sm:grid-cols-[1fr_1fr_130px_auto] gap-2">
+                <input [(ngModel)]="newUser.name" placeholder="Full name" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-red-500" />
+                <input [(ngModel)]="newUser.email" placeholder="Email" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-red-500" />
+                <select [(ngModel)]="newUser.role" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-red-500">
+                  <option class="bg-neutral-900" *ngFor="let r of staffRoles" [value]="r">{{ r }}</option>
+                </select>
+                <button (click)="addUser()" [disabled]="!newUser.name.trim() || !newUser.email.trim()" class="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white text-xs font-black rounded-xl transition whitespace-nowrap">+ Invite</button>
+              </div>
+            </div>
+
+            <!-- Manage users -->
+            <div class="space-y-2">
+              <div *ngFor="let u of staff()" class="glass rounded-xl p-3 border border-white/5 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-sm font-black text-red-400">{{ u.name.substring(0,1).toUpperCase() }}</div>
+                  <div class="min-w-0">
+                    <p class="text-sm font-bold text-white truncate">{{ u.name }} <span class="text-[9px] font-black uppercase tracking-wider bg-white/5 text-white/50 px-1.5 py-0.5 rounded ml-1">{{ u.role }}</span></p>
+                    <p class="text-[10px] text-white/40 truncate">{{ u.email }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span [class]="'text-[9px] font-black uppercase px-2 py-1 rounded-full ' + (u.status === 'Active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-yellow-500/15 text-yellow-400')">{{ u.status }}</span>
+                  <button *ngIf="u.role !== 'Owner'" (click)="removeUser(u)" class="text-[10px] font-bold text-red-400 hover:text-red-300">Remove</button>
+                </div>
+              </div>
+              <p *ngIf="staff().length === 0" class="text-xs text-white/40 text-center py-6">No team members yet. Invite your first one above.</p>
+            </div>
+          </div>
+
+          <!-- DELIVERY -->
+          <div *ngIf="showsPanel('delivery')" class="space-y-5 animate-fadeIn">
+            <div class="border-b border-white/5 pb-3">
+              <h3 class="text-lg font-black text-white">🛵 Delivery</h3>
+              <p class="text-xs text-white/50 mt-0.5">Delivery settings and orders currently on the road.</p>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-3">
+              <div class="glass rounded-2xl p-4 border border-white/5">
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Delivery Radius</p>
+                <input type="number" [(ngModel)]="selectedShop()!.deliveryRadiusMiles" class="w-full bg-transparent text-2xl font-black text-white outline-none mt-1" /> <span class="text-xs text-white/40">miles</span>
+              </div>
+              <div class="glass rounded-2xl p-4 border border-white/5">
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Delivery Fee</p>
+                <div class="flex items-baseline gap-1 mt-1"><span class="text-white/40">$</span><input type="number" [(ngModel)]="selectedShop()!.deliveryFee" class="w-full bg-transparent text-2xl font-black text-white outline-none" /></div>
+              </div>
+              <div class="glass rounded-2xl p-4 border border-white/5 flex flex-col justify-between">
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Avg Delivery ETA</p>
+                <p class="text-2xl font-black text-white mt-1">{{ selectedShop()?.averageEtaMinutes || 30 }} <span class="text-xs text-white/40">min</span></p>
+              </div>
+            </div>
+            <button (click)="saveSettings()" class="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-black rounded-xl transition">Save Delivery Settings</button>
+
+            <div class="pt-2">
+              <p class="text-xs font-black uppercase tracking-widest text-white/40 mb-2">Out for delivery ({{ outForDeliveryOrders().length }})</p>
+              <div class="space-y-2">
+                <div *ngFor="let o of outForDeliveryOrders()" class="glass rounded-xl p-3 border border-white/5 flex items-center justify-between text-xs">
+                  <span class="font-bold text-white">#{{ o.orderNumber }}</span>
+                  <span class="text-white/50">{{ o.total | currency }}</span>
+                  <button (click)="updateStatus(o.id, 'DELIVERED')" class="text-[10px] font-bold text-emerald-400 hover:text-emerald-300">Mark Delivered</button>
+                </div>
+                <p *ngIf="outForDeliveryOrders().length === 0" class="text-xs text-white/40 text-center py-4">No active deliveries right now.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI INSIGHTS -->
+          <div *ngIf="showsPanel('insights')" class="space-y-4 animate-fadeIn">
+            <div class="border-b border-white/5 pb-3">
+              <h3 class="text-lg font-black text-white">🤖 AI Insights</h3>
+              <p class="text-xs text-white/50 mt-0.5">Smart suggestions generated from your store's activity.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div *ngFor="let ins of aiInsights()" class="glass rounded-2xl p-4 border border-white/5">
+                <p class="text-2xl">{{ ins.icon }}</p>
+                <p class="text-sm font-black text-white mt-2">{{ ins.title }}</p>
+                <p class="text-xs text-white/50 mt-1 leading-relaxed">{{ ins.body }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTIFICATIONS -->
+          <div *ngIf="showsPanel('notifications')" class="space-y-4 animate-fadeIn">
+            <div class="border-b border-white/5 pb-3">
+              <h3 class="text-lg font-black text-white">🔔 Notifications</h3>
+              <p class="text-xs text-white/50 mt-0.5">Alerts that need your attention.</p>
+            </div>
+            <div class="space-y-2">
+              <div *ngFor="let n of notifications()" class="glass rounded-xl p-3.5 border border-white/5 flex items-start gap-3">
+                <span class="text-lg">{{ n.icon }}</span>
+                <div class="min-w-0 flex-1"><p class="text-sm font-bold text-white">{{ n.title }}</p><p class="text-[11px] text-white/50 mt-0.5">{{ n.detail }}</p></div>
+              </div>
+              <p *ngIf="notifications().length === 0" class="text-xs text-white/40 text-center py-8">🎉 All caught up — no alerts right now.</p>
+            </div>
+          </div>
+
           <!-- REVIEWS -->
           <div *ngIf="showsPanel('reviews')" class="space-y-5 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/5 pb-3">
@@ -810,6 +945,10 @@ interface PayoutRecord {
     .animate-fadeIn {
       animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    @media (min-width: 1024px) {
+      .owner-grid { grid-template-columns: 208px minmax(0, 1fr); transition: grid-template-columns 0.3s ease; }
+      .owner-grid.nav-collapsed { grid-template-columns: 60px minmax(0, 1fr); }
+    }
     .glare-hover {
       --gh-angle: -30deg;
       --gh-rgba: rgba(232, 5, 5, 0.4);
@@ -856,11 +995,26 @@ export class OwnerDashboardComponent implements OnInit {
   deals = signal<Deal[]>([]);
   
   activeTab = signal('dashboard');
+  navCollapsed = signal(false);
   selectedMenuCategory = signal('Pizzas');
   reviews = signal<ReviewDto[]>([]);
   loadingReviews = signal(false);
   reviewFilter = signal<'newest' | 'lowest' | 'highest'>('newest');
   reviewFilters: ('newest' | 'lowest' | 'highest')[] = ['newest', 'lowest', 'highest'];
+
+  // Orders status sub-filter
+  orderStatusTab = signal<'active' | 'fulfilled' | 'cancelled' | 'refunded'>('active');
+  orderStatusTabs: { id: 'active' | 'fulfilled' | 'cancelled' | 'refunded'; label: string }[] = [
+    { id: 'active', label: 'Active' },
+    { id: 'fulfilled', label: 'Fulfilled / Completed' },
+    { id: 'cancelled', label: 'Cancelled' },
+    { id: 'refunded', label: 'Refunded' },
+  ];
+
+  // Users / staff management
+  staff = signal<StaffMember[]>([]);
+  newUser = { name: '', email: '', role: 'Manager' as StaffMember['role'] };
+  staffRoles: StaffMember['role'][] = ['Manager', 'Chef', 'Cashier', 'Driver'];
   
   loadingOrders = signal(false);
   loadingMenu = signal(false);
@@ -889,7 +1043,11 @@ export class OwnerDashboardComponent implements OnInit {
     { id: 'menu', name: 'Menu', icon: '🍕' },
     { id: 'deals', name: 'Deals', icon: '🏷️' },
     { id: 'financials', name: 'Financials', icon: '💳' },
+    { id: 'delivery', name: 'Delivery', icon: '🛵' },
     { id: 'reviews', name: 'Reviews', icon: '⭐' },
+    { id: 'users', name: 'Users', icon: '👥' },
+    { id: 'insights', name: 'AI Insights', icon: '🤖' },
+    { id: 'notifications', name: 'Notifications', icon: '🔔' },
     { id: 'settings', name: 'Settings', icon: '⚙️' },
   ];
 
@@ -899,7 +1057,11 @@ export class OwnerDashboardComponent implements OnInit {
     menu: ['menu', 'price'],
     deals: ['deals'],
     financials: ['payouts', 'receipts'],
+    delivery: ['delivery'],
     reviews: ['reviews'],
+    users: ['users'],
+    insights: ['insights'],
+    notifications: ['notifications'],
     settings: ['profile'],
   };
 
@@ -974,6 +1136,7 @@ export class OwnerDashboardComponent implements OnInit {
     this.loadMenu();
     this.loadDeals();
     this.loadReviews();
+    this.seedStaff();
   }
 
   loadReviews() {
@@ -1005,6 +1168,65 @@ export class OwnerDashboardComponent implements OnInit {
     const full = Math.round(n || 0);
     return '★'.repeat(Math.min(5, full)) + '☆'.repeat(Math.max(0, 5 - full));
   }
+
+  // ---- Users / staff ----
+  seedStaff() {
+    const shop = this.selectedShop();
+    this.staff.set([
+      { id: 'owner', name: shop?.name ? shop.name + ' Owner' : 'Store Owner', role: 'Owner', email: 'owner@store.com', status: 'Active', joinedAt: '' },
+    ]);
+  }
+  addUser() {
+    const name = this.newUser.name.trim(), email = this.newUser.email.trim();
+    if (!name || !email) return;
+    this.staff.update(list => [...list, { id: Date.now().toString(), name, email, role: this.newUser.role, status: 'Pending', joinedAt: new Date().toISOString() }]);
+    this.newUser = { name: '', email: '', role: 'Manager' };
+  }
+  removeUser(u: StaffMember) { this.staff.update(list => list.filter(x => x.id !== u.id)); }
+
+  // ---- Orders by status sub-tab ----
+  ordersByStatus = computed<OrderDto[]>(() => {
+    const up = (s: string) => (s || '').toUpperCase();
+    const list = this.orders();
+    switch (this.orderStatusTab()) {
+      case 'fulfilled': return list.filter(o => ['DELIVERED', 'COMPLETED', 'PICKED_UP'].includes(up(o.status)));
+      case 'cancelled': return list.filter(o => up(o.status) === 'CANCELLED');
+      case 'refunded': return list.filter(o => up(o.status) === 'REFUNDED' || up(o.paymentStatus) === 'REFUNDED');
+      default: return list;
+    }
+  });
+
+  // ---- Delivery ----
+  outForDeliveryOrders = computed(() =>
+    this.orders().filter(o => o.status?.toUpperCase() === 'OUT_FOR_DELIVERY'));
+
+  // ---- AI insights (derived from real store data) ----
+  aiInsights = computed(() => {
+    const items = this.menuItems();
+    const ordersList = this.orders();
+    const topItem = items.length ? items.reduce((a, b) => (Number(a.basePrice) > Number(b.basePrice) ? a : b)) : null;
+    const revenue = ordersList.reduce((s, o) => s + (Number(o.total) || 0), 0);
+    return [
+      { icon: '📈', title: 'Revenue snapshot', body: `You've booked ${this.formatMoney(revenue)} across ${ordersList.length} orders. Keep your best-sellers in stock to sustain the pace.` },
+      { icon: '🍕', title: 'Menu spotlight', body: topItem ? `"${topItem.name}" is your premium item at ${this.formatMoney(Number(topItem.basePrice))}. Consider a combo deal to lift average order value.` : 'Add menu items to unlock pricing insights.' },
+      { icon: '⏱️', title: 'Speed advantage', body: `Your avg prep/ETA is ${this.selectedShop()?.averageEtaMinutes || 25} min — highlight fast delivery to win nearby customers.` },
+      { icon: '🏷️', title: 'Deal opportunity', body: this.deals().length ? `You have ${this.deals().length} active deal(s). Promote them in the Deals tab to drive repeat orders.` : 'No active deals — a limited-time offer can boost weekday traffic.' },
+    ];
+  });
+
+  // ---- Notifications (derived from orders & reviews) ----
+  notifications = computed(() => {
+    const out: { icon: string; title: string; detail: string }[] = [];
+    const pending = this.orders().filter(o => ['PENDING', 'PLACED'].includes(o.status?.toUpperCase()));
+    if (pending.length) out.push({ icon: '⚠️', title: `${pending.length} order(s) waiting for acceptance`, detail: 'Open the Orders tab to accept and start preparing.' });
+    if (!this.online()) out.push({ icon: '🔴', title: 'Your store is currently closed', detail: 'Toggle "Accepting Orders" to start receiving orders again.' });
+    const lowReviews = this.reviews().filter(r => r.rating <= 2);
+    if (lowReviews.length) out.push({ icon: '💬', title: `${lowReviews.length} low rating(s) to review`, detail: 'Reply to customers in the Reviews tab to rebuild trust.' });
+    if (!this.deals().length) out.push({ icon: '🏷️', title: 'No active deals', detail: 'Create a promotion to attract more customers this week.' });
+    return out;
+  });
+
+  private formatMoney(n: number): string { return '$' + (n || 0).toFixed(2); }
 
   loadOrders() {
     const shop = this.selectedShop();
