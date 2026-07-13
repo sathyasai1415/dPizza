@@ -1,11 +1,13 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { OrderService } from '../../core/services/order.service';
 import { MenuService } from '../../core/services/menu.service';
-import { Store, OrderDto, MenuItem, Deal } from '../../shared/models';
+import { ReviewService } from '../../core/services/review.service';
+import { Store, OrderDto, MenuItem, Deal, ReviewDto } from '../../shared/models';
 
 interface StaffMember {
   id: string;
@@ -27,7 +29,7 @@ interface PayoutRecord {
 @Component({
   selector: 'app-owner-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe, RouterLink],
   template: `
     <div class="max-w-7xl mx-auto py-6 px-4 space-y-6">
 
@@ -107,13 +109,23 @@ interface PayoutRecord {
               {{ tab.name }}
             </button>
           }
+
+          <!-- Bottom: Help & Support -->
+          <div class="hidden lg:block pt-3 mt-2 border-t border-white/10 space-y-1">
+            <a routerLink="/how-it-works" class="glare-hover flex items-center gap-3 px-4 py-2.5 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition">
+              <span class="text-sm">❓</span> Help Center
+            </a>
+            <a routerLink="/contact" class="glare-hover flex items-center gap-3 px-4 py-2.5 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition">
+              <span class="text-sm">✉️</span> Contact Support
+            </a>
+          </div>
         </div>
 
         <!-- Selected Tab View Content -->
         <div class="glass rounded-[2rem] p-6 min-h-[500px] border border-white/10 bg-black/35 shadow-2xl space-y-6">
 
           <!-- TAB 1: OVERVIEW (Overview KPIs, Quick Actions, AI Insights) -->
-          <div *ngIf="activeTab() === 'overview'" class="space-y-6 animate-fadeIn">
+          <div *ngIf="showsPanel('overview')" class="space-y-6 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/5 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">📊 Operations Dashboard</h3>
@@ -227,7 +239,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 2: STORE PROFILE (Store settings, Operating Hours, info) -->
-          <div *ngIf="activeTab() === 'profile'" class="space-y-4 animate-fadeIn">
+          <div *ngIf="showsPanel('profile')" class="space-y-4 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">🏢 Store Profile &amp; Settings</h3>
@@ -320,7 +332,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 3: MENU BUILDER (Category selector, Pizza list, OCR upload) -->
-          <div *ngIf="activeTab() === 'menu'" class="space-y-4 animate-fadeIn">
+          <div *ngIf="showsPanel('menu')" class="space-y-4 animate-fadeIn">
             <div class="flex justify-between items-center border-b border-white/10 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">🍕 Menu Builder</h3>
@@ -456,7 +468,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 4: PRICE MANAGER (Quick item list base price editor) -->
-          <div *ngIf="activeTab() === 'price'" class="space-y-4 animate-fadeIn">
+          <div *ngIf="showsPanel('price')" class="space-y-4 animate-fadeIn">
             <div>
               <h3 class="text-lg font-black text-white">💰 Price Manager</h3>
               <p class="text-xs text-white/50 mt-0.5">Quickly edit all menu item prices on a single spreadsheet grid.</p>
@@ -496,7 +508,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 5: LIVE ORDERS (4-Column Status Kanban Board) -->
-          <div *ngIf="activeTab() === 'orders'" class="space-y-6 animate-fadeIn">
+          <div *ngIf="showsPanel('orders')" class="space-y-6 animate-fadeIn">
             <div class="flex justify-between items-center border-b border-white/5 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">📦 Live Orders Board</h3>
@@ -541,7 +553,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 6: RECEIPTS (Completed Transactions History list) -->
-          <div *ngIf="activeTab() === 'receipts'" class="space-y-4 animate-fadeIn">
+          <div *ngIf="showsPanel('receipts')" class="space-y-4 animate-fadeIn">
             <div>
               <h3 class="text-lg font-black text-white">🧾 Order Receipts History</h3>
               <p class="text-xs text-white/50 mt-0.5">Monitor and export all completed receipt parameters for auditing.</p>
@@ -572,7 +584,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 7: PAYMENTS & PAYOUTS -->
-          <div *ngIf="activeTab() === 'payouts'" class="space-y-6 animate-fadeIn">
+          <div *ngIf="showsPanel('payouts')" class="space-y-6 animate-fadeIn">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">💳 Payments &amp; Payouts</h3>
@@ -624,7 +636,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 8: DEALS & COUPONS (Quick campaign setup) -->
-          <div *ngIf="activeTab() === 'deals'" class="space-y-4 animate-fadeIn">
+          <div *ngIf="showsPanel('deals')" class="space-y-4 animate-fadeIn">
             <div class="flex justify-between items-center border-b border-white/10 pb-3">
               <div>
                 <h3 class="text-lg font-black text-white">🏷️ Deals &amp; Offers</h3>
@@ -704,7 +716,7 @@ interface PayoutRecord {
           </div>
 
           <!-- TAB 9: ANALYTICS -->
-          <div *ngIf="activeTab() === 'analytics'" class="space-y-6 animate-fadeIn">
+          <div *ngIf="showsPanel('analytics')" class="space-y-6 animate-fadeIn">
             <div>
               <h3 class="text-lg font-black text-white">📊 Analytics</h3>
               <p class="text-xs text-white/50 mt-0.5">Detailed metrics regarding average order value, conversion rates, and item performance.</p>
@@ -739,6 +751,47 @@ interface PayoutRecord {
                 <div class="flex justify-center gap-6 mt-6 text-xs font-bold">
                   <span class="flex items-center gap-2 text-white"><div class="w-3 h-3 bg-red-500 rounded-sm"></div> Delivery</span>
                   <span class="flex items-center gap-2 text-white"><div class="w-3 h-3 bg-blue-500 rounded-sm"></div> Pickup</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REVIEWS -->
+          <div *ngIf="showsPanel('reviews')" class="space-y-5 animate-fadeIn">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <div>
+                <h3 class="text-lg font-black text-white">⭐ Customer Reviews</h3>
+                <p class="text-xs text-white/50 mt-0.5">See what customers say — and reply to build trust.</p>
+              </div>
+              <div class="flex gap-1 bg-white/5 p-1 rounded-xl">
+                <button *ngFor="let f of reviewFilters" (click)="reviewFilter.set(f)"
+                  [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize ' + (reviewFilter() === f ? 'bg-red-600 text-white' : 'text-white/50 hover:text-white')">{{ f }}</button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+              <div class="text-center shrink-0">
+                <p class="text-4xl font-black text-white leading-none">{{ avgRating() | number:'1.1-1' }}</p>
+                <p class="text-sm text-yellow-400 mt-1">{{ starStr(avgRating()) }}</p>
+                <p class="text-[10px] text-white/40 mt-1">{{ reviews().length }} review{{ reviews().length === 1 ? '' : 's' }}</p>
+              </div>
+            </div>
+
+            <div *ngIf="loadingReviews()" class="flex justify-center py-8"><div class="animate-spin rounded-full h-7 w-7 border-t-2 border-red-500"></div></div>
+            <div *ngIf="!loadingReviews() && reviews().length === 0" class="text-center py-10 text-white/40 text-xs">
+              No reviews yet. They'll appear here as customers rate their orders.
+            </div>
+
+            <div class="space-y-3">
+              <div *ngFor="let r of filteredReviews()" class="glass rounded-2xl p-4 border border-white/5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-sm font-bold text-white">{{ r.userFullName }}</span>
+                  <span class="text-yellow-400 text-xs">{{ starStr(r.rating) }}</span>
+                </div>
+                <p class="text-xs text-white/60 mt-1.5 leading-relaxed">{{ r.comment }}</p>
+                <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5">
+                  <span class="text-[10px] text-white/30">{{ r.createdAt | date:'mediumDate' }}</span>
+                  <button class="text-[10px] font-black text-red-400 hover:text-red-300">↩ Reply</button>
                 </div>
               </div>
             </div>
@@ -793,6 +846,7 @@ export class OwnerDashboardComponent implements OnInit {
   private readonly restaurantService = inject(RestaurantService);
   private readonly orderService = inject(OrderService);
   private readonly menuService = inject(MenuService);
+  private readonly reviewService = inject(ReviewService);
 
   shops = signal<Store[]>([]);
   shopsLoaded = signal(false);
@@ -801,8 +855,12 @@ export class OwnerDashboardComponent implements OnInit {
   menuItems = signal<MenuItem[]>([]);
   deals = signal<Deal[]>([]);
   
-  activeTab = signal('overview');
+  activeTab = signal('dashboard');
   selectedMenuCategory = signal('Pizzas');
+  reviews = signal<ReviewDto[]>([]);
+  loadingReviews = signal(false);
+  reviewFilter = signal<'newest' | 'lowest' | 'highest'>('newest');
+  reviewFilters: ('newest' | 'lowest' | 'highest')[] = ['newest', 'lowest', 'highest'];
   
   loadingOrders = signal(false);
   loadingMenu = signal(false);
@@ -823,18 +881,32 @@ export class OwnerDashboardComponent implements OnInit {
   ocrError = signal('');
   successMsg = signal('');
 
-  // 9 Tabs structure
+  // Primary navigation — 7 sections. Each maps to one or more existing content
+  // panels via `sectionPanels`, so no functionality is lost when consolidating.
   tabs = [
-    { id: 'overview', name: 'Overview', icon: '📊' },
-    { id: 'profile', name: 'Store Profile', icon: '⚙️' },
-    { id: 'menu', name: 'Menu Builder', icon: '🍕' },
-    { id: 'price', name: 'Price Manager', icon: '💰' },
-    { id: 'orders', name: 'Live Orders', icon: '📦' },
-    { id: 'receipts', name: 'Receipts', icon: '🧾' },
-    { id: 'payouts', name: 'Payments & Payouts', icon: '💳' },
-    { id: 'deals', name: 'Deals & Coupons', icon: '🏷️' },
-    { id: 'analytics', name: 'Analytics', icon: '📈' }
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'orders', name: 'Orders', icon: '📦' },
+    { id: 'menu', name: 'Menu', icon: '🍕' },
+    { id: 'deals', name: 'Deals', icon: '🏷️' },
+    { id: 'financials', name: 'Financials', icon: '💳' },
+    { id: 'reviews', name: 'Reviews', icon: '⭐' },
+    { id: 'settings', name: 'Settings', icon: '⚙️' },
   ];
+
+  private readonly sectionPanels: Record<string, string[]> = {
+    dashboard: ['overview', 'analytics'],
+    orders: ['orders'],
+    menu: ['menu', 'price'],
+    deals: ['deals'],
+    financials: ['payouts', 'receipts'],
+    reviews: ['reviews'],
+    settings: ['profile'],
+  };
+
+  /** True when the active section includes the given legacy content panel. */
+  showsPanel(panelId: string): boolean {
+    return (this.sectionPanels[this.activeTab()] ?? [this.activeTab()]).includes(panelId);
+  }
 
   menuCategories = ['Pizzas', 'Sizes', 'Crusts', 'Meat Tops', 'Veggie Tops', 'Drinks', 'Sides', 'Desserts'];
 
@@ -901,6 +973,37 @@ export class OwnerDashboardComponent implements OnInit {
     this.loadOrders();
     this.loadMenu();
     this.loadDeals();
+    this.loadReviews();
+  }
+
+  loadReviews() {
+    const shop = this.selectedShop();
+    if (!shop) return;
+    this.loadingReviews.set(true);
+    this.reviewService.getReviewsForRestaurant(shop.id).subscribe({
+      next: (list) => { this.reviews.set(list ?? []); this.loadingReviews.set(false); },
+      error: () => this.loadingReviews.set(false),
+    });
+  }
+
+  filteredReviews = computed<ReviewDto[]>(() => {
+    const list = [...this.reviews()];
+    switch (this.reviewFilter()) {
+      case 'lowest': return list.sort((a, b) => a.rating - b.rating);
+      case 'highest': return list.sort((a, b) => b.rating - a.rating);
+      default: return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  });
+
+  avgRating = computed(() => {
+    const list = this.reviews();
+    if (!list.length) return this.selectedShop()?.ratingAvg ?? 0;
+    return list.reduce((s, r) => s + r.rating, 0) / list.length;
+  });
+
+  starStr(n: number): string {
+    const full = Math.round(n || 0);
+    return '★'.repeat(Math.min(5, full)) + '☆'.repeat(Math.max(0, 5 - full));
   }
 
   loadOrders() {
