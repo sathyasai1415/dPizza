@@ -62,18 +62,41 @@ To deploy the backend REST API directly to Google App Engine (Standard Environme
 
 ---
 
-## 🅰️ Frontend Firebase Hosting Deployment
+## 🅰️ Frontend Deployment
 
-To deploy the Angular frontend to Firebase Hosting:
+> [!IMPORTANT]
+> **The live custom domain `mislice.online` (and `www.mislice.online`) is served by the
+> App Engine `default` service — NOT Firebase Hosting.** Deploying only to Firebase Hosting
+> updates `xx-1-2e007.web.app` but leaves `mislice.online` unchanged. Always deploy to
+> App Engine to update the real site.
 
-1. **Log in to Firebase CLI:**
-   ```bash
-   npx firebase login
-   ```
+### ✅ Primary: App Engine (serves mislice.online)
 
-2. **Build and Deploy:**
-   ```bash
-   cd frontend
-   npm run build
-   npx firebase deploy --only hosting
-   ```
+```bash
+cd frontend
+npm run build                                   # outputs to dist/frontend/browser
+gcloud app deploy app.yaml --quiet --project xx-1-2e007
+```
+
+Or use the helper script (build + deploy in one step):
+
+```bash
+cd frontend && ./deploy.sh
+```
+
+Verify the live bundle matches your build:
+
+```bash
+curl -s https://mislice.online/ | grep -o 'main-[A-Z0-9]*\.js'
+```
+
+### Optional: Firebase Hosting (staging mirror at xx-1-2e007.web.app)
+
+```bash
+cd frontend
+npm run build
+npx firebase deploy --only hosting
+```
+
+> Note: `index.html` is served with `cache-control: max-age=600`, so after a deploy your
+> browser may hold the old page for up to 10 minutes — hard-refresh (`Cmd/Ctrl+Shift+R`).
