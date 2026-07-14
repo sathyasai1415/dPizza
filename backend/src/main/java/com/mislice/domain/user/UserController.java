@@ -66,4 +66,11 @@ public class UserController {
         userService.deleteAddress(userId, addressId);
         return ResponseEntity.noContent().build();
     }
+    @Operation(summary = "Delete the authenticated user's account")
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAccount() {
+        UUID userId = SecurityUtils.currentUserId();
+        userService.deleteAccount(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

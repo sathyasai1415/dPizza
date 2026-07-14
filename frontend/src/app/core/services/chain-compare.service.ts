@@ -19,4 +19,18 @@ export class ChainCompareService {
   getChains(): Observable<ChainDto[]> {
     return this.http.get<ChainDto[]>(`${this.apiUrl}/chains`);
   }
+
+  getQuickQuotes(intent: string, deliveryType: string = 'delivery'): Observable<Quote[]> {
+    let params = new HttpParams()
+      .set('intent', intent)
+      .set('deliveryType', deliveryType);
+    return this.http.get<Quote[]>(`${this.apiUrl}/quick`, { params });
+  }
+
+  searchQuotes(q: string, deliveryType: string = 'delivery'): Observable<Quote[]> {
+    let params = new HttpParams()
+      .set('q', q)
+      .set('deliveryType', deliveryType);
+    return this.http.get<Quote[]>(`${this.apiUrl}/search`, { params });
+  }
 }

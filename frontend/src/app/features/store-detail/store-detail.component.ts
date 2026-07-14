@@ -14,7 +14,7 @@ type TabId = 'menu' | 'deals' | 'info';
   imports: [CommonModule, CurrencyPipe],
   template: `
     <div *ngIf="loadingStore()" class="flex justify-center py-24">
-      <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-red-500"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-brand-red"></div>
     </div>
 
     <div *ngIf="!loadingStore() && store()" class="space-y-6 max-w-4xl mx-auto">
@@ -28,15 +28,15 @@ type TabId = 'menu' | 'deals' | 'info';
               {{ store()?.emoji }}
             </div>
             <div>
-              <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">{{ store()?.name }}</h2>
-              <p class="text-xs sm:text-sm text-white/70 mt-1">{{ store()?.neighborhood || store()?.city }}</p>
+              <h2 class="text-2xl sm:text-3xl font-black text-brand-black leading-tight">{{ store()?.name }}</h2>
+              <p class="text-xs sm:text-sm text-brand-black mt-1">{{ store()?.neighborhood || store()?.city }}</p>
             </div>
           </div>
           <div class="flex flex-wrap gap-3">
-            <span class="bg-black/30 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-white">
+            <span class="bg-brand-white border border-brand-black px-3 py-1.5 rounded-xl text-xs font-bold text-brand-black">
               ★ {{ store()?.ratingAvg | number:'1.1-1' }} ({{ store()?.ratingCount }} reviews)
             </span>
-            <span class="bg-black/30 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-white">
+            <span class="bg-brand-white border border-brand-black px-3 py-1.5 rounded-xl text-xs font-bold text-brand-black">
               ⏱️ {{ store()?.averageEtaMinutes || 25 }} mins
             </span>
           </div>
@@ -44,7 +44,7 @@ type TabId = 'menu' | 'deals' | 'info';
       </div>
 
       <!-- Tab selectors -->
-      <div class="flex gap-4 border-b border-white/10 pb-1">
+      <div class="flex gap-4 border-b border-brand-black pb-1">
         <button (click)="setTab('menu')" [class]="tabCls('menu')">Menu</button>
         <button (click)="setTab('deals')" [class]="tabCls('deals')">Deals</button>
         <button (click)="setTab('info')" [class]="tabCls('info')">Store Info</button>
@@ -56,27 +56,27 @@ type TabId = 'menu' | 'deals' | 'info';
         <!-- MENU TAB -->
         <div *ngSwitchCase="'menu'" class="space-y-8">
           <div *ngIf="loadingMenu()" class="flex justify-center py-12">
-            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-brand-red"></div>
           </div>
-          <div *ngIf="!loadingMenu() && menuItems().length === 0" class="text-center py-12 text-white/40">
+          <div *ngIf="!loadingMenu() && menuItems().length === 0" class="text-center py-12 text-brand-black">
             <p>No menu items available for this store.</p>
           </div>
 
           <div *ngIf="!loadingMenu() && menuItems().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div *ngFor="let item of menuItems()" class="glass p-4 rounded-2xl flex items-center justify-between gap-4">
+            <div *ngFor="let item of menuItems()" class="clay p-4 rounded-2xl flex items-center justify-between gap-4">
               <div class="flex items-center gap-3 min-w-0">
-                <div class="w-12 h-12 rounded-xl bg-red-600/20 flex items-center justify-center text-2xl shrink-0">
+                <div class="w-12 h-12 rounded-xl bg-brand-red text-brand-white flex items-center justify-center text-2xl shrink-0">
                   {{ item.itemType === 'PIZZA' ? '🍕' : item.itemType === 'SIDE' ? '🥖' : item.itemType === 'DRINK' ? '🥤' : '🍰' }}
                 </div>
                 <div class="min-w-0">
-                  <h4 class="font-bold text-sm text-white truncate">{{ item.name }}</h4>
-                  <p class="text-xs text-white/40 mt-1 line-clamp-1">{{ item.description }}</p>
+                  <h4 class="font-bold text-sm text-brand-black truncate">{{ item.name }}</h4>
+                  <p class="text-xs text-brand-black mt-1 line-clamp-1">{{ item.description }}</p>
                 </div>
               </div>
               <div class="flex flex-col items-end gap-1.5 shrink-0">
-                <span class="text-sm font-black text-white">{{ item.basePrice | currency }}</span>
+                <span class="text-sm font-black text-brand-black">{{ item.basePrice | currency }}</span>
                 <button (click)="openCustomize(item)"
-                  class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white transition">
+                  class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-brand-red text-brand-white hover:bg-brand-red text-brand-white transition">
                   {{ item.itemType === 'PIZZA' ? 'Customize' : 'Add' }}
                 </button>
               </div>
@@ -87,64 +87,64 @@ type TabId = 'menu' | 'deals' | 'info';
         <!-- DEALS TAB -->
         <div *ngSwitchCase="'deals'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div *ngIf="loadingDeals()" class="flex justify-center py-12 col-span-2">
-            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-brand-red"></div>
           </div>
-          <div *ngIf="!loadingDeals() && deals().length === 0" class="text-center py-12 text-white/40 col-span-2">
+          <div *ngIf="!loadingDeals() && deals().length === 0" class="text-center py-12 text-brand-black col-span-2">
             <p>No active deals for this store.</p>
           </div>
-          <div *ngFor="let deal of deals()" class="bg-gradient-to-br from-green-950/30 to-emerald-950/20 border border-green-500/20 rounded-2xl p-4">
-            <span class="text-[9px] font-black text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full uppercase">{{ deal.deliveryType || 'Active Deal' }}</span>
-            <h4 class="text-sm font-black text-white mt-1.5">{{ deal.title }}</h4>
-            <p class="text-[11px] text-stone-400 mt-1">{{ deal.description }}</p>
-            <div class="flex items-center justify-between gap-2 mt-4 pt-2 border-t border-white/5">
-              <span class="text-xs text-stone-500">Price:</span>
-              <span class="text-sm font-black text-green-400">{{ deal.discountedPrice | currency }}</span>
+          <div *ngFor="let deal of deals()" class="border border-green-500/20 rounded-2xl p-4">
+            <span class="text-[9px] font-black text-brand-green bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full uppercase">{{ deal.deliveryType || 'Active Deal' }}</span>
+            <h4 class="text-sm font-black text-brand-black mt-1.5">{{ deal.title }}</h4>
+            <p class="text-[11px] text-brand-black mt-1">{{ deal.description }}</p>
+            <div class="flex items-center justify-between gap-2 mt-4 pt-2 border-t border-brand-black">
+              <span class="text-xs text-brand-black">Price:</span>
+              <span class="text-sm font-black text-brand-green">{{ deal.discountedPrice | currency }}</span>
             </div>
           </div>
         </div>
 
         <!-- INFO TAB -->
-        <div *ngSwitchCase="'info'" class="glass p-6 rounded-2xl space-y-4">
-          <div><h4 class="text-xs font-bold text-white/40 uppercase">Description</h4><p class="text-sm text-white/70 mt-1 leading-relaxed">{{ store()?.description }}</p></div>
-          <div><h4 class="text-xs font-bold text-white/40 uppercase">Address</h4><p class="text-sm text-white/70 mt-1">{{ store()?.addressLine }}, {{ store()?.city }}, {{ store()?.state }}</p></div>
-          <div><h4 class="text-xs font-bold text-white/40 uppercase">Phone Number</h4><p class="text-sm text-white/70 mt-1">{{ store()?.phone }}</p></div>
+        <div *ngSwitchCase="'info'" class="clay p-6 rounded-2xl space-y-4">
+          <div><h4 class="text-xs font-bold text-brand-black uppercase">Description</h4><p class="text-sm text-brand-black mt-1 leading-relaxed">{{ store()?.description }}</p></div>
+          <div><h4 class="text-xs font-bold text-brand-black uppercase">Address</h4><p class="text-sm text-brand-black mt-1">{{ store()?.addressLine }}, {{ store()?.city }}, {{ store()?.state }}</p></div>
+          <div><h4 class="text-xs font-bold text-brand-black uppercase">Phone Number</h4><p class="text-sm text-brand-black mt-1">{{ store()?.phone }}</p></div>
         </div>
       </div>
     </div>
 
     <!-- ============ CUSTOMIZATION DRAWER ============ -->
     <div *ngIf="customizing() as item" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" (click)="closeCustomize()"></div>
+      <div class="absolute inset-0 bg-brand-white backdrop-blur-sm" (click)="closeCustomize()"></div>
 
-      <div class="relative w-full sm:max-w-lg max-h-[92vh] overflow-y-auto glass rounded-t-[32px] sm:rounded-[32px] border border-white/10 bg-[#0d0810]/95">
+      <div class="relative w-full sm:max-w-lg max-h-[92vh] overflow-y-auto glass rounded-t-[32px] sm:rounded-[32px] border border-brand-black bg-[#0d0810]/95">
         <!-- header -->
-        <div class="sticky top-0 z-10 flex items-start justify-between gap-3 p-5 border-b border-white/10 bg-[#0d0810]/95">
+        <div class="sticky top-0 z-10 flex items-start justify-between gap-3 p-5 border-b border-brand-black bg-[#0d0810]/95">
           <div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Customize at {{ store()?.name }}</p>
-            <h3 class="text-lg font-black text-white leading-tight">{{ item.name }}</h3>
-            <p class="text-xs text-white/40">Base {{ item.basePrice | currency }} · small changes only</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-brand-black">Customize at {{ store()?.name }}</p>
+            <h3 class="text-lg font-black text-brand-black leading-tight">{{ item.name }}</h3>
+            <p class="text-xs text-brand-black">Base {{ item.basePrice | currency }} · small changes only</p>
           </div>
-          <button (click)="closeCustomize()" class="text-white/40 hover:text-white text-xl leading-none">✕</button>
+          <button (click)="closeCustomize()" class="text-brand-black hover:text-brand-black text-xl leading-none">✕</button>
         </div>
 
         <div class="p-5 space-y-5">
           @if (loadingOptions()) {
-            <div class="flex justify-center py-8"><div class="animate-spin rounded-full h-7 w-7 border-t-2 border-red-500"></div></div>
+            <div class="flex justify-center py-8"><div class="animate-spin rounded-full h-7 w-7 border-t-2 border-brand-red"></div></div>
           }
 
           <!-- ADD toppings (only what this restaurant offers) -->
           @if (addable().length > 0) {
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-white/40 mb-2">Add ingredients</p>
+              <p class="text-xs font-black uppercase tracking-widest text-brand-black mb-2">Add ingredients</p>
               <div class="flex flex-wrap gap-2">
                 @for (t of addable(); track t.name) {
-                  <div class="flex items-center rounded-xl overflow-hidden border" [class]="isAdded(t.name) ? 'border-red-500/50' : 'border-white/10'">
-                    <button (click)="toggleAdd(t.name)" [class]="'px-3 py-2 text-xs font-bold transition ' + (isAdded(t.name) ? 'bg-red-600 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10')">
+                  <div class="flex items-center rounded-xl overflow-hidden border" [class]="isAdded(t.name) ? 'border-brand-red' : 'border-brand-black'">
+                    <button (click)="toggleAdd(t.name)" [class]="'px-3 py-2 text-xs font-bold transition ' + (isAdded(t.name) ? 'bg-brand-red text-brand-white' : 'bg-brand-white text-brand-black hover:bg-brand-white')">
                       {{ isAdded(t.name) ? '✓' : '+' }} {{ t.name }}
                       @if (t.price) { <span class="text-[9px] opacity-70 ml-0.5">+{{ t.price | currency }}</span> }
                     </button>
                     @if (isAdded(t.name)) {
-                      <button (click)="toggleExtra(t.name)" [class]="'px-2 py-2 text-[10px] font-black transition ' + (isExtra(t.name) ? 'bg-orange-500 text-white' : 'bg-black/40 text-white/50 hover:text-white')" title="Extra serving">Extra</button>
+                      <button (click)="toggleExtra(t.name)" [class]="'px-2 py-2 text-[10px] font-black transition ' + (isExtra(t.name) ? 'bg-brand-orange text-brand-white' : 'bg-brand-white text-brand-black hover:text-brand-black')" title="Extra serving">Extra</button>
                     }
                   </div>
                 }
@@ -155,10 +155,10 @@ type TabId = 'menu' | 'deals' | 'info';
           <!-- REMOVE ingredients -->
           @if (removable().length > 0) {
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-white/40 mb-2">Remove ingredients</p>
+              <p class="text-xs font-black uppercase tracking-widest text-brand-black mb-2">Remove ingredients</p>
               <div class="flex flex-wrap gap-2">
                 @for (t of removable(); track t) {
-                  <button (click)="toggleRemove(t)" [class]="'px-3 py-2 rounded-xl text-xs font-bold transition ' + (isRemoved(t) ? 'bg-white/15 text-white line-through' : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10')">
+                  <button (click)="toggleRemove(t)" [class]="'px-3 py-2 rounded-xl text-xs font-bold transition ' + (isRemoved(t) ? 'bg-brand-white text-brand-black line-through' : 'bg-brand-white text-brand-black hover:bg-brand-white border border-brand-black')">
                     {{ isRemoved(t) ? 'No ' + t : t }}
                   </button>
                 }
@@ -169,55 +169,55 @@ type TabId = 'menu' | 'deals' | 'info';
           <!-- SAUCE change (if restaurant offers sauces) -->
           @if (sauces().length > 0) {
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-white/40 mb-2">Sauce (optional change)</p>
+              <p class="text-xs font-black uppercase tracking-widest text-brand-black mb-2">Sauce (optional change)</p>
               <div class="flex flex-wrap gap-2">
                 @for (s of sauces(); track s.name) {
-                  <button (click)="chooseSauce(s.name)" [class]="'px-3 py-2 rounded-xl text-xs font-bold transition ' + (chosenSauce() === s.name ? 'bg-red-600 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10')">{{ s.name }}</button>
+                  <button (click)="chooseSauce(s.name)" [class]="'px-3 py-2 rounded-xl text-xs font-bold transition ' + (chosenSauce() === s.name ? 'bg-brand-red text-brand-white' : 'bg-brand-white text-brand-black hover:bg-brand-white border border-brand-black')">{{ s.name }}</button>
                 }
               </div>
             </div>
           }
 
           @if (!loadingOptions() && addable().length === 0 && removable().length === 0 && sauces().length === 0) {
-            <p class="text-xs text-white/40">This item has no customization options — add it as-is.</p>
+            <p class="text-xs text-brand-black">This item has no customization options — add it as-is.</p>
           }
 
           <!-- Quantity -->
           <div class="flex items-center justify-between">
-            <p class="text-xs font-black uppercase tracking-widest text-white/40">Quantity</p>
+            <p class="text-xs font-black uppercase tracking-widest text-brand-black">Quantity</p>
             <div class="flex items-center gap-3">
-              <button (click)="setQty(qty() - 1)" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10">−</button>
-              <span class="text-white font-black w-6 text-center">{{ qty() }}</span>
-              <button (click)="setQty(qty() + 1)" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10">+</button>
+              <button (click)="setQty(qty() - 1)" class="w-8 h-8 rounded-lg bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white">−</button>
+              <span class="text-brand-black font-black w-6 text-center">{{ qty() }}</span>
+              <button (click)="setQty(qty() + 1)" class="w-8 h-8 rounded-lg bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white">+</button>
             </div>
           </div>
 
           <!-- SUMMARY -->
-          <div class="glass-soft rounded-2xl p-4 border border-white/5 space-y-2">
-            <p class="text-xs font-black uppercase tracking-widest text-white/40">Your order</p>
-            <div class="flex justify-between text-sm"><span class="text-white/70">{{ item.name }}</span><span class="text-white/70">{{ item.basePrice | currency }}</span></div>
+          <div class="clay-soft rounded-2xl p-4 border border-brand-black space-y-2">
+            <p class="text-xs font-black uppercase tracking-widest text-brand-black">Your order</p>
+            <div class="flex justify-between text-sm"><span class="text-brand-black">{{ item.name }}</span><span class="text-brand-black">{{ item.basePrice | currency }}</span></div>
             @for (c of addedSummary(); track c.name) {
-              <div class="flex justify-between text-xs"><span class="text-emerald-400">+ {{ c.label }}</span><span class="text-emerald-400">+{{ c.price | currency }}</span></div>
+              <div class="flex justify-between text-xs"><span class="text-brand-green">+ {{ c.label }}</span><span class="text-brand-green">+{{ c.price | currency }}</span></div>
             }
             @for (r of removedSummary(); track r) {
-              <div class="flex justify-between text-xs"><span class="text-white/40">− No {{ r }}</span><span class="text-white/40">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-brand-black">− No {{ r }}</span><span class="text-brand-black">—</span></div>
             }
             @if (chosenSauce()) {
-              <div class="flex justify-between text-xs"><span class="text-white/50">↻ {{ chosenSauce() }} sauce</span><span class="text-white/40">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-brand-black">↻ {{ chosenSauce() }} sauce</span><span class="text-brand-black">—</span></div>
             }
-            <div class="flex justify-between pt-2 border-t border-white/10">
-              <span class="text-white font-bold text-sm">Total{{ qty() > 1 ? ' × ' + qty() : '' }}</span>
-              <span class="text-xl font-black text-orange-400">{{ totalPrice() | currency }}</span>
+            <div class="flex justify-between pt-2 border-t border-brand-black">
+              <span class="text-brand-black font-bold text-sm">Total{{ qty() > 1 ? ' × ' + qty() : '' }}</span>
+              <span class="text-xl font-black text-brand-orange">{{ totalPrice() | currency }}</span>
             </div>
           </div>
 
-          @if (addError()) { <p class="text-xs text-red-400 font-bold">⚠️ {{ addError() }}</p> }
+          @if (addError()) { <p class="text-xs text-brand-red font-bold">⚠️ {{ addError() }}</p> }
 
           <div class="grid grid-cols-2 gap-3">
-            <button (click)="confirmAdd(false)" [disabled]="submitting()" class="py-3.5 rounded-2xl font-black text-white text-sm bg-white/5 border border-white/10 hover:bg-white/10 transition disabled:opacity-50">
+            <button (click)="confirmAdd(false)" [disabled]="submitting()" class="py-3.5 rounded-2xl font-black text-brand-black text-sm bg-brand-white border border-brand-black hover:bg-brand-white transition disabled:opacity-50">
               {{ submitting() ? '…' : '🛒 Add to Cart' }}
             </button>
-            <button (click)="confirmAdd(true)" [disabled]="submitting()" class="py-3.5 rounded-2xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 transition disabled:opacity-50">
+            <button (click)="confirmAdd(true)" [disabled]="submitting()" class="py-3.5 rounded-2xl font-black text-brand-black text-sm hover:hover:transition disabled:opacity-50">
               {{ submitting() ? '…' : 'Checkout →' }}
             </button>
           </div>
@@ -310,8 +310,8 @@ export class StoreDetailComponent implements OnInit {
   setTab(tab: TabId) { this.activeTab.set(tab); }
   tabCls(tab: TabId): string {
     return this.activeTab() === tab
-      ? 'border-b-2 border-red-500 pb-2 px-1 text-sm font-black text-white'
-      : 'pb-2 px-1 text-sm font-semibold text-white/50 hover:text-white transition';
+      ? 'border-b-2 border-brand-red pb-2 px-1 text-sm font-black text-brand-black'
+      : 'pb-2 px-1 text-sm font-semibold text-brand-black hover:text-brand-black transition';
   }
 
   // ---- Customization ----

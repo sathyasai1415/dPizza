@@ -122,6 +122,8 @@ export interface Quote {
   cheapestOptionId?: string;
   fastestOptionId?: string;
   bestValueOptionId?: string;
+  nativeMenuName?: string;
+  nativeSize?: string;
 }
 
 export interface ChainPricingData {

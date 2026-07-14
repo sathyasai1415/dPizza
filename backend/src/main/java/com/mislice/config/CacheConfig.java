@@ -37,7 +37,7 @@ public class CacheConfig {
     }
 
     @Bean
-    @Profile("dev")
+    @Profile({"dev", "dev-cloud"})
     @Primary
     public CacheManager devCacheManager() {
         return new ConcurrentMapCacheManager("restaurants", "restaurant_details", "deals");

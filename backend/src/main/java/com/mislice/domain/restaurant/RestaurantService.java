@@ -198,4 +198,31 @@ public class RestaurantService {
         restaurant.setDeleted(true);
         restaurantRepository.save(restaurant);
     }
+
+    @Transactional
+    public void inviteStaff(UUID restaurantId, String email) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant", restaurantId));
+        
+        com.mislice.domain.user.User user = userRepository.findByEmailIgnoreCaseAndDeletedFalse(email)
+                .orElseThrow(() -> new IllegalArgumentException("User with this email not found."));
+                
+        user.getRoles().add(com.mislice.domain.user.Role.RESTAURANT_STAFF);
+        userRepository.save(user);
+    }
+
+    public List<java.util.Map<String, Object>> getStaff(UUID restaurantId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant", restaurantId));
+        
+        // As there's no explicit ManyToMany link yet, return owner as default.
+        return List.of(java.util.Map.of(
+            "id", restaurant.getOwner().getId(),
+            "name", restaurant.getOwner().getFullName(),
+            "email", restaurant.getOwner().getEmail(),
+            "role", "Owner",
+            "status", "Active",
+            "joinedAt", restaurant.getOwner().getCreatedAt().toString()
+        ));
+    }
 }

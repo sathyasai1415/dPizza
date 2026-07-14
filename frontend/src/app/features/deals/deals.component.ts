@@ -21,110 +21,164 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="w-full space-y-5 max-w-6xl mx-auto">
+    <div class="w-full space-y-6 max-w-[1400px] mx-auto px-4 py-6">
       <!-- Header -->
-      <div class="relative overflow-hidden rounded-[28px] border border-orange-500/40 bg-gradient-to-br from-red-950 to-orange-950 p-6 sm:p-8">
+      <div class="relative overflow-hidden rounded-[28px] border border-orange-500/40 p-6 sm:p-8 bg-brand-white shadow-md">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),transparent_45%)] pointer-events-none"></div>
         <div class="relative z-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <span class="inline-flex items-center gap-2 rounded-full bg-orange-500/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-orange-300 border border-orange-400/30">🔥 Live Michigan Deals</span>
-            <h1 class="mt-4 text-3xl sm:text-4xl font-black text-white">Deals &amp; Offers</h1>
-            <p class="mt-2 text-sm text-orange-100/70">The best pizza deals from restaurants near you — right now.</p>
+            <span class="inline-flex items-center gap-2 rounded-full bg-brand-orange text-brand-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest border border-orange-400/30">🔥 Live Michigan Deals</span>
+            <h1 class="mt-4 text-3xl sm:text-4xl font-black text-brand-black">Deals &amp; Offers</h1>
+            <p class="mt-2 text-sm text-brand-orange/70 font-bold">The best pizza deals from restaurants near you — right now.</p>
           </div>
-          <button (click)="requestLocation()" class="shrink-0 self-start sm:self-auto text-xs font-bold text-white bg-white/10 border border-white/15 px-4 py-2.5 rounded-2xl hover:bg-white/15 transition">
+          <button (click)="requestLocation()" class="shrink-0 self-start sm:self-auto text-xs font-bold text-brand-black bg-brand-white border border-brand-black px-4 py-2.5 rounded-2xl hover:bg-brand-white transition shadow-sm">
             {{ userLoc() ? '📍 Near you · on' : '📍 Use my location' }}
           </button>
         </div>
       </div>
 
-      <!-- Category chips -->
-      <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
-        @for (c of categories; track c.id) {
-          @if (c.id === 'all' || countFor(c) > 0) {
-            <button (click)="activeCat.set(c.id)"
-              [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-black transition whitespace-nowrap ' + (activeCat() === c.id ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white' : 'bg-white/5 text-white/60 hover:text-white border border-white/10')">
-              {{ c.label }}<span class="opacity-60 ml-1">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
-            </button>
-          }
-        }
-      </div>
-
-      <!-- Filters + sort -->
-      <div class="flex flex-wrap items-center gap-2">
-        <button (click)="toggleFilter('delivery')" [class]="fchip(filters().includes('delivery'))">🛵 Delivery</button>
-        <button (click)="toggleFilter('pickup')" [class]="fchip(filters().includes('pickup'))">🏬 Pickup</button>
-        <button (click)="toggleFilter('under10')" [class]="fchip(filters().includes('under10'))">💰 Under $10</button>
-        <button (click)="toggleFilter('rating')" [class]="fchip(filters().includes('rating'))">⭐ 4.5+</button>
-        <span class="flex-1"></span>
-        <select [ngModel]="sort()" (ngModelChange)="sort.set($any($event))"
-          class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500">
-          <option class="bg-neutral-900" value="discount">Sort: Best Discount</option>
-          <option class="bg-neutral-900" value="expiring">Expiring Soon</option>
-          <option class="bg-neutral-900" value="price">Price: Low → High</option>
-          <option class="bg-neutral-900" value="distance">Nearest</option>
-          <option class="bg-neutral-900" value="rating">Top Rated</option>
-        </select>
-      </div>
-
-      <!-- Loading -->
-      <div *ngIf="loading()" class="flex justify-center py-16"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500"></div></div>
-
-      <!-- Empty -->
-      <div *ngIf="!loading() && visible().length === 0" class="glass rounded-3xl p-12 text-center text-white/50">
-        <p class="text-4xl mb-3">🏷️</p>
-        <p class="font-black text-white mb-1">No deals match this view</p>
-        <p class="text-sm">Try a different category or clear your filters — new offers post all the time.</p>
-      </div>
-
-      <!-- Deals grid -->
-      <div *ngIf="!loading() && visible().length > 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        @for (vm of visible(); track vm.deal.id) {
-          <div class="glass rounded-3xl overflow-hidden flex flex-col hover:border-orange-500/40 border border-white/5 transition group">
-            <!-- image / banner -->
-            <div class="relative h-32 flex items-center justify-center text-5xl"
-              [style.background]="vm.store?.brandColor || 'linear-gradient(135deg,#7f1d1d,#c2410c)'">
-              <img *ngIf="vm.deal.imageUrl" [src]="vm.deal.imageUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
-              <span *ngIf="!vm.deal.imageUrl">🍕</span>
-              @if (vm.pct > 0) {
-                <span class="absolute top-3 left-3 text-[11px] font-black text-white bg-red-600 px-2.5 py-1 rounded-full shadow-lg">SAVE {{ vm.pct }}%</span>
-              }
-              <span class="absolute top-3 right-3 text-[10px] font-black text-white bg-black/50 backdrop-blur px-2 py-1 rounded-full">{{ timeLeft(vm.deal) }}</span>
-            </div>
-
-            <div class="p-4 flex flex-col flex-1">
-              <!-- restaurant row -->
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-lg">{{ vm.store?.emoji || '🏪' }}</span>
-                <span class="text-sm font-black text-white truncate flex-1">{{ vm.store?.name || 'Local Pizzeria' }}</span>
-                <span class="text-[11px] font-bold text-yellow-300">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
+      <div class="flex flex-col lg:flex-row gap-8 items-start">
+        
+        <!-- LEFT SIDEBAR: FILTERS -->
+        <div class="hidden lg:block w-56 shrink-0 space-y-6 sticky top-6">
+          <h3 class="text-xl font-black text-brand-black tracking-tight border-b border-brand-black pb-2">Filters</h3>
+          
+          <div class="space-y-4 pt-2">
+            
+            <label class="flex items-center justify-between cursor-pointer group">
+              <span class="text-sm font-bold text-brand-black group-hover:text-brand-orange transition">Free Delivery</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('free_delivery')" [checked]="filters().includes('free_delivery')" />
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
-
-              <p class="text-sm font-bold text-white leading-tight">{{ vm.deal.title }}</p>
-              <p class="text-xs text-white/40 mt-0.5 line-clamp-1 flex-1">{{ vm.deal.description }}</p>
-
-              <!-- price -->
-              <div class="flex items-baseline gap-2 mt-3">
-                @if (vm.deal.originalPrice) { <span class="text-xs text-white/30 line-through">{{ vm.deal.originalPrice | currency }}</span> }
-                <span class="text-xl font-black text-orange-400">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
-                @if (vm.savings > 0) { <span class="text-[11px] font-black text-emerald-400">Save {{ vm.savings | currency }}</span> }
+            </label>
+            
+            <label class="flex items-center justify-between cursor-pointer group">
+              <span class="text-sm font-bold text-brand-black group-hover:text-brand-orange transition">Favourites</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('favourites')" [checked]="filters().includes('favourites')" />
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
+            </label>
 
-              <!-- meta -->
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[10px] text-white/40 font-bold">
-                <span>⏱️ {{ vm.store?.averageEtaMinutes || 25 }} min</span>
-                <span>{{ (vm.store?.deliveryFee ?? 0) > 0 ? ('🛵 ' + (vm.store?.deliveryFee | currency)) : '🛵 Free' }}</span>
-                @if (vm.distanceMi != null) { <span>📍 {{ vm.distanceMi | number:'1.1-1' }} mi</span> }
-                @else if (vm.store?.city) { <span>📍 {{ vm.store?.city }}</span> }
+            <label class="flex items-center justify-between cursor-pointer group">
+              <span class="text-sm font-bold text-brand-black group-hover:text-brand-orange transition">4+ Stars</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('rating')" [checked]="filters().includes('rating')" />
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
+            </label>
 
-              <!-- actions -->
-              <div class="grid grid-cols-2 gap-2 mt-4">
-                <button (click)="viewDeal(vm)" class="py-2 rounded-xl text-xs font-black text-white bg-white/5 border border-white/10 hover:bg-white/10 transition">View Deal</button>
-                <button (click)="orderNow(vm)" class="py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 transition">Order Now</button>
+            <label class="flex items-center justify-between cursor-pointer group">
+              <span class="text-sm font-bold text-brand-black group-hover:text-brand-orange transition">Open Now</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('open_now')" [checked]="filters().includes('open_now')" />
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
-            </div>
+            </label>
+
+            <label class="flex items-center justify-between cursor-pointer group">
+              <span class="text-sm font-bold text-brand-black group-hover:text-brand-orange transition">Under $10</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('under10')" [checked]="filters().includes('under10')" />
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+              </div>
+            </label>
+
           </div>
-        }
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 min-w-0 space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <!-- Category chips -->
+            <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none flex-1">
+              @for (c of categories; track c.id) {
+                @if (c.id === 'all' || countFor(c) > 0) {
+                  <button (click)="activeCat.set(c.id)"
+                    [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-black transition whitespace-nowrap shadow-sm ' + (activeCat() === c.id ? 'bg-brand-black text-brand-white' : 'bg-brand-white text-brand-black hover:text-brand-orange border border-brand-black')">
+                    {{ c.label }}<span class="opacity-60 ml-1.5">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
+                  </button>
+                }
+              }
+            </div>
+
+            <!-- Sort -->
+            <select [ngModel]="sort()" (ngModelChange)="sort.set($any($event))"
+              class="shrink-0 bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-xs font-bold text-brand-black outline-none focus:border-brand-red shadow-sm cursor-pointer">
+              <option class="bg-brand-white" value="discount">Sort: Best Discount</option>
+              <option class="bg-brand-white" value="expiring">Expiring Soon</option>
+              <option class="bg-brand-white" value="price">Price: Low → High</option>
+              <option class="bg-brand-white" value="distance">Nearest</option>
+              <option class="bg-brand-white" value="rating">Top Rated</option>
+            </select>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="loading()" class="flex justify-center py-16"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-brand-red"></div></div>
+
+          <!-- Empty -->
+          <div *ngIf="!loading() && visible().length === 0" class="clay rounded-[2rem] p-12 text-center text-brand-black bg-brand-white shadow-sm border border-brand-black">
+            <p class="text-5xl mb-4">🏷️</p>
+            <p class="text-xl font-black text-brand-black mb-2">No deals match this view</p>
+            <p class="text-sm font-semibold max-w-md mx-auto">Try a different category or clear your filters — new offers post all the time.</p>
+          </div>
+
+          <!-- Deals grid -->
+          <div *ngIf="!loading() && visible().length > 0" class="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+            @for (vm of visible(); track vm.deal.id) {
+              <div class="clay rounded-[2rem] overflow-hidden flex flex-col hover:border-brand-red hover:shadow-xl border border-brand-black transition group bg-brand-white">
+                <!-- image / banner -->
+                <div class="relative h-36 flex items-center justify-center text-5xl"
+                  [style.background]="vm.store?.brandColor || 'linear-gradient(135deg,#7f1d1d,#c2410c)'">
+                  <img *ngIf="vm.deal.imageUrl" [src]="vm.deal.imageUrl" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                  <span *ngIf="!vm.deal.imageUrl" class="group-hover:scale-110 transition duration-300">🍕</span>
+                  @if (vm.pct > 0) {
+                    <span class="absolute top-3 left-3 text-[11px] font-black text-brand-white bg-brand-red px-3 py-1 rounded-full shadow-lg">SAVE {{ vm.pct }}%</span>
+                  }
+                  <span class="absolute top-3 right-3 text-[10px] font-black text-brand-black bg-brand-white/90 backdrop-blur px-2.5 py-1 rounded-full shadow-sm">{{ timeLeft(vm.deal) }}</span>
+                </div>
+
+                <div class="p-5 flex flex-col flex-1">
+                  <!-- restaurant row -->
+                  <div class="flex items-center gap-2 mb-3 border-b border-gray-100 pb-3">
+                    <span class="text-xl">{{ vm.store?.emoji || '🏪' }}</span>
+                    <span class="text-sm font-black text-brand-black truncate flex-1">{{ vm.store?.name || 'Local Pizzeria' }}</span>
+                    <span class="text-[11px] font-bold text-brand-orange bg-orange-50 px-2 py-0.5 rounded-md">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
+                  </div>
+
+                  <p class="text-base font-black text-brand-black leading-tight">{{ vm.deal.title }}</p>
+                  <p class="text-xs text-brand-black/70 mt-1 line-clamp-2 flex-1 font-semibold leading-relaxed">{{ vm.deal.description }}</p>
+
+                  <!-- price -->
+                  <div class="flex items-end gap-2 mt-4">
+                    <span class="text-3xl font-black text-brand-red leading-none">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
+                    @if (vm.deal.originalPrice && vm.deal.originalPrice > (vm.deal.discountedPrice ?? 0)) { 
+                      <span class="text-xs text-brand-black/50 font-bold line-through mb-1">{{ vm.deal.originalPrice | currency }}</span> 
+                    }
+                    <span class="flex-1"></span>
+                    @if (vm.savings > 0) { <span class="text-[10px] font-black text-brand-green bg-green-50 px-2 py-1 rounded-md uppercase tracking-wider mb-1">Save {{ vm.savings | currency }}</span> }
+                  </div>
+
+                  <!-- meta -->
+                  <div class="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-100 text-[10px] text-brand-black font-bold uppercase tracking-wider">
+                    <span class="flex items-center gap-1">⏱️ {{ vm.store?.averageEtaMinutes || 25 }}m</span>
+                    <span class="flex items-center gap-1">{{ (vm.store?.deliveryFee ?? 0) > 0 ? ('🛵 ' + (vm.store?.deliveryFee | currency)) : '🛵 Free' }}</span>
+                    @if (vm.distanceMi != null) { <span class="flex items-center gap-1">📍 {{ vm.distanceMi | number:'1.1-1' }}m</span> }
+                    @else if (vm.store?.city) { <span class="flex items-center gap-1">📍 {{ vm.store?.city }}</span> }
+                  </div>
+
+                  <!-- actions -->
+                  <div class="grid grid-cols-2 gap-3 mt-5">
+                    <button (click)="viewDeal(vm)" class="py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider text-brand-black bg-brand-white border border-brand-black hover:bg-gray-50 transition shadow-sm">Details</button>
+                    <button (click)="orderNow(vm)" class="py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider text-brand-white bg-brand-black hover:bg-brand-red transition shadow-sm">Order Now</button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -205,12 +259,24 @@ export class DealsComponent implements OnInit, OnDestroy {
     const cat = this.categories.find(c => c.id === this.activeCat()) ?? this.categories[0];
     const f = this.filters();
     let list = this.allVms().filter(cat.match).filter(vm => {
-      if (f.includes('delivery') && !/delivery|store_delivery/i.test(vm.deal.deliveryType || '')) return false;
-      if (f.includes('pickup') && !/pickup/i.test(vm.deal.deliveryType || '')) return false;
+      // Free Delivery logic (assuming delivery fee is 0 or null)
+      if (f.includes('free_delivery') && (vm.store?.deliveryFee ?? 0) > 0) return false;
+      
+      // Under $10 logic
       if (f.includes('under10') && (vm.deal.discountedPrice ?? 99) >= 10) return false;
+      
+      // Rating logic
       if (f.includes('rating') && (vm.store?.ratingAvg ?? 0) < 4.5) return false;
+      
+      // Open Now logic (mocked logic - just a frontend placeholder)
+      if (f.includes('open_now') && false) return false; // In a real app we'd check store hours
+      
+      // Favourites logic (mocked logic - just a frontend placeholder)
+      if (f.includes('favourites') && false) return false; // In a real app we'd check user profile
+      
       return true;
     });
+    
     const s = this.sort();
     list = [...list].sort((a, b) => {
       switch (s) {
@@ -227,9 +293,6 @@ export class DealsComponent implements OnInit, OnDestroy {
   toggleFilter(f: string) {
     const list = this.filters();
     this.filters.set(list.includes(f) ? list.filter(x => x !== f) : [...list, f]);
-  }
-  fchip(active: boolean): string {
-    return `px-3 py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-orange-600 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'}`;
   }
 
   requestLocation() {

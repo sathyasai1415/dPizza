@@ -15,13 +15,13 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="w-full min-h-screen bg-[#080808] text-white">
+    <div class="w-full min-h-screen bg-[#080808] text-brand-black">
       
       <!-- LOADING STATE -->
       <div *ngIf="loading()" class="p-20 text-center flex items-center justify-center min-h-screen bg-[#080808]">
         <div class="flex flex-col items-center gap-3">
-          <div class="animate-spin rounded-full h-9 w-9 border-t-2 border-red-600"></div>
-          <p class="text-xs text-white/40 font-bold">Verifying administration credentials...</p>
+          <div class="animate-spin rounded-full h-9 w-9 border-t-2 border-brand-red"></div>
+          <p class="text-xs text-brand-black font-bold">Verifying administration credentials...</p>
         </div>
       </div>
 
@@ -32,16 +32,16 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
         <!-- ========================================== -->
         <div *ngIf="isPlatformAdmin()" class="space-y-6 animate-fadeIn">
           <!-- HEADER -->
-          <div class="glass rounded-[2rem] p-6 border border-white/10 flex items-center gap-3 bg-gradient-to-r from-neutral-900/90 to-red-950/20 shadow-xl">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white text-xl shadow-lg">🛡️</div>
+          <div class="clay rounded-[2rem] p-6 border border-brand-black flex items-center gap-3 shadow-xl">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-brand-black text-xl shadow-lg">🛡️</div>
             <div>
-              <h2 class="text-2xl font-black tracking-tight text-white">Platform Administration</h2>
-              <p class="text-xs text-white/50 font-medium">Approve partners, monitor operations, and manage the marketplace.</p>
+              <h2 class="text-2xl font-black tracking-tight text-brand-black">Platform Administration</h2>
+              <p class="text-xs text-brand-black font-medium">Approve partners, monitor operations, and manage the marketplace.</p>
             </div>
           </div>
 
           <!-- SUCCESS ALERT -->
-          <div *ngIf="successMsg()" class="glass border border-emerald-500/35 bg-emerald-500/10 rounded-2xl p-4 text-center text-emerald-400 font-bold text-sm animate-fadeIn">
+          <div *ngIf="successMsg()" class="clay border border-brand-green text-brand-green font-bold rounded-2xl p-4 text-center text-brand-green font-bold text-sm animate-fadeIn">
             ✅ {{ successMsg() }}
           </div>
 
@@ -53,12 +53,12 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
                 <button (click)="activeAdminTab.set(tab.id)"
                   [class]="'glare-hover text-left px-4 py-3 rounded-2xl text-xs font-black transition whitespace-nowrap min-w-[140px] lg:min-w-0 flex items-center gap-3 ' +
                     (activeAdminTab() === tab.id
-                      ? 'bg-gradient-to-r from-red-700/80 to-red-600/50 text-white border border-red-500/30'
-                      : 'text-white/60 hover:text-white')">
+                      ? 'text-brand-black border border-brand-red'
+                      : 'text-brand-black hover:text-brand-black')">
                   <span>{{ tab.icon }}</span>
                   {{ tab.name }}
                   <span *ngIf="tab.id === 'restaurants' && pendingCount() > 0"
-                    class="ml-auto w-5 h-5 rounded-full bg-yellow-500 text-black text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    class="ml-auto w-5 h-5 rounded-full text-brand-orange font-bold text-black text-[10px] font-bold flex items-center justify-center animate-pulse">
                     {{ pendingCount() }}
                   </span>
                 </button>
@@ -66,53 +66,53 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
             </div>
 
             <!-- Content Card -->
-            <div class="glass rounded-[2rem] p-6 min-h-[500px] border border-white/10 bg-black/35 shadow-2xl">
+            <div class="clay rounded-[2rem] p-6 min-h-[500px] border border-brand-black bg-brand-white shadow-2xl">
               
               <!-- ADMIN TAB: OVERVIEW -->
               <div *ngIf="activeAdminTab() === 'overview'" class="space-y-6 animate-fadeIn">
-                <h3 class="text-lg font-black text-white">📊 Platform Overview</h3>
+                <h3 class="text-lg font-black text-brand-black">📊 Platform Overview</h3>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div class="glass rounded-xl p-4 border border-white/5 bg-white/5">
+                  <div class="clay rounded-xl p-4 border border-brand-black bg-brand-white">
                     <span class="text-base">🏪</span>
-                    <p class="text-xl font-black text-white mt-1">{{ activeCount() }}</p>
-                    <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Active Stores</p>
+                    <p class="text-xl font-black text-brand-black mt-1">{{ activeCount() }}</p>
+                    <p class="text-[9px] font-bold text-brand-black uppercase tracking-widest mt-0.5">Active Stores</p>
                   </div>
-                  <div class="glass rounded-xl p-4 border border-white/5 bg-white/5">
+                  <div class="clay rounded-xl p-4 border border-brand-black bg-brand-white">
                     <span class="text-base">⏳</span>
-                    <p class="text-xl font-black text-white mt-1">{{ pendingCount() }}</p>
-                    <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Pending Review</p>
+                    <p class="text-xl font-black text-brand-black mt-1">{{ pendingCount() }}</p>
+                    <p class="text-[9px] font-bold text-brand-black uppercase tracking-widest mt-0.5">Pending Review</p>
                   </div>
-                  <div class="glass rounded-xl p-4 border border-white/5 bg-white/5">
+                  <div class="clay rounded-xl p-4 border border-brand-black bg-brand-white">
                     <span class="text-base">💰</span>
-                    <p class="text-xl font-black text-white mt-1">{{ totalRevenue() | currency }}</p>
-                    <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Gross GMV</p>
+                    <p class="text-xl font-black text-brand-black mt-1">{{ totalRevenue() | currency }}</p>
+                    <p class="text-[9px] font-bold text-brand-black uppercase tracking-widest mt-0.5">Gross GMV</p>
                   </div>
-                  <div class="glass rounded-xl p-4 border border-white/5 bg-white/5">
+                  <div class="clay rounded-xl p-4 border border-brand-black bg-brand-white">
                     <span class="text-base">🛡️</span>
-                    <p class="text-xl font-black text-white mt-1">20%</p>
-                    <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Platform Fee</p>
+                    <p class="text-xl font-black text-brand-black mt-1">20%</p>
+                    <p class="text-[9px] font-bold text-brand-black uppercase tracking-widest mt-0.5">Platform Fee</p>
                   </div>
                 </div>
 
-                <div class="glass-soft rounded-2xl p-5 border border-white/5 space-y-4 bg-black/10">
-                  <h4 class="text-xs font-black uppercase text-white/50 tracking-wider">📈 Michigan Sales Distribution</h4>
+                <div class="clay-soft rounded-2xl p-5 border border-brand-black space-y-4 bg-brand-white">
+                  <h4 class="text-xs font-black uppercase text-brand-black tracking-wider">📈 Michigan Sales Distribution</h4>
                   <div class="space-y-3">
                     <div>
                       <div class="flex justify-between text-xs mb-1">
                         <span>Detroit Metro</span>
-                        <span class="text-white/60 font-bold">65%</span>
+                        <span class="text-brand-black font-bold">65%</span>
                       </div>
-                      <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                        <div class="bg-red-500 h-full rounded-full" style="width: 65%"></div>
+                      <div class="w-full bg-brand-white h-2 rounded-full overflow-hidden">
+                        <div class="bg-brand-red text-brand-white h-full rounded-full" style="width: 65%"></div>
                       </div>
                     </div>
                     <div>
                       <div class="flex justify-between text-xs mb-1">
                         <span>Ann Arbor</span>
-                        <span class="text-white/60 font-bold">25%</span>
+                        <span class="text-brand-black font-bold">25%</span>
                       </div>
-                      <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                        <div class="bg-orange-500 h-full rounded-full" style="width: 25%"></div>
+                      <div class="w-full bg-brand-white h-2 rounded-full overflow-hidden">
+                        <div class="bg-brand-orange text-brand-white h-full rounded-full" style="width: 25%"></div>
                       </div>
                     </div>
                   </div>
@@ -121,11 +121,11 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
 
               <!-- ADMIN TAB: PARTNER AUDIT -->
               <div *ngIf="activeAdminTab() === 'restaurants'" class="space-y-4 animate-fadeIn">
-                <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                  <h3 class="text-lg font-black text-white">🏪 Restaurant Listings</h3>
-                  <div class="flex gap-1 bg-white/5 p-1 rounded-xl">
+                <div class="flex items-center justify-between border-b border-brand-black pb-3">
+                  <h3 class="text-lg font-black text-brand-black">🏪 Restaurant Listings</h3>
+                  <div class="flex gap-1 bg-brand-white p-1 rounded-xl">
                     <button *ngFor="let sTab of ['all', 'pending', 'approved']" (click)="selectedStatusTab.set(sTab)"
-                      [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize ' + (selectedStatusTab() === sTab ? 'bg-red-600 text-white shadow-sm' : 'text-white/50 hover:text-white')">
+                      [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize ' + (selectedStatusTab() === sTab ? 'bg-brand-red text-brand-white shadow-sm' : 'text-brand-black hover:text-brand-black')">
                       {{ sTab }}
                     </button>
                   </div>
@@ -134,38 +134,38 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr class="border-b border-white/10 bg-white/5">
-                        <th class="p-4 font-bold text-white/50">Restaurant Name</th>
-                        <th class="p-4 font-bold text-white/50">Location</th>
-                        <th class="p-4 font-bold text-white/50">Email</th>
-                        <th class="p-4 font-bold text-white/50">Status</th>
-                        <th class="p-4 font-bold text-white/50 text-right">Actions</th>
+                      <tr class="border-b border-brand-black bg-brand-white">
+                        <th class="p-4 font-bold text-brand-black">Restaurant Name</th>
+                        <th class="p-4 font-bold text-brand-black">Location</th>
+                        <th class="p-4 font-bold text-brand-black">Email</th>
+                        <th class="p-4 font-bold text-brand-black">Status</th>
+                        <th class="p-4 font-bold text-brand-black text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let shop of filteredRestaurants()" class="border-b border-white/5 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold text-white text-sm">{{ shop.name }}</td>
-                        <td class="p-4 text-white/70">{{ shop.addressLine }}, {{ shop.city }}</td>
-                        <td class="p-4 text-white/50">{{ shop.email || 'partner@mislice.com' }}</td>
+                      <tr *ngFor="let shop of filteredRestaurants()" class="border-b border-brand-black hover:bg-brand-white transition">
+                        <td class="p-4 font-bold text-brand-black text-sm">{{ shop.name }}</td>
+                        <td class="p-4 text-brand-black">{{ shop.addressLine }}, {{ shop.city }}</td>
+                        <td class="p-4 text-brand-black">{{ shop.email || 'partner@mislice.com' }}</td>
                         <td class="p-4">
-                          <span [class]="shop.approved ? 'bg-green-500/20 text-green-400 border border-green-500/25' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/25'"
+                          <span [class]="shop.approved ? 'bg-green-500/20 text-brand-green border border-green-500/25' : 'text-brand-orange font-bold text-brand-orange border border-yellow-500/25'"
                             class="px-2.5 py-1 rounded-full font-black uppercase tracking-wider text-[9px]">
                             {{ shop.approved ? 'Approved' : 'Pending Review' }}
                           </span>
                         </td>
                         <td class="p-4 text-right space-x-2">
                           <button *ngIf="!shop.approved" (click)="approve(shop.id)"
-                            class="bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
+                            class="bg-green-600 hover:bg-green-500 text-brand-black font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
                             Approve
                           </button>
                           <button (click)="reject(shop.id)"
-                            class="bg-red-600/25 border border-red-500/30 hover:bg-red-600 text-red-300 hover:text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
+                            class="bg-brand-red text-brand-white border border-brand-red hover:bg-brand-red text-brand-white text-brand-red hover:text-brand-black font-bold px-3 py-1.5 rounded-xl transition text-[10px]">
                             Delete
                           </button>
                         </td>
                       </tr>
                       <tr *ngIf="filteredRestaurants().length === 0">
-                        <td colspan="5" class="p-8 text-center text-white/40">No restaurants match this section.</td>
+                        <td colspan="5" class="p-8 text-center text-brand-black">No restaurants match this section.</td>
                       </tr>
                     </tbody>
                   </table>
@@ -174,41 +174,41 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
 
               <!-- ADMIN TAB: GLOBAL ORDERS -->
               <div *ngIf="activeAdminTab() === 'orders'" class="space-y-4 animate-fadeIn">
-                <h3 class="text-lg font-black text-white">📦 Global Orders Feed</h3>
-                <p class="text-xs text-white/50">Live feed of all transactions happening across Michigan on the MiSlice platform.</p>
+                <h3 class="text-lg font-black text-brand-black">📦 Global Orders Feed</h3>
+                <p class="text-xs text-brand-black">Live feed of all transactions happening across Michigan on the MiSlice platform.</p>
                 <div class="space-y-2.5 pt-2">
-                  <div *ngFor="let order of platformOrders()" class="glass rounded-xl p-4 border border-white/5 flex items-center justify-between text-xs bg-white/5">
+                  <div *ngFor="let order of platformOrders()" class="clay rounded-xl p-4 border border-brand-black flex items-center justify-between text-xs bg-brand-white">
                     <div>
                       <div class="flex items-center gap-2">
-                        <span class="font-black text-white">Order #{{ order.id }}</span>
-                        <span class="bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded">
+                        <span class="font-black text-brand-black">Order #{{ order.id }}</span>
+                        <span class="text-brand-green font-bold text-brand-green text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded">
                           {{ order.status }}
                         </span>
                       </div>
-                      <p class="text-[10px] text-white/40 mt-1">To: {{ order.userEmail }} · Store: {{ order.storeName }}</p>
+                      <p class="text-[10px] text-brand-black mt-1">To: {{ order.userEmail }} · Store: {{ order.storeName }}</p>
                     </div>
-                    <span class="font-black text-white text-sm">{{ order.total | currency }}</span>
+                    <span class="font-black text-brand-black text-sm">{{ order.total | currency }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- ADMIN TAB: PAYOUTS MANAGER -->
               <div *ngIf="activeAdminTab() === 'payouts'" class="space-y-4 animate-fadeIn">
-                <h3 class="text-lg font-black text-white">💰 Restaurant Payouts</h3>
-                <p class="text-xs text-white/50">Disburse weekly store earnings minus the platform commission.</p>
+                <h3 class="text-lg font-black text-brand-black">💰 Restaurant Payouts</h3>
+                <p class="text-xs text-brand-black">Disburse weekly store earnings minus the platform commission.</p>
                 <div class="space-y-2 pt-2">
-                  <div *ngFor="let p of payouts()" class="glass rounded-xl p-4 border border-white/5 flex justify-between items-center text-xs bg-white/5">
+                  <div *ngFor="let p of payouts()" class="clay rounded-xl p-4 border border-brand-black flex justify-between items-center text-xs bg-brand-white">
                     <div>
-                      <h4 class="font-bold text-white">{{ p.storeName }}</h4>
-                      <p class="text-[10px] text-white/40 mt-1">Net disbursement due: {{ p.amount | currency }} · Date: {{ p.date }}</p>
+                      <h4 class="font-bold text-brand-black">{{ p.storeName }}</h4>
+                      <p class="text-[10px] text-brand-black mt-1">Net disbursement due: {{ p.amount | currency }} · Date: {{ p.date }}</p>
                     </div>
                     <div class="flex items-center gap-3">
-                      <span [class]="p.status === 'PAID' ? 'text-emerald-400 bg-emerald-500/10' : 'text-yellow-400 bg-yellow-500/10'"
+                      <span [class]="p.status === 'PAID' ? 'text-brand-green text-brand-green font-bold' : 'text-brand-orange text-brand-orange font-bold'"
                         class="px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-wider">
                         {{ p.status }}
                       </span>
                       <button *ngIf="p.status === 'PENDING'" (click)="markPaid(p.id)"
-                        class="bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-1.5 rounded-lg transition text-[10px]">
+                        class="bg-green-600 hover:bg-green-500 text-brand-black font-bold px-3 py-1.5 rounded-lg transition text-[10px]">
                         Mark Paid
                       </button>
                     </div>
@@ -218,36 +218,36 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
 
               <!-- ADMIN TAB: PLATFORM COUPONS -->
               <div *ngIf="activeAdminTab() === 'coupons'" class="space-y-4 animate-fadeIn">
-                <h3 class="text-lg font-black text-white">🎟️ Platform Discount Codes</h3>
-                <p class="text-xs text-white/50">Manage platform-wide marketing coupons (discounts applied at checkout).</p>
+                <h3 class="text-lg font-black text-brand-black">🎟️ Platform Discount Codes</h3>
+                <p class="text-xs text-brand-black">Manage platform-wide marketing coupons (discounts applied at checkout).</p>
                 <div class="grid sm:grid-cols-2 gap-4">
-                  <div class="glass rounded-2xl p-4 border border-white/5 space-y-3 bg-white/5">
-                    <h4 class="text-xs font-bold text-white/50 uppercase">Create Platform Coupon</h4>
+                  <div class="clay rounded-2xl p-4 border border-brand-black space-y-3 bg-brand-white">
+                    <h4 class="text-xs font-bold text-brand-black uppercase">Create Platform Coupon</h4>
                     <div class="space-y-2 text-xs">
                       <div>
-                        <label class="block text-[10px] text-white/40 mb-1">Coupon Code</label>
+                        <label class="block text-[10px] text-brand-black mb-1">Coupon Code</label>
                         <input type="text" [(ngModel)]="newCode" placeholder="e.g. DETROITFREE"
-                          class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                          class="w-full bg-brand-white border border-brand-black rounded-lg px-3 py-2 text-brand-black outline-none focus:border-brand-red" />
                       </div>
                       <div>
-                        <label class="block text-[10px] text-white/40 mb-1">Discount amount ($)</label>
+                        <label class="block text-[10px] text-brand-black mb-1">Discount amount ($)</label>
                         <input type="number" [(ngModel)]="newDiscount" placeholder="5"
-                          class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" />
+                          class="w-full bg-brand-white border border-brand-black rounded-lg px-3 py-2 text-brand-black outline-none focus:border-brand-red" />
                       </div>
                       <button (click)="createCoupon()"
-                        class="w-full py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold rounded-lg transition shadow-lg">
+                        class="w-full py-2.5 text-brand-black font-bold rounded-lg transition shadow-lg">
                         Create Coupon Code
                       </button>
                     </div>
                   </div>
                   <div class="space-y-2">
-                    <div *ngFor="let coupon of coupons()" class="glass rounded-xl p-3 border border-white/5 flex justify-between items-center text-xs bg-white/5">
+                    <div *ngFor="let coupon of coupons()" class="clay rounded-xl p-3 border border-brand-black flex justify-between items-center text-xs bg-brand-white">
                       <div>
-                        <span class="font-black text-white bg-white/5 px-2 py-0.5 rounded">{{ coupon.code }}</span>
-                        <p class="text-[10px] text-white/40 mt-1">Flat {{ coupon.discount | currency }} discount off total</p>
+                        <span class="font-black text-brand-black bg-brand-white px-2 py-0.5 rounded">{{ coupon.code }}</span>
+                        <p class="text-[10px] text-brand-black mt-1">Flat {{ coupon.discount | currency }} discount off total</p>
                       </div>
                       <button (click)="toggleCoupon(coupon.code)"
-                        [class]="'px-2.5 py-1 rounded text-[9px] font-bold ' + (coupon.active ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10')">
+                        [class]="'px-2.5 py-1 rounded text-[9px] font-bold ' + (coupon.active ? 'text-brand-green text-brand-green font-bold' : 'text-brand-red bg-brand-red text-brand-white')">
                         {{ coupon.active ? 'Active' : 'Disabled' }}
                       </button>
                     </div>
@@ -257,11 +257,11 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
 
               <!-- ADMIN TAB: GROWTH INSIGHTS -->
               <div *ngIf="activeAdminTab() === 'insights'" class="space-y-4 animate-fadeIn">
-                <h3 class="text-lg font-black text-white">🤖 Platform Growth Insights</h3>
+                <h3 class="text-lg font-black text-brand-black">🤖 Platform Growth Insights</h3>
                 <div class="space-y-4">
-                  <div class="glass-soft rounded-2xl p-5 border border-red-500/20 space-y-2 bg-white/5">
-                    <p class="text-xs font-black text-red-400 uppercase tracking-widest">🔥 Hotspot Identification</p>
-                    <p class="text-xs text-white/70 leading-relaxed font-medium">
+                  <div class="clay-soft rounded-2xl p-5 border border-brand-red space-y-2 bg-brand-white">
+                    <p class="text-xs font-black text-brand-red uppercase tracking-widest">🔥 Hotspot Identification</p>
+                    <p class="text-xs text-brand-black leading-relaxed font-medium">
                       Marketplace demand in **Ann Arbor / University of Michigan campus** is outstripping merchant capacity. Recruits from local independent stores are recommended.
                     </p>
                   </div>
@@ -278,15 +278,15 @@ interface PlatformOrder { id: string; storeName: string; userEmail: string; tota
         <div *ngIf="!isPlatformAdmin()" class="max-w-md mx-auto py-12 space-y-6 text-center animate-fadeIn">
           <span class="text-5xl">🛡️</span>
           <h2 class="text-2xl font-black tracking-tight">Access Denied</h2>
-          <p class="text-xs text-white/50 leading-relaxed">You do not have administrative privileges to access the Platform Administration Console.</p>
+          <p class="text-xs text-brand-black leading-relaxed">You do not have administrative privileges to access the Platform Administration Console.</p>
           
           <div class="flex flex-col gap-2 pt-2">
             <button (click)="goToOwnerDashboard()" 
-              class="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-black rounded-xl transition text-xs shadow-lg shadow-red-500/10">
+              class="w-full py-3 hover:hover:text-brand-black font-black rounded-xl transition text-xs shadow-lg shadow-red-500/10">
               Go to Store Owner Console 🏪
             </button>
             <button (click)="goToHome()" 
-              class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-bold transition text-xs">
+              class="w-full py-3 bg-brand-white hover:bg-brand-white border border-brand-black rounded-xl text-brand-black font-bold transition text-xs">
               Go to Customer Home 🍕
             </button>
           </div>

@@ -8,6 +8,12 @@ import com.mislice.domain.user.Role;
 import com.mislice.domain.user.AccountStatus;
 import com.mislice.domain.restaurant.Restaurant;
 import com.mislice.domain.restaurant.RestaurantRepository;
+import com.mislice.domain.menu.StandardPizzaProfile;
+import com.mislice.domain.menu.StandardPizzaProfileRepository;
+import com.mislice.domain.menu.StandardPizzaSize;
+import com.mislice.domain.menu.StandardPizzaSizeRepository;
+import com.mislice.domain.menu.MenuItem;
+import com.mislice.domain.menu.MenuItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -26,6 +32,9 @@ public class DatabaseSeeder {
 
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
+    private final StandardPizzaProfileRepository profileRepository;
+    private final StandardPizzaSizeRepository sizeRepository;
+    private final MenuItemRepository menuItemRepository;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
@@ -35,6 +44,7 @@ public class DatabaseSeeder {
             seedCustomerDemo();
             seedOwnerDemo();
             seedAdminDemo();
+            seedStandardTaxonomy();
         } catch (Exception e) {
             log.error("Error occurred while seeding demo accounts: {}", e.getMessage(), e);
         }
@@ -192,5 +202,58 @@ public class DatabaseSeeder {
                 }
             }
         }
+    }
+
+    private void seedStandardTaxonomy() {
+        if (profileRepository.count() > 0) return;
+        
+        log.info("Seeding Standard Pizza Taxonomy...");
+        
+        // Sizes
+        StandardPizzaSize sizeSmall = sizeRepository.save(StandardPizzaSize.builder().category("Small").measurementInches(10).shape("Round").sortOrder(1).build());
+        StandardPizzaSize sizeMedium = sizeRepository.save(StandardPizzaSize.builder().category("Medium").measurementInches(12).shape("Round").sortOrder(2).build());
+        StandardPizzaSize sizeLarge = sizeRepository.save(StandardPizzaSize.builder().category("Large").measurementInches(14).shape("Round").sortOrder(3).build());
+        StandardPizzaSize sizeXl = sizeRepository.save(StandardPizzaSize.builder().category("Extra Large").measurementInches(16).shape("Round").sortOrder(4).build());
+
+        // Profiles
+        StandardPizzaProfile meatLovers = profileRepository.save(StandardPizzaProfile.builder()
+            .category("Meat Lovers")
+            .coreIngredients(new String[]{"Pepperoni", "Sausage", "Ham", "Bacon", "Beef"})
+            .cheeseType("Mozzarella")
+            .sauceType("Robust Tomato")
+            .style("Traditional")
+            .build());
+
+        StandardPizzaProfile pepperoni = profileRepository.save(StandardPizzaProfile.builder()
+            .category("Pepperoni")
+            .coreIngredients(new String[]{"Pepperoni"})
+            .cheeseType("Mozzarella")
+            .sauceType("Robust Tomato")
+            .style("Traditional")
+            .build());
+            
+        Restaurant jet = restaurantRepository.findBySlugAndDeletedFalse("detroit-moto-pizza").orElseGet(() -> restaurantRepository.findAll().get(0));
+        
+        menuItemRepository.save(MenuItem.builder()
+            .restaurant(jet)
+            .name("Carnivore")
+            .description("All the meats")
+            .basePrice(BigDecimal.valueOf(19.99))
+            .standardProfile(meatLovers)
+            .standardSize(sizeLarge)
+            .itemType("PIZZA")
+            .build());
+
+        menuItemRepository.save(MenuItem.builder()
+            .restaurant(jet)
+            .name("Pepperoni Classic")
+            .description("Just pep")
+            .basePrice(BigDecimal.valueOf(15.99))
+            .standardProfile(pepperoni)
+            .standardSize(sizeLarge)
+            .itemType("PIZZA")
+            .build());
+
+        log.info("Seeded Standard Taxonomy");
     }
 }

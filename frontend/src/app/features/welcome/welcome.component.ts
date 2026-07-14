@@ -13,15 +13,15 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
   standalone: true,
   imports: [CommonModule, FormsModule, LightfallComponent],
   template: `
-    <div class="relative min-h-screen w-full flex items-center justify-center px-4 py-12 overflow-hidden bg-transparent">
+    <div class="relative min-h-screen w-full flex items-center justify-center px-4 py-12 overflow-hidden bg-[color:var(--color-hero-bg)]">
 
       <!-- Lightfall animated background -->
       <div class="fixed inset-0 z-0 pointer-events-none">
-        <app-lightfall></app-lightfall>
+        <app-lightfall [backgroundColor]="'#FF9A39'"></app-lightfall>
       </div>
       <!-- vignette over the animation -->
       <div class="fixed inset-0 z-[1] pointer-events-none"
-        style="background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%);"></div>
+        style="background: radial-gradient(ellipse at center, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.25) 100%);"></div>
 
       <!-- Floating ingredient emojis -->
       <div class="fixed inset-0 z-[2] pointer-events-none select-none" aria-hidden="true">
@@ -38,161 +38,161 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
         <div class="flex flex-col items-center text-center mb-7">
           <div class="w-20 h-20 rounded-[28px] flex items-center justify-center mb-4"
             style="background: linear-gradient(135deg, #dc2626, #f97316); box-shadow: 0 8px 32px rgba(220,38,38,0.5)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-brand-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M15 11h.01M11 15h.01M16 16h.01M12 11h.01M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
             </svg>
           </div>
-          <h1 class="text-5xl font-black text-white tracking-tight" style="text-shadow: 0 2px 20px rgba(220,38,38,0.4)">
+          <h1 class="text-5xl font-black text-[color:var(--color-hero-text)] tracking-tight" style="text-shadow: 0 2px 20px rgba(220,38,38,0.4)">
             MiSlice
           </h1>
-          <p class="text-white/50 text-sm mt-2 font-medium">Michigan's pizza marketplace</p>
+          <p class="text-[color:var(--color-hero-text)] text-sm mt-2 font-medium">Michigan's pizza marketplace</p>
         </div>
 
         <!-- Glass container -->
-        <div class="glass rounded-[32px] overflow-hidden p-6 sm:p-8 border border-white/10 shadow-2xl bg-black/45">
+        <div class="clay rounded-[32px] overflow-hidden p-6 sm:p-8 border border-brand-black shadow-2xl bg-brand-white">
           <!-- Error alert -->
-          <div *ngIf="error()" class="mb-4 p-3.5 rounded-2xl text-xs font-bold bg-red-500/15 border border-red-500/30 text-red-300">
+          <div *ngIf="error()" class="mb-4 p-3.5 rounded-2xl text-xs font-bold bg-brand-red text-brand-white border border-brand-red text-brand-red">
             ⚠️ {{ error() }}
           </div>
 
           <!-- ROLE SELECTION MODAL (For first time Google Registration) -->
           <div *ngIf="roleRequired()" class="space-y-6 animate-fadeIn py-3">
-            <h2 class="text-xl font-black text-white text-center">Complete Registration</h2>
-            <p class="text-xs text-white/50 text-center">Choose your role to finalize setting up your account.</p>
+            <h2 class="text-xl font-black text-brand-black text-center">Complete Registration</h2>
+            <p class="text-xs text-brand-black text-center">Choose your role to finalize setting up your account.</p>
 
             <div class="grid grid-cols-2 gap-4">
               <button type="button" (click)="selectedSocialRole.set('CUSTOMER')"
-                [class]="'p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 ' + (selectedSocialRole() === 'CUSTOMER' ? 'border-red-500 bg-red-500/10 text-white' : 'border-white/5 bg-white/5 text-white/60 hover:border-white/20')">
+                [class]="'p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 ' + (selectedSocialRole() === 'CUSTOMER' ? 'border-[color:var(--color-brand-blue)] bg-[color:var(--color-brand-blue)] text-brand-white' : 'border-brand-black bg-brand-white text-brand-black hover:border-brand-black')">
                 <span class="text-3xl">🍕</span>
                 <span class="text-xs font-black">Customer</span>
               </button>
               <button type="button" (click)="selectedSocialRole.set('RESTAURANT_OWNER')"
-                [class]="'p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 ' + (selectedSocialRole() === 'RESTAURANT_OWNER' ? 'border-red-500 bg-red-500/10 text-white' : 'border-white/5 bg-white/5 text-white/60 hover:border-white/20')">
+                [class]="'p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 ' + (selectedSocialRole() === 'RESTAURANT_OWNER' ? 'border-[color:var(--color-brand-blue)] bg-[color:var(--color-brand-blue)] text-brand-white' : 'border-brand-black bg-brand-white text-brand-black hover:border-brand-black')">
                 <span class="text-3xl">🏪</span>
                 <span class="text-xs font-black">Restaurant Owner</span>
               </button>
             </div>
 
             <!-- Optional Restaurant Info for Social Register -->
-            <div *ngIf="selectedSocialRole() === 'RESTAURANT_OWNER'" class="space-y-3.5 pt-3 border-t border-white/5 animate-fadeIn">
-              <p class="text-[10px] font-black text-white/30 uppercase tracking-widest">Business Details</p>
+            <div *ngIf="selectedSocialRole() === 'RESTAURANT_OWNER'" class="space-y-3.5 pt-3 border-t border-brand-black animate-fadeIn">
+              <p class="text-[10px] font-black text-brand-black uppercase tracking-widest">Business Details</p>
               <div>
-                <label class="block text-xs font-bold text-white/40 mb-1">Restaurant Name</label>
-                <input type="text" [(ngModel)]="restaurantName" placeholder="e.g. Detroit Slice Shop" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-red-500" />
+                <label class="block text-xs font-bold text-brand-black mb-1">Restaurant Name</label>
+                <input type="text" [(ngModel)]="restaurantName" placeholder="e.g. Detroit Slice Shop" class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-xs outline-none focus:border-brand-red" />
               </div>
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-xs font-bold text-white/40 mb-1">City</label>
-                  <input type="text" [(ngModel)]="city" placeholder="Detroit" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-red-500" />
+                  <label class="block text-xs font-bold text-brand-black mb-1">City</label>
+                  <input type="text" [(ngModel)]="city" placeholder="Detroit" class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-xs outline-none focus:border-brand-red" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 mb-1">ZIP Code</label>
-                  <input type="text" [(ngModel)]="postalCode" placeholder="48201" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-none focus:border-red-500" />
+                  <label class="block text-xs font-bold text-brand-black mb-1">ZIP Code</label>
+                  <input type="text" [(ngModel)]="postalCode" placeholder="48201" class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-xs outline-none focus:border-brand-red" />
                 </div>
               </div>
             </div>
 
             <button type="button" (click)="completeGoogleRegistration()" [disabled]="loading() || !selectedSocialRole()"
-              class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
+              class="w-full py-3.5 rounded-xl font-black bg-[color:var(--color-brand-blue)] text-brand-white text-sm shadow-lg hover:brightness-110 transition duration-200">
               {{ loading() ? 'Saving Profile...' : 'Complete Registration' }}
             </button>
           </div>
 
           <!-- DEMO MODE SELECTION -->
           <div *ngIf="mode() === 'demo' && !roleRequired()" class="space-y-3">
-            <button (click)="setMode('login')" class="text-xs font-bold text-white/40 hover:text-white/70 mb-2 flex items-center gap-1">
+            <button (click)="setMode('login')" class="text-xs font-bold text-brand-black hover:text-brand-black mb-2 flex items-center gap-1">
               ← Back to Sign In
             </button>
-            <p class="text-center text-white/40 text-xs font-bold uppercase tracking-widest mb-4">Try without signing in</p>
+            <p class="text-center text-brand-black text-xs font-bold uppercase tracking-widest mb-4">Try without signing in</p>
             
-            <button (click)="startDemo('CUSTOMER')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5 text-left transition hover:bg-white/10 hover:border-white/10">
+            <button (click)="startDemo('CUSTOMER')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-brand-black bg-brand-white text-left transition hover:bg-brand-white hover:border-brand-black">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400">🍕</div>
+                <div class="w-10 h-10 rounded-xl bg-brand-red text-brand-white flex items-center justify-center text-brand-red">🍕</div>
                 <div>
-                  <p class="text-sm font-bold text-white">Customer Demo</p>
-                  <p class="text-xs text-white/40">Browse & compare pizza quotes</p>
+                  <p class="text-sm font-bold text-brand-black">Customer Demo</p>
+                  <p class="text-xs text-brand-black">Browse & compare pizza quotes</p>
                 </div>
               </div>
-              <span class="text-white/30">→</span>
+              <span class="text-brand-black">→</span>
             </button>
 
-            <button (click)="startDemo('RESTAURANT_OWNER')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5 text-left transition hover:bg-white/10 hover:border-white/10">
+            <button (click)="startDemo('RESTAURANT_OWNER')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-brand-black bg-brand-white text-left transition hover:bg-brand-white hover:border-brand-black">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400">🏪</div>
+                <div class="w-10 h-10 rounded-xl bg-brand-orange text-brand-white flex items-center justify-center text-brand-orange">🏪</div>
                 <div>
-                  <p class="text-sm font-bold text-white">Store Owner Demo</p>
-                  <p class="text-xs text-white/40">Manage menu, hours, and orders</p>
+                  <p class="text-sm font-bold text-brand-black">Store Owner Demo</p>
+                  <p class="text-xs text-brand-black">Manage menu, hours, and orders</p>
                 </div>
               </div>
-              <span class="text-white/30">→</span>
+              <span class="text-brand-black">→</span>
             </button>
 
-            <button (click)="startDemo('ADMIN')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5 text-left transition hover:bg-white/10 hover:border-white/10">
+            <button (click)="startDemo('ADMIN')" class="w-full flex items-center justify-between p-4 rounded-2xl border border-brand-black bg-brand-white text-left transition hover:bg-brand-white hover:border-brand-black">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">🛡️</div>
                 <div>
-                  <p class="text-sm font-bold text-white">Platform Admin</p>
-                  <p class="text-xs text-white/40">Approve applications & operations</p>
+                  <p class="text-sm font-bold text-brand-black">Platform Admin</p>
+                  <p class="text-xs text-brand-black">Approve applications & operations</p>
                 </div>
               </div>
-              <span class="text-white/30">→</span>
+              <span class="text-brand-black">→</span>
             </button>
           </div>
 
           <!-- TRADITIONAL LOGIN -->
           <div *ngIf="mode() === 'login' && !roleRequired()">
-            <h2 class="text-xl font-bold text-white mb-4">Sign In</h2>
+            <h2 class="text-xl font-bold text-brand-black mb-4">Sign In</h2>
 
             <!-- Sub-tabs for Customer vs Store Owner -->
-            <div class="flex gap-1.5 p-1 bg-white/5 rounded-2xl mb-5">
+            <div class="flex gap-1.5 p-1 bg-brand-white rounded-2xl mb-5">
               <button type="button" (click)="loginType.set('customer'); error.set('')"
-                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (loginType() === 'customer' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (loginType() === 'customer' ? 'bg-brand-black text-brand-white shadow-lg' : 'text-brand-black hover:bg-black/5')">
                 🍕 Customer
               </button>
               <button type="button" (click)="loginType.set('owner'); error.set('')"
-                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (loginType() === 'owner' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (loginType() === 'owner' ? 'bg-brand-black text-brand-white shadow-lg' : 'text-brand-black hover:bg-black/5')">
                 🏪 Store Owner
               </button>
             </div>
 
             <form (submit)="handleLogin($event)" class="space-y-4">
               <div *ngIf="loginType() === 'customer'">
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Email Address</label>
+                <label class="block text-xs font-bold text-brand-black uppercase mb-1">Email Address</label>
                 <input type="email" [(ngModel)]="email" name="email" [required]="loginType() === 'customer'"
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-3 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
               </div>
               <div *ngIf="loginType() === 'owner'">
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Store ID / Slug</label>
+                <label class="block text-xs font-bold text-brand-black uppercase mb-1">Store ID / Slug</label>
                 <input type="text" [(ngModel)]="storeId" name="storeId" [required]="loginType() === 'owner'" placeholder="e.g. shamz-pizza"
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-3 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
               </div>
               <div>
                 <div class="flex justify-between items-center mb-1">
-                  <label class="block text-xs font-bold text-white/40 uppercase">Password</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase">Password</label>
                 </div>
                 <div class="relative">
                   <input [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="password" name="password" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl pl-4 pr-11 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
-                  <button type="button" (click)="showPassword.set(!showPassword())" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 text-sm">
+                    class="w-full bg-brand-white border border-brand-black rounded-xl pl-4 pr-11 py-3 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
+                  <button type="button" (click)="showPassword.set(!showPassword())" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-black hover:text-brand-black text-sm">
                     {{ showPassword() ? '👁️' : '🙈' }}
                   </button>
                 </div>
               </div>
               <button type="submit" [disabled]="loading()"
-                class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
+                class="w-full py-3.5 rounded-xl font-black bg-[color:var(--color-brand-blue)] text-brand-white text-sm shadow-lg transition duration-200 hover:brightness-110">
                 {{ loading() ? 'Signing In...' : 'Sign In' }}
               </button>
             </form>
 
             <!-- Google Sign In Separator (Only for customers) -->
             <div *ngIf="loginType() === 'customer'" class="relative flex items-center justify-center my-5">
-              <div class="absolute inset-x-0 h-px bg-white/10"></div>
-              <span class="relative z-10 px-3 bg-[#0c0507] text-[10px] font-bold text-white/30 uppercase tracking-widest">Or continue with</span>
+              <div class="absolute inset-x-0 h-px bg-brand-black"></div>
+              <span class="relative z-10 px-3 bg-brand-white text-[10px] font-bold text-brand-black uppercase tracking-widest">Or continue with</span>
             </div>
 
             <!-- Google Sign In Button -->
             <button *ngIf="loginType() === 'customer'" type="button" (click)="handleGoogleLogin()" [disabled]="loading()"
-              class="w-full py-3 rounded-xl font-bold text-white text-sm bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center gap-2.5 transition duration-200">
+              class="w-full py-3 rounded-xl font-bold text-brand-black text-sm bg-brand-white border border-brand-black hover:bg-brand-white flex items-center justify-center gap-2.5 transition duration-200">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -203,10 +203,10 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
             </button>
 
             <div class="mt-6 flex flex-col items-center gap-3 text-xs">
-              <button (click)="setMode('register')" class="font-bold text-red-400 hover:underline">
+              <button (click)="setMode('register')" class="font-bold text-brand-red hover:underline">
                 Create a new account
               </button>
-              <button (click)="setMode('demo')" class="font-bold text-white/40 hover:text-white/60">
+              <button (click)="setMode('demo')" class="font-bold text-brand-black hover:text-brand-black">
                 Explore as Guest / Demo Mode
               </button>
             </div>
@@ -214,16 +214,16 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
 
           <!-- REGISTER -->
           <div *ngIf="mode() === 'register' && !roleRequired()">
-            <h2 class="text-xl font-bold text-white mb-4">Register</h2>
+            <h2 class="text-xl font-bold text-brand-black mb-4">Register</h2>
 
             <!-- Sub-tabs for Customer vs Owner Register -->
-            <div class="flex gap-1.5 p-1 bg-white/5 rounded-2xl mb-5">
+            <div class="flex gap-1.5 p-1 bg-brand-white rounded-2xl mb-5">
               <button type="button" (click)="regRole = 'CUSTOMER'; error.set('')"
-                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (regRole === 'CUSTOMER' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (regRole === 'CUSTOMER' ? 'bg-brand-black text-brand-white shadow-lg' : 'text-brand-black hover:bg-black/5')">
                 🍕 Customer
               </button>
               <button type="button" (click)="regRole = 'RESTAURANT_OWNER'; error.set('')"
-                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (regRole === 'RESTAURANT_OWNER' ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70')">
+                [class]="'flex-1 py-2 text-center rounded-xl text-xs font-black transition-all ' + (regRole === 'RESTAURANT_OWNER' ? 'bg-brand-black text-brand-white shadow-lg' : 'text-brand-black hover:bg-black/5')">
                 🏪 Store Owner
               </button>
             </div>
@@ -232,96 +232,96 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
               <!-- Customer Profile Specific Fields -->
               <div *ngIf="regRole === 'CUSTOMER'" class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">First Name</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">First Name</label>
                   <input type="text" [(ngModel)]="firstName" name="firstName" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Last Name</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Last Name</label>
                   <input type="text" [(ngModel)]="lastName" name="lastName" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
               </div>
 
               <!-- Owner Specific Business Fields -->
               <div *ngIf="regRole === 'RESTAURANT_OWNER'" class="space-y-3.5">
-                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest">Business Details</p>
+                <p class="text-[10px] font-black text-brand-black uppercase tracking-widest">Business Details</p>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Owner Name</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Owner Name</label>
                   <input type="text" [(ngModel)]="fullName" name="fullName" placeholder="e.g. John Doe" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Restaurant Name</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Restaurant Name</label>
                   <input type="text" [(ngModel)]="restaurantName" name="restaurantName" placeholder="e.g. Detroit Slice Shop" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Street Address</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Street Address</label>
                   <input type="text" [(ngModel)]="addressLine" name="addressLine" placeholder="e.g. 123 Woodward Ave" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                   <div class="col-span-2">
-                    <label class="block text-xs font-bold text-white/40 uppercase mb-1">City</label>
+                    <label class="block text-xs font-bold text-brand-black uppercase mb-1">City</label>
                     <input type="text" [(ngModel)]="city" name="city" placeholder="Detroit" required
-                      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                      class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-white/40 uppercase mb-1">ZIP</label>
+                    <label class="block text-xs font-bold text-brand-black uppercase mb-1">ZIP</label>
                     <input type="text" [(ngModel)]="postalCode" name="postalCode" placeholder="48201" required
-                      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                      class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                   </div>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Restaurant Description</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Restaurant Description</label>
                   <textarea [(ngModel)]="description" name="description" placeholder="A brief description of your pizzeria..." required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500 h-20 resize-none"></textarea>
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red h-20 resize-none"></textarea>
                 </div>
               </div>
 
               <!-- Shared credentials fields -->
-              <p class="text-[10px] font-black text-white/30 uppercase tracking-widest pt-2 border-t border-white/5">Credentials</p>
+              <p class="text-[10px] font-black text-brand-black uppercase tracking-widest pt-2 border-t border-brand-black">Credentials</p>
               <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Email Address</label>
+                <label class="block text-xs font-bold text-brand-black uppercase mb-1">Email Address</label>
                 <input type="email" [(ngModel)]="email" name="email" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Phone Number (optional)</label>
+                <label class="block text-xs font-bold text-brand-black uppercase mb-1">Phone Number (optional)</label>
                 <input type="text" [(ngModel)]="phone" name="phone" placeholder="e.g. 313-555-0123"
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
               </div>
 
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Password</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Password</label>
                   <input type="password" [(ngModel)]="password" name="password" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-white/40 uppercase mb-1">Confirm</label>
+                  <label class="block text-xs font-bold text-brand-black uppercase mb-1">Confirm</label>
                   <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-500" />
+                    class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
                 </div>
               </div>
 
               <div class="flex items-start gap-2.5 pt-2 select-none">
                 <input type="checkbox" [(ngModel)]="acceptTerms" name="acceptTerms" required id="acceptTerms"
-                  class="mt-1 rounded border-white/10 bg-white/5 text-red-500 accent-red-600 focus:ring-0 focus:outline-none" />
-                <label for="acceptTerms" class="text-xs text-white/50 leading-snug">
-                  I accept the <a class="text-red-400 hover:underline">Terms of Service</a> &amp; <a class="text-red-400 hover:underline">Privacy Policy</a>.
+                  class="mt-1 rounded border-brand-black bg-brand-white text-brand-red accent-red-600 focus:ring-0 focus:outline-none" />
+                <label for="acceptTerms" class="text-xs text-brand-black leading-snug">
+                  I accept the <a class="text-brand-red hover:underline">Terms of Service</a> &amp; <a class="text-brand-red hover:underline">Privacy Policy</a>.
                 </label>
               </div>
 
               <button type="submit" [disabled]="loading()"
-                class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
+                class="w-full py-3.5 rounded-xl font-black bg-[color:var(--color-brand-blue)] text-brand-white text-sm shadow-lg transition duration-200 hover:brightness-110">
                 {{ loading() ? 'Registering...' : 'Register' }}
               </button>
             </form>
 
             <div class="mt-6 flex flex-col items-center gap-3 text-xs">
-              <button (click)="setMode('login')" class="font-bold text-red-400 hover:underline">
+              <button (click)="setMode('login')" class="font-bold text-brand-red hover:underline">
                 Already have an account? Sign In
               </button>
             </div>
@@ -329,7 +329,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
 
           <!-- ADMIN LOGIN -->
           <div *ngIf="mode() === 'admin' && !roleRequired()">
-            <button (click)="setMode('demo')" class="text-xs font-bold text-white/40 hover:text-white/70 mb-5 flex items-center gap-1">
+            <button (click)="setMode('demo')" class="text-xs font-bold text-brand-black hover:text-brand-black mb-5 flex items-center gap-1">
               ← Back to Demo
             </button>
             <div class="flex flex-col items-center text-center mb-6">
@@ -337,23 +337,23 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
                 style="background: linear-gradient(135deg,#dc2626,#7f1d1d); box-shadow: 0 6px 20px rgba(220,38,38,0.4)">
                 🛡️
               </div>
-              <p class="text-lg font-black text-white">Platform Admin</p>
-              <p class="text-xs text-white/40 mt-1">Restricted access — administrators only</p>
+              <p class="text-lg font-black text-brand-black">Platform Admin</p>
+              <p class="text-xs text-brand-black mt-1">Restricted access — administrators only</p>
             </div>
 
             <form (submit)="handleLogin($event)" class="space-y-4">
               <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Admin Email</label>
+                <label class="block text-xs font-bold text-brand-black uppercase mb-1">Admin Email</label>
                 <input type="email" [(ngModel)]="email" name="email" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-3 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-white/40 uppercase mb-1">Password</label>
+                <label class="block text-xs font-bold text-brand-black uppercase mb-1">Password</label>
                 <input type="password" [(ngModel)]="password" name="password" required
-                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500" />
+                  class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-3 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
               </div>
               <button type="submit" [disabled]="loading()"
-                class="w-full py-3.5 rounded-xl font-black text-white text-sm bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:from-red-500 hover:to-red-400 transition duration-200">
+                class="w-full py-3.5 rounded-xl font-black bg-[color:var(--color-brand-blue)] text-brand-white text-sm shadow-lg transition duration-200 hover:brightness-110">
                 {{ loading() ? 'Authenticating...' : 'Sign In as Admin' }}
               </button>
             </form>
@@ -363,21 +363,21 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
 
         <!-- Showcase: same pizza, compared -->
         <div class="mt-6">
-          <p class="text-center text-[10px] font-black uppercase tracking-widest text-white/30 mb-3">
+          <p class="text-center text-[10px] font-black uppercase tracking-widest text-brand-black mb-3">
             Same large pepperoni — compared live
           </p>
           <div class="grid grid-cols-3 gap-2">
             @for (s of showcase; track s.store) {
-              <div class="glass-soft rounded-2xl p-3 text-center relative"
+              <div class="clay-soft rounded-2xl p-3 text-center relative"
                 [class.ring-1]="s.best" [class.ring-red-500]="s.best">
                 <span *ngIf="s.best"
-                  class="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black uppercase tracking-wider bg-gradient-to-r from-red-600 to-orange-500 text-white px-2 py-0.5 rounded-full">
+                  class="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black uppercase tracking-wider text-brand-black px-2 py-0.5 rounded-full">
                   Best
                 </span>
                 <p class="text-lg">{{ s.emoji }}</p>
-                <p class="text-[10px] font-bold text-white/60 truncate">{{ s.store }}</p>
-                <p class="text-sm font-black" [class.text-orange-400]="s.best" [class.text-white]="!s.best">{{ s.price }}</p>
-                <p class="text-[9px] text-white/35">{{ s.eta }}</p>
+                <p class="text-[10px] font-bold text-brand-black truncate">{{ s.store }}</p>
+                <p class="text-sm font-black" [class.text-brand-orange]="s.best" [class.text-brand-black]="!s.best">{{ s.price }}</p>
+                <p class="text-[9px] text-brand-black">{{ s.eta }}</p>
               </div>
             }
           </div>

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/compare")
@@ -22,6 +23,20 @@ public class ChainCompareController {
             @RequestBody ComparePizzaConfig config,
             @RequestParam(defaultValue = "delivery") String deliveryType) {
         return ResponseEntity.ok(chainCompareService.calculateQuotes(config, deliveryType));
+    }
+
+    @GetMapping("/quick")
+    public ResponseEntity<List<QuoteDto>> quickCompare(
+            @RequestParam String intent,
+            @RequestParam(defaultValue = "delivery") String deliveryType) {
+        return ResponseEntity.ok(chainCompareService.calculateQuickQuotes(intent, deliveryType));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<QuoteDto>> searchCompare(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "delivery") String deliveryType) {
+        return ResponseEntity.ok(chainCompareService.calculateSearchQuotes(q, deliveryType));
     }
 
     @GetMapping("/chains")

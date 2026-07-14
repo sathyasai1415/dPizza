@@ -18,36 +18,37 @@ interface BuildConfig {
   dips: string[];
   placement: Record<string, Placement>;
   extras: string[]; // toppings the user wants an "Extra" serving of
+  instructions: string[];
 }
 
 @Component({
   selector: 'app-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="w-full pt-2 pb-24">
       <!-- Header + progress -->
       <div class="mb-6 text-center">
-        <div class="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black px-4 py-2 rounded-full mb-3 uppercase tracking-widest">
+        <div class="inline-flex items-center gap-2 bg-brand-red text-brand-white border border-brand-red text-brand-red text-[10px] font-black px-4 py-2 rounded-full mb-3 uppercase tracking-widest">
           ✦ Universal Pizza Builder
         </div>
-        <h1 class="text-3xl sm:text-4xl font-black text-white mb-1 tracking-tight">Build Your Own Pizza</h1>
-        <p class="text-white/50 text-sm">Craft it exactly how you like — we'll find the restaurants that can make it.</p>
+        <h1 class="text-3xl sm:text-4xl font-black text-brand-black mb-1 tracking-tight">Build Your Own Pizza</h1>
+        <p class="text-brand-black text-sm">Craft it exactly how you like — we'll find the restaurants that can make it.</p>
       </div>
 
       <!-- Progress bar -->
       <div class="max-w-3xl mx-auto mb-6 px-1">
         <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-black uppercase tracking-widest text-white/40">Your build</span>
-          <span class="text-[10px] font-black text-orange-400">{{ progress() }}% complete</span>
+          <span class="text-[10px] font-black uppercase tracking-widest text-brand-black">Your build</span>
+          <span class="text-[10px] font-black text-brand-orange">{{ progress() }}% complete</span>
         </div>
-        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-red-600 to-orange-400 transition-all duration-500" [style.width.%]="progress()"></div>
+        <div class="h-1.5 rounded-full bg-brand-white overflow-hidden">
+          <div class="h-full transition-all duration-500" [style.width.%]="progress()"></div>
         </div>
       </div>
 
       @if (successMsg()) {
-        <div class="glass border border-emerald-500/30 rounded-2xl p-4 mb-6 text-center text-emerald-400 font-bold text-sm max-w-3xl mx-auto">✅ {{ successMsg() }}</div>
+        <div class="clay border border-brand-green rounded-2xl p-4 mb-6 text-center text-brand-green font-bold text-sm max-w-3xl mx-auto">✅ {{ successMsg() }}</div>
       }
 
       <div class="grid lg:grid-cols-[1fr_minmax(0,380px)] gap-6 items-start">
@@ -55,9 +56,9 @@ interface BuildConfig {
         <div class="space-y-4">
 
           <!-- SIZE -->
-          <section class="glass rounded-3xl overflow-hidden">
+          <section class="clay rounded-3xl overflow-hidden">
             <button (click)="toggle('size')" [class]="secHead()">
-              <span class="flex items-center gap-2">📏 Size <span class="text-white/40 font-normal text-[11px]">· {{ config.size }}</span></span>
+              <span class="flex items-center gap-2">📏 Size <span class="text-brand-black font-normal text-[11px]">· {{ config.size }}</span></span>
               <span [class]="caret('size')">▾</span>
             </button>
             @if (isOpen('size')) {
@@ -73,16 +74,16 @@ interface BuildConfig {
           </section>
 
           <!-- CRUST -->
-          <section class="glass rounded-3xl overflow-hidden">
+          <section class="clay rounded-3xl overflow-hidden">
             <button (click)="toggle('crust')" [class]="secHead()">
-              <span class="flex items-center gap-2">🥖 Crust <span class="text-white/40 font-normal text-[11px]">· {{ config.crust }}</span></span>
+              <span class="flex items-center gap-2">🥖 Crust <span class="text-brand-black font-normal text-[11px]">· {{ config.crust }}</span></span>
               <span [class]="caret('crust')">▾</span>
             </button>
             @if (isOpen('crust')) {
               <div class="p-4 pt-0 flex flex-wrap gap-2">
                 @for (c of crusts; track c.label) {
                   <button (click)="config.crust = c.label" [class]="pill(config.crust === c.label)">
-                    {{ c.label }}@if (c.price) { <span class="text-[9px] text-orange-300 ml-0.5">+{{ c.price | currency }}</span> }
+                    {{ c.label }}
                   </button>
                 }
               </div>
@@ -90,9 +91,9 @@ interface BuildConfig {
           </section>
 
           <!-- SAUCE (multi) -->
-          <section class="glass rounded-3xl overflow-hidden">
+          <section class="clay rounded-3xl overflow-hidden">
             <button (click)="toggle('sauce')" [class]="secHead()">
-              <span class="flex items-center gap-2">🥫 Sauce <span class="text-white/40 font-normal text-[11px]">· {{ config.sauces.length || 'none' }}</span></span>
+              <span class="flex items-center gap-2">🥫 Sauce <span class="text-brand-black font-normal text-[11px]">· {{ config.sauces.length || 'none' }}</span></span>
               <span [class]="caret('sauce')">▾</span>
             </button>
             @if (isOpen('sauce')) {
@@ -105,16 +106,16 @@ interface BuildConfig {
           </section>
 
           <!-- CHEESE (multi) -->
-          <section class="glass rounded-3xl overflow-hidden">
+          <section class="clay rounded-3xl overflow-hidden">
             <button (click)="toggle('cheese')" [class]="secHead()">
-              <span class="flex items-center gap-2">🧀 Cheese <span class="text-white/40 font-normal text-[11px]">· {{ config.cheeses.length || 'none' }}</span></span>
+              <span class="flex items-center gap-2">🧀 Cheese <span class="text-brand-black font-normal text-[11px]">· {{ config.cheeses.length || 'none' }}</span></span>
               <span [class]="caret('cheese')">▾</span>
             </button>
             @if (isOpen('cheese')) {
               <div class="p-4 pt-0 flex flex-wrap gap-2">
                 @for (c of cheeses; track c.label) {
                   <button (click)="toggle2(config.cheeses, c.label)" [class]="pill(config.cheeses.includes(c.label))">
-                    {{ c.emoji }} {{ c.label }}@if (c.price) { <span class="text-[9px] text-orange-300 ml-0.5">+{{ c.price | currency }}</span> }
+                    {{ c.emoji }} {{ c.label }}
                   </button>
                 }
               </div>
@@ -122,35 +123,35 @@ interface BuildConfig {
           </section>
 
           <!-- TOPPING SEARCH + FILTER -->
-          <section class="glass rounded-3xl p-4 space-y-3">
-            <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-3 py-2">
-              <span class="text-white/40 text-sm">🔍</span>
+          <section class="clay rounded-3xl p-4 space-y-3">
+            <div class="flex items-center gap-2 bg-brand-white border border-brand-black rounded-2xl px-3 py-2">
+              <span class="text-brand-black text-sm">🔍</span>
               <input [(ngModel)]="searchTerm" (ngModelChange)="search.set($event)" placeholder="Search toppings…"
-                class="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/30" />
-              @if (search()) { <button (click)="clearSearch()" class="text-white/40 text-xs hover:text-white">✕</button> }
+                class="flex-1 bg-transparent text-brand-black text-sm outline-none placeholder:text-brand-black" />
+              @if (search()) { <button (click)="clearSearch()" class="text-brand-black text-xs hover:text-brand-black">✕</button> }
             </div>
             <div class="flex gap-1.5">
               @for (f of ['all','meats','veggies']; track f) {
-                <button (click)="filter.set(f)" [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize transition ' + (filter() === f ? 'bg-red-600 text-white' : 'bg-white/5 text-white/50 hover:text-white')">{{ f }}</button>
+                <button (click)="filter.set(f)" [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize transition ' + (filter() === f ? 'bg-brand-red text-brand-white' : 'bg-brand-white text-brand-black hover:text-brand-black')">{{ f }}</button>
               }
             </div>
           </section>
 
           <!-- MEATS -->
           @if (filter() !== 'veggies') {
-            <section class="glass rounded-3xl overflow-hidden">
+            <section class="clay rounded-3xl overflow-hidden">
               <button (click)="toggle('meats')" [class]="secHead()">
-                <span class="flex items-center gap-2">🥓 Meats <span class="text-white/40 font-normal text-[11px]">· {{ config.meats.length }}</span></span>
+                <span class="flex items-center gap-2">🥓 Meats <span class="text-brand-black font-normal text-[11px]">· {{ config.meats.length }}</span></span>
                 <span [class]="caret('meats')">▾</span>
               </button>
               @if (isOpen('meats')) {
                 <div class="p-4 pt-0 flex flex-wrap gap-2">
                   @for (m of filtered(meats); track m.label) {
                     <button (click)="toggle2(config.meats, m.label)" [class]="pill(config.meats.includes(m.label))">
-                      {{ m.emoji }} {{ m.label }}@if (m.price && m.price > standardMeat) { <span class="text-[9px] text-orange-300 ml-0.5">+</span> }
+                      {{ m.emoji }} {{ m.label }}
                     </button>
                   }
-                  @if (filtered(meats).length === 0) { <p class="text-white/30 text-xs py-2">No meats match "{{ search() }}".</p> }
+                  @if (filtered(meats).length === 0) { <p class="text-brand-black text-xs py-2">No meats match "{{ search() }}".</p> }
                 </div>
               }
             </section>
@@ -158,9 +159,9 @@ interface BuildConfig {
 
           <!-- VEGGIES -->
           @if (filter() !== 'meats') {
-            <section class="glass rounded-3xl overflow-hidden">
+            <section class="clay rounded-3xl overflow-hidden">
               <button (click)="toggle('veggies')" [class]="secHead()">
-                <span class="flex items-center gap-2">🥬 Vegetables <span class="text-white/40 font-normal text-[11px]">· {{ config.veggies.length }}</span></span>
+                <span class="flex items-center gap-2">🥬 Vegetables <span class="text-brand-black font-normal text-[11px]">· {{ config.veggies.length }}</span></span>
                 <span [class]="caret('veggies')">▾</span>
               </button>
               @if (isOpen('veggies')) {
@@ -168,16 +169,16 @@ interface BuildConfig {
                   @for (v of filtered(veggies); track v.label) {
                     <button (click)="toggle2(config.veggies, v.label)" [class]="pill(config.veggies.includes(v.label))">{{ v.emoji }} {{ v.label }}</button>
                   }
-                  @if (filtered(veggies).length === 0) { <p class="text-white/30 text-xs py-2">No veggies match "{{ search() }}".</p> }
+                  @if (filtered(veggies).length === 0) { <p class="text-brand-black text-xs py-2">No veggies match "{{ search() }}".</p> }
                 </div>
               }
             </section>
           }
 
           <!-- SEASONINGS -->
-          <section class="glass rounded-3xl overflow-hidden">
+          <section class="clay rounded-3xl overflow-hidden">
             <button (click)="toggle('seasonings')" [class]="secHead()">
-              <span class="flex items-center gap-2">🧂 Seasonings <span class="text-white/40 font-normal text-[11px]">· {{ config.seasonings.length }}</span></span>
+              <span class="flex items-center gap-2">🧂 Seasonings <span class="text-brand-black font-normal text-[11px]">· {{ config.seasonings.length }}</span></span>
               <span [class]="caret('seasonings')">▾</span>
             </button>
             @if (isOpen('seasonings')) {
@@ -190,15 +191,31 @@ interface BuildConfig {
           </section>
 
           <!-- DIPS -->
-          <section class="glass rounded-3xl overflow-hidden">
+          <section class="clay rounded-3xl overflow-hidden">
             <button (click)="toggle('dips')" [class]="secHead()">
-              <span class="flex items-center gap-2">🫗 Extra Dips <span class="text-white/40 font-normal text-[11px]">· {{ config.dips.length }}</span></span>
+              <span class="flex items-center gap-2">🫗 Extra Dips <span class="text-brand-black font-normal text-[11px]">· {{ config.dips.length }}</span></span>
               <span [class]="caret('dips')">▾</span>
             </button>
             @if (isOpen('dips')) {
               <div class="p-4 pt-0 flex flex-wrap gap-2">
                 @for (d of dips; track d.label) {
-                  <button (click)="toggle2(config.dips, d.label)" [class]="pill(config.dips.includes(d.label))">{{ d.label }} <span class="text-[9px] text-orange-300">+{{ dipPrice | currency }}</span></button>
+                  <button (click)="toggle2(config.dips, d.label)" [class]="pill(config.dips.includes(d.label))">{{ d.label }}</button>
+                }
+              </div>
+            }
+          </section>
+
+          
+          <!-- INSTRUCTIONS -->
+          <section class="clay rounded-3xl overflow-hidden">
+            <button (click)="toggle('instructions')" [class]="secHead()">
+              <span class="flex items-center gap-2">📝 Bake & Cut <span class="text-brand-black font-normal text-[11px]">· {{ config.instructions.length }}</span></span>
+              <span [class]="caret('instructions')">▾</span>
+            </button>
+            @if (isOpen('instructions')) {
+              <div class="p-4 pt-0 flex flex-wrap gap-2">
+                @for (i of instructions; track i.label) {
+                  <button (click)="toggle2(config.instructions, i.label)" [class]="pill(config.instructions.includes(i.label))">{{ i.emoji }} {{ i.label }}</button>
                 }
               </div>
             }
@@ -206,21 +223,21 @@ interface BuildConfig {
 
           <!-- PLACEMENT & QUANTITY (only for selected proteins/veggies) -->
           @if (customizable().length > 0) {
-            <section class="glass rounded-3xl overflow-hidden">
+            <section class="clay rounded-3xl overflow-hidden">
               <button (click)="toggle('custom')" [class]="secHead()">
-                <span class="flex items-center gap-2">🎯 Placement & Amount <span class="text-white/40 font-normal text-[11px]">· {{ customizable().length }} toppings</span></span>
+                <span class="flex items-center gap-2">🎯 Placement & Amount <span class="text-brand-black font-normal text-[11px]">· {{ customizable().length }} toppings</span></span>
                 <span [class]="caret('custom')">▾</span>
               </button>
               @if (isOpen('custom')) {
                 <div class="p-4 pt-0 space-y-2.5">
                   @for (t of customizable(); track t) {
-                    <div class="bg-white/5 rounded-2xl px-3 py-2.5 space-y-2">
-                      <span class="text-xs font-bold text-white">{{ emojiFor(t) }} {{ t }}</span>
+                    <div class="bg-brand-white rounded-2xl px-3 py-2.5 space-y-2">
+                      <span class="text-xs font-bold text-brand-black">{{ emojiFor(t) }} {{ t }}</span>
                       <div class="flex flex-wrap items-center gap-1.5">
                         @for (p of placements; track p.val) {
                           <button (click)="setPlacement(t, p.val)" [class]="miniChip(placementOf(t) === p.val)">{{ p.label }}</button>
                         }
-                        <span class="w-px h-5 bg-white/10 mx-1"></span>
+                        <span class="w-px h-5 bg-brand-white mx-1"></span>
                         <button (click)="toggleExtra(t)" [class]="miniChip(isExtra(t))">
                           {{ isExtra(t) ? '☑' : '☐' }} Extra
                         </button>
@@ -235,44 +252,33 @@ interface BuildConfig {
 
         <!-- RIGHT: live preview + price + actions -->
         <div class="lg:sticky lg:top-6 space-y-4">
-          <div class="glass rounded-[28px] p-6 flex flex-col items-center">
+          <div class="clay rounded-[28px] p-6 flex flex-col items-center">
             <!-- Preview placeholder (visual preview coming soon) -->
-            <div class="w-full aspect-square max-w-[260px] rounded-3xl border-2 border-dashed border-white/15 bg-white/[0.03] flex flex-col items-center justify-center text-center gap-2 mb-4">
+            <div class="w-full aspect-square max-w-[260px] rounded-3xl border-2 border-dashed border-brand-black bg-brand-white/[0.03] flex flex-col items-center justify-center text-center gap-2 mb-4">
               <span class="text-4xl opacity-30">🍕</span>
-              <p class="text-white/50 font-bold text-sm">Pizza Preview Coming Soon</p>
-              <p class="text-white/30 text-[11px] px-6">A visual preview of your pizza will appear here.</p>
+              <p class="text-brand-black font-bold text-sm">Pizza Preview Coming Soon</p>
+              <p class="text-brand-black text-[11px] px-6">A visual preview of your pizza will appear here.</p>
             </div>
-            <p class="text-white font-black text-lg text-center">{{ config.size }} · {{ config.crust }}</p>
-            <p class="text-white/50 text-xs mb-0.5 text-center">{{ config.sauces.length ? config.sauces.join(', ') : 'No sauce' }}</p>
-            <p class="text-white/40 text-[11px]">{{ toppingCount() }} topping{{ toppingCount() !== 1 ? 's' : '' }}</p>
+            <p class="text-brand-black font-black text-lg text-center">{{ config.size }} · {{ config.crust }}</p>
+            <p class="text-brand-black text-xs mb-0.5 text-center">{{ config.sauces.length ? config.sauces.join(', ') : 'No sauce' }}</p>
+            <p class="text-brand-black text-[11px]">{{ toppingCount() }} topping{{ toppingCount() !== 1 ? 's' : '' }}</p>
 
-            <div class="w-full mt-5 pt-4 border-t border-white/10 space-y-1.5">
-              <div class="flex items-center justify-between text-[11px] text-white/50">
-                <span>Base ({{ config.size }} · {{ config.crust }})</span><span>{{ basePrice() | currency }}</span>
-              </div>
-              @if (toppingsPrice() > 0) {
-                <div class="flex items-center justify-between text-[11px] text-white/50">
-                  <span>Toppings & extras</span><span>+{{ toppingsPrice() | currency }}</span>
-                </div>
-              }
-              <div class="flex items-center justify-between pt-1.5 border-t border-white/10">
-                <span class="text-white/70 text-sm font-bold">Est. total</span>
-                <span class="text-2xl font-black text-orange-400">{{ price() | currency }}</span>
-              </div>
-              <p class="text-[10px] text-white/30 text-center pt-1">Final price varies by restaurant</p>
+            <div class="w-full mt-5 pt-4 border-t border-brand-black text-center text-xs text-brand-black space-y-2">
+              <p class="font-bold">✨ Universal Comparison Build</p>
+              <p class="text-[11px] opacity-80">MiSlice compares real-time prices across all stores for this customized selection.</p>
             </div>
           </div>
 
           <button (click)="findRestaurants()"
-            class="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-red-600 to-orange-500 shadow-lg shadow-red-600/30 hover:from-red-500 hover:to-orange-400 transition flex items-center justify-center gap-2">
+            class="w-full py-4 rounded-2xl font-black text-brand-black shadow-lg shadow-red-600/30 hover:hover:transition flex items-center justify-center gap-2">
             🔎 Find Restaurants That Can Make This
           </button>
 
           <div class="grid grid-cols-2 gap-3">
-            <button (click)="saveFavorite()" class="py-3 rounded-2xl font-bold text-white text-sm bg-white/5 border border-white/10 hover:bg-white/10 transition">💾 Save</button>
-            <button (click)="duplicatePrevious()" [disabled]="!hasPrevious()" class="py-3 rounded-2xl font-bold text-white text-sm bg-white/5 border border-white/10 hover:bg-white/10 transition disabled:opacity-40 disabled:cursor-not-allowed">⧉ Duplicate Last</button>
+            <button (click)="saveFavorite()" class="py-3 rounded-2xl font-bold text-brand-black text-sm bg-brand-white border border-brand-black hover:bg-brand-white transition">💾 Save</button>
+            <button (click)="duplicatePrevious()" [disabled]="!hasPrevious()" class="py-3 rounded-2xl font-bold text-brand-black text-sm bg-brand-white border border-brand-black hover:bg-brand-white transition disabled:opacity-40 disabled:cursor-not-allowed">⧉ Duplicate Last</button>
           </div>
-          <button (click)="reset()" class="w-full py-3 rounded-2xl font-bold text-white/60 text-sm bg-transparent border border-white/10 hover:bg-white/5 hover:text-white transition">↺ Reset Pizza</button>
+          <button (click)="reset()" class="w-full py-3 rounded-2xl font-bold text-brand-black text-sm bg-transparent border border-brand-black hover:bg-brand-white hover:text-brand-black transition">↺ Reset Pizza</button>
         </div>
       </div>
     </div>
@@ -295,44 +301,56 @@ export class BuilderComponent {
     { label: 'Stuffed Crust', emoji: '', price: 2.5 }, { label: 'Gluten-Free', emoji: '', price: 2.0 },
     { label: 'Cauliflower Crust', emoji: '', price: 2.5 }, { label: 'Whole Wheat', emoji: '' },
     { label: 'Brooklyn Style', emoji: '' }, { label: 'Tavern Style', emoji: '' }, { label: 'Flatbread', emoji: '' },
+    { label: 'Detroit Style', emoji: '', price: 2.0 }, { label: 'Chicago Deep Dish', emoji: '', price: 2.5 },
+    { label: 'Sicilian', emoji: '', price: 2.0 }, { label: 'Neapolitan', emoji: '' }, { label: 'Pretzel Crust', emoji: '', price: 1.5 }
   ];
   sauces: Ing[] = [
     { label: 'Classic Tomato', emoji: '' }, { label: 'Marinara', emoji: '' }, { label: 'Robust Inspired Tomato', emoji: '' },
     { label: 'Garlic Parmesan', emoji: '' }, { label: 'Alfredo', emoji: '' }, { label: 'BBQ', emoji: '' },
     { label: 'Buffalo', emoji: '' }, { label: 'Ranch', emoji: '' }, { label: 'Pesto', emoji: '' },
     { label: 'Olive Oil', emoji: '' }, { label: 'White Garlic Sauce', emoji: '' }, { label: 'Spicy Tomato', emoji: '' },
-    { label: 'Vodka Sauce', emoji: '' }, { label: 'Honey BBQ', emoji: '' }, { label: 'Chipotle', emoji: '' }, { label: 'No Sauce', emoji: '' },
+    { label: 'Vodka Sauce', emoji: '' }, { label: 'Honey BBQ', emoji: '' }, { label: 'Chipotle', emoji: '' },
+    { label: 'Sweet Chili', emoji: '' }, { label: 'Mango Habanero', emoji: '' }, { label: 'No Sauce', emoji: '' },
   ];
   cheeses: Ing[] = [
     { label: 'Mozzarella', emoji: '🧀' }, { label: 'Fresh Mozzarella', emoji: '🧀', price: 1.75 }, { label: 'Provolone', emoji: '🧀' },
     { label: 'Cheddar', emoji: '🧀' }, { label: 'Parmesan', emoji: '🧀' }, { label: 'Romano', emoji: '🧀' },
     { label: 'Asiago', emoji: '🧀' }, { label: 'Ricotta', emoji: '🧀', price: 1.5 }, { label: 'Feta', emoji: '🧀', price: 1.5 },
     { label: 'Goat Cheese', emoji: '🧀', price: 1.75 }, { label: 'Vegan Cheese', emoji: '🌱', price: 1.75 },
+    { label: 'Gorgonzola', emoji: '🧀', price: 1.5 }, { label: 'Blue Cheese', emoji: '🧀', price: 1.5 },
+    { label: 'Fontina', emoji: '🧀', price: 1.5 }, { label: 'Gouda', emoji: '🧀', price: 1.5 },
+    { label: 'Smoked Gouda', emoji: '🧀', price: 1.5 }, { label: 'Pepper Jack', emoji: '🧀', price: 1.5 },
     { label: 'Extra Cheese', emoji: '🧀', price: 1.5 }, { label: 'Light Cheese', emoji: '🧀' }, { label: 'No Cheese', emoji: '🚫' },
   ];
   meats: Ing[] = [
     { label: 'Pepperoni', emoji: '🔴', price: 1.75 }, { label: 'Old World Pepperoni', emoji: '🔴', price: 2.0 },
-    { label: 'Sausage', emoji: '🌭', price: 1.75 }, { label: 'Italian Sausage', emoji: '🌭', price: 1.75 },
+    { label: 'Cup-and-Char Pepperoni', emoji: '🔴', price: 2.0 }, { label: 'Sausage', emoji: '🌭', price: 1.75 },
+    { label: 'Italian Sausage', emoji: '🌭', price: 1.75 }, { label: 'Spicy Sausage', emoji: '🌭', price: 1.75 },
     { label: 'Beef', emoji: '🥩', price: 1.75 }, { label: 'Ham', emoji: '🍖', price: 1.75 },
     { label: 'Bacon', emoji: '🥓', price: 2.0 }, { label: 'Canadian Bacon', emoji: '🥓', price: 2.0 },
     { label: 'Chicken', emoji: '🍗', price: 2.0 }, { label: 'Grilled Chicken', emoji: '🍗', price: 2.5 },
-    { label: 'Buffalo Chicken', emoji: '🍗', price: 2.5 }, { label: 'Steak', emoji: '🥩', price: 2.5 },
+    { label: 'Buffalo Chicken', emoji: '🍗', price: 2.5 }, { label: 'BBQ Chicken', emoji: '🍗', price: 2.5 },
+    { label: 'Steak', emoji: '🥩', price: 2.5 }, { label: 'Philly Cheesesteak', emoji: '🥩', price: 2.5 },
     { label: 'Meatballs', emoji: '🧆', price: 2.25 }, { label: 'Salami', emoji: '🔴', price: 2.0 },
     { label: 'Prosciutto', emoji: '🥓', price: 2.75 }, { label: 'Chorizo', emoji: '🌭', price: 2.25 },
-    { label: 'Anchovies', emoji: '🐟', price: 2.0 },
+    { label: 'Anchovies', emoji: '🐟', price: 2.0 }, { label: 'Capicola', emoji: '🍖', price: 2.25 },
+    { label: 'Pancetta', emoji: '🥓', price: 2.5 }, { label: 'Gyro Meat', emoji: '🥙', price: 2.25 },
+    { label: 'Plant-based Pepperoni', emoji: '🌱', price: 2.25 }, { label: 'Plant-based Sausage', emoji: '🌱', price: 2.25 }
   ];
   veggies: Ing[] = [
     { label: 'Mushrooms', emoji: '🍄', price: 1.25 }, { label: 'Onions', emoji: '🧅', price: 1.25 },
-    { label: 'Red Onions', emoji: '🧅', price: 1.25 }, { label: 'Green Peppers', emoji: '🫑', price: 1.25 },
-    { label: 'Bell Peppers', emoji: '🫑', price: 1.25 }, { label: 'Banana Peppers', emoji: '🌶️', price: 1.25 },
-    { label: 'Jalapeños', emoji: '🌶️', price: 1.25 }, { label: 'Tomatoes', emoji: '🍅', price: 1.25 },
-    { label: 'Cherry Tomatoes', emoji: '🍅', price: 1.25 }, { label: 'Black Olives', emoji: '🫒', price: 1.25 },
-    { label: 'Green Olives', emoji: '🫒', price: 1.25 }, { label: 'Spinach', emoji: '🥬', price: 1.25 },
+    { label: 'Red Onions', emoji: '🧅', price: 1.25 }, { label: 'Caramelized Onions', emoji: '🧅', price: 1.5 },
+    { label: 'Green Peppers', emoji: '🫑', price: 1.25 }, { label: 'Bell Peppers', emoji: '🫑', price: 1.25 },
+    { label: 'Banana Peppers', emoji: '🌶️', price: 1.25 }, { label: 'Jalapeños', emoji: '🌶️', price: 1.25 },
+    { label: 'Tomatoes', emoji: '🍅', price: 1.25 }, { label: 'Cherry Tomatoes', emoji: '🍅', price: 1.25 },
+    { label: 'Black Olives', emoji: '🫒', price: 1.25 }, { label: 'Green Olives', emoji: '🫒', price: 1.25 },
+    { label: 'Kalamata Olives', emoji: '🫒', price: 1.5 }, { label: 'Spinach', emoji: '🥬', price: 1.25 },
     { label: 'Basil', emoji: '🌿', price: 1.0 }, { label: 'Garlic', emoji: '🧄', price: 1.0 },
     { label: 'Roasted Garlic', emoji: '🧄', price: 1.5 }, { label: 'Broccoli', emoji: '🥦', price: 1.25 },
     { label: 'Artichokes', emoji: '🌱', price: 1.75 }, { label: 'Pineapple', emoji: '🍍', price: 1.5 },
     { label: 'Corn', emoji: '🌽', price: 1.25 }, { label: 'Sun-Dried Tomatoes', emoji: '🍅', price: 1.75 },
-    { label: 'Roasted Red Peppers', emoji: '🫑', price: 1.75 },
+    { label: 'Roasted Red Peppers', emoji: '🫑', price: 1.75 }, { label: 'Zucchini', emoji: '🥒', price: 1.25 },
+    { label: 'Eggplant', emoji: '🍆', price: 1.5 }, { label: 'Arugula', emoji: '🥬', price: 1.5 }
   ];
   seasonings: Ing[] = [
     { label: 'Parmesan Sprinkle', emoji: '🧀' }, { label: 'Oregano', emoji: '🌿' }, { label: 'Basil', emoji: '🌿' },
@@ -340,11 +358,17 @@ export class BuilderComponent {
     { label: 'Garlic Herb', emoji: '🧄' }, { label: 'Butter', emoji: '🧈' }, { label: 'Cajun Seasoning', emoji: '🌶️' },
     { label: 'Black Pepper', emoji: '⚫' }, { label: 'Chili Flakes', emoji: '🌶️' }, { label: 'Sesame Seeds', emoji: '⚪' },
     { label: 'Everything Bagel', emoji: '🥯' }, { label: 'Hot Honey Drizzle', emoji: '🍯' }, { label: 'Truffle Oil', emoji: '🫗' },
+    { label: 'Balsamic Glaze', emoji: '🫗' }, { label: 'Ranch Drizzle', emoji: '🤍' }, { label: 'BBQ Drizzle', emoji: '🟤' }
   ];
   dips: Ing[] = [
     { label: 'Ranch', emoji: '' }, { label: 'Garlic Sauce', emoji: '' }, { label: 'Marinara', emoji: '' },
     { label: 'Blue Cheese', emoji: '' }, { label: 'Buffalo Sauce', emoji: '' }, { label: 'BBQ Sauce', emoji: '' },
-    { label: 'Honey Mustard', emoji: '' }, { label: 'Chipotle Ranch', emoji: '' }, { label: 'Sweet Chili', emoji: '' }, { label: 'Hot Sauce', emoji: '' },
+    { label: 'Honey Mustard', emoji: '' }, { label: 'Chipotle Ranch', emoji: '' }, { label: 'Sweet Chili', emoji: '' },
+    { label: 'Hot Sauce', emoji: '' }, { label: 'Jalapeño Cheese', emoji: '' }, { label: 'Nacho Cheese', emoji: '' }
+  ];
+  instructions: Ing[] = [
+    { label: 'Normal Bake', emoji: '🔥' }, { label: 'Well Done', emoji: '🔥🔥' }, { label: 'Light Bake', emoji: '🌤️' },
+    { label: 'Uncut', emoji: '🚫🍕' }, { label: 'Square Cut', emoji: '⏹️' }, { label: 'Pie Cut', emoji: '🍕' }, { label: 'Clean Cut', emoji: '🔪' }
   ];
 
   placements = [
@@ -358,7 +382,7 @@ export class BuilderComponent {
   };
   // ---- State ----
   config: BuildConfig = this.blank();
-  private openSet = signal<Set<string>>(new Set(['size', 'crust', 'sauce', 'cheese', 'meats', 'veggies']));
+  private openSet = signal<Set<string>>(new Set(['size', 'crust', 'sauce', 'cheese', 'meats', 'veggies', 'instructions']));
   search = signal('');
   searchTerm = '';
   filter = signal('all');
@@ -372,7 +396,7 @@ export class BuilderComponent {
   private blank(): BuildConfig {
     return {
       size: 'Large', crust: 'Hand Tossed', sauces: ['Classic Tomato'], cheeses: ['Mozzarella'],
-      meats: ['Pepperoni'], veggies: [], seasonings: [], dips: [], placement: {}, extras: [],
+      meats: ['Pepperoni'], veggies: [], seasonings: [], dips: [], placement: {}, extras: [], instructions: [],
     };
   }
 
@@ -384,7 +408,7 @@ export class BuilderComponent {
     this.openSet.set(next);
   }
   caret(id: string): string {
-    return `text-white/40 text-xs transition-transform duration-200 ${this.isOpen(id) ? '' : '-rotate-90'}`;
+    return `text-brand-black text-xs transition-transform duration-200 ${this.isOpen(id) ? '' : '-rotate-90'}`;
   }
 
   // ---- Selection helpers ----
@@ -493,21 +517,21 @@ export class BuilderComponent {
 
   // ---- Class helpers ----
   secHead(): string {
-    return 'w-full flex items-center justify-between px-5 py-4 text-sm font-black text-white';
+    return 'w-full flex items-center justify-between px-5 py-4 text-sm font-black text-brand-black';
   }
   chip(active: boolean): string {
     return `text-center rounded-2xl py-3 transition ${active
-      ? 'bg-red-600/25 border border-red-500/50 text-white'
-      : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'}`;
+      ? 'bg-brand-red text-brand-white border border-brand-red text-brand-black'
+      : 'bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white'}`;
   }
   pill(active: boolean): string {
     return `px-3.5 py-2 rounded-xl text-xs font-bold transition ${active
-      ? 'bg-red-600 text-white'
-      : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'}`;
+      ? 'bg-brand-red text-brand-white'
+      : 'bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white'}`;
   }
   miniChip(active: boolean): string {
     return `px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${active
-      ? 'bg-red-600 text-white'
-      : 'bg-black/30 text-white/50 hover:text-white'}`;
+      ? 'bg-brand-red text-brand-white'
+      : 'bg-brand-white text-brand-black hover:text-brand-black'}`;
   }
 }

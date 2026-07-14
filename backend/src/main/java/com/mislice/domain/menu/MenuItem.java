@@ -23,6 +23,14 @@ public class MenuItem extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "standard_profile_id")
+    private StandardPizzaProfile standardProfile;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "standard_size_id")
+    private StandardPizzaSize standardSize;
+
     @Column(nullable = false, length = 160)
     private String name;
 

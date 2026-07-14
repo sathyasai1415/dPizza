@@ -16,5 +16,7 @@ public record QuoteDto(
     List<DeliveryProviderOptionDto> deliveryOptions,
     String cheapestOptionId,
     String fastestOptionId,
-    String bestValueOptionId
+    String bestValueOptionId,
+    String nativeMenuName,
+    String nativeSize
 ) {}

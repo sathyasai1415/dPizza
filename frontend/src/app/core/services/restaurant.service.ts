@@ -59,4 +59,12 @@ export class RestaurantService {
   saveDeal(id: string, deal: Partial<Deal>): Observable<Deal> {
     return this.http.post<Deal>(`${this.apiUrl}/${id}/deals`, deal);
   }
+
+  inviteStaff(id: string, email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/staff/invite`, { email });
+  }
+
+  getStaff(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/staff`);
+  }
 }

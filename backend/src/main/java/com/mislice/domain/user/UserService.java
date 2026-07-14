@@ -119,4 +119,13 @@ public class UserService {
         address.setDeleted(true);
         addressRepository.save(address);
     }
+
+    @Transactional
+    public void deleteAccount(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        user.setAccountStatus(AccountStatus.DEACTIVATED);
+        user.setDeleted(true);
+        userRepository.save(user);
+    }
 }

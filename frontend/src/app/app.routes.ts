@@ -6,6 +6,7 @@ import { StoreDetailComponent } from './features/store-detail/store-detail.compo
 import { CartComponent } from './features/cart/cart.component';
 import { CheckoutComponent } from './features/checkout/checkout.component';
 import { ComparisonCardsComponent } from './features/compare/comparison-cards.component';
+import { QuickCompareComponent } from './features/compare/quick-compare.component';
 import { OrdersComponent } from './features/orders/orders.component';
 import { OrderTrackingComponent } from './features/tracking/order-tracking.component';
 import { RewardsComponent } from './features/rewards/rewards.component';
@@ -35,6 +36,7 @@ export const routes: Routes = [
       { path: 'cart', component: CartComponent },
       { path: 'checkout', component: CheckoutComponent },
       { path: 'compare', component: ComparisonCardsComponent },
+      { path: 'quick-compare', component: QuickCompareComponent },
       { path: 'orders', component: OrdersComponent },
       { path: 'orders/tracking/:id', component: OrderTrackingComponent },
       { path: 'rewards', component: RewardsComponent },

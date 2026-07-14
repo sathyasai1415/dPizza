@@ -12,7 +12,8 @@ import {
   signOut, 
   GoogleAuthProvider,
   signInWithPopup,
-  User as FirebaseUser 
+  sendPasswordResetEmail,
+  User as FirebaseUser
 } from 'firebase/auth';
 
 @Injectable({
@@ -248,6 +249,14 @@ export class AuthService {
         return of(null);
       })
     );
+  }
+
+  sendPasswordReset(email: string): Observable<void> {
+    return from(sendPasswordResetEmail(this.firebaseAuth, email));
+  }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/me`);
   }
 
   logout(): Observable<void> {

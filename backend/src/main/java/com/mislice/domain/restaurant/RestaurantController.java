@@ -136,4 +136,18 @@ public class RestaurantController {
         restaurantService.deleteRestaurant(id);
         return ResponseEntity.noContent().build();
     }
+    @Operation(summary = "Invite staff to restaurant")
+    @PostMapping("/{id}/staff/invite")
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
+    public ResponseEntity<Void> inviteStaff(@PathVariable("id") UUID id, @RequestBody java.util.Map<String, String> request) {
+        restaurantService.inviteStaff(id, request.get("email"));
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Get list of staff for a restaurant")
+    @GetMapping("/{id}/staff")
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'RESTAURANT_STAFF', 'ADMIN')")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getStaff(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(restaurantService.getStaff(id));
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -8,260 +8,227 @@ import { OrderService } from '../../core/services/order.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { Quote } from '../../shared/models';
 
+interface Modification {
+  id: string;
+  label: string;
+  priceDelta: number;
+  selected: boolean;
+}
+
 @Component({
   selector: 'app-comparison-cards',
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="space-y-8 max-w-5xl mx-auto">
+    <div class="space-y-6 max-w-6xl mx-auto py-6 px-4">
       
-      <!-- HEADER -->
-      <div>
-        <h2 class="text-3xl font-black text-white">Compare Pizza Quotes</h2>
-        <p class="text-xs sm:text-sm text-white/50">Configure your pizza and see live compared quotes from local national chains.</p>
-      </div>
-
       <!-- SUCCESS / ERROR BANNERS -->
       @if (successMsg()) {
-        <div class="glass border border-emerald-500/30 rounded-2xl p-4 text-center text-emerald-400 font-bold text-sm">
+        <div class="clay border border-brand-green rounded-2xl p-4 text-center text-brand-green font-bold text-sm animate-fade-in">
           ✅ {{ successMsg() }}
         </div>
       }
       @if (errorMsg()) {
-        <div class="glass border border-red-500/30 rounded-2xl p-4 text-center text-red-400 font-bold text-sm">
+        <div class="clay border border-brand-red rounded-2xl p-4 text-center text-brand-red font-bold text-sm animate-fade-in">
           ⚠️ {{ errorMsg() }}
         </div>
       }
 
-      <!-- PIZZA PRICE SHOWCASE -->
-      <div class="relative overflow-hidden rounded-[24px] select-none mb-8 max-w-2xl mx-auto border border-orange-500/25 shadow-[0_40px_120px_-40px_rgba(220,38,0,0.5)]"
-        style="background: radial-gradient(ellipse at 60% 40%, rgba(180,40,0,0.22) 0%, rgba(10,13,24,0) 70%), #0A0D18;">
-        
-        <!-- Ambient Glow -->
-        <div class="absolute inset-0 pointer-events-none">
-          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-orange-500/10 blur-[30px]"></div>
-        </div>
-
-        <!-- Floating Ingredients -->
-        <span *ngFor="let ing of showcaseIngredients" 
-          class="absolute text-lg pointer-events-none z-10 animate-float"
-          [style.left]="ing.x" 
-          [style.top]="ing.y"
-          [style.animation-delay]="ing.delay"
-          [style.animation-duration]="ing.dur">
-          {{ ing.emoji }}
-        </span>
-
-        <!-- Rotating Pizza -->
-        <div class="flex justify-center pt-8 pb-2 relative z-20">
-          <div class="animate-spin-slow text-[80px] sm:text-[130px] filter drop-shadow-[0_8px_32px_rgba(255,100,30,0.55)] select-none leading-none">
-            🍕
+      <!-- TOP SUMMARY -->
+      <div class="clay rounded-[2rem] p-6 border border-brand-black flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-brand-white shadow-xl">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl filter drop-shadow-[0_4px_10px_rgba(255,100,30,0.4)]">🍕</div>
+          <div>
+            <h2 class="text-xl font-black text-brand-black tracking-tight">Your Pizza</h2>
+            <p class="text-sm font-bold text-brand-black mt-1">
+              {{ buildConfig()?.size || 'Large' }} • {{ buildConfig()?.crust || 'Hand Tossed' }}
+            </p>
+            <p class="text-[11px] text-brand-black mt-1 max-w-xl leading-relaxed font-semibold">
+              {{ summaryText() }}
+            </p>
           </div>
         </div>
-
-        <!-- Info Badge -->
-        <div class="flex justify-center mb-4 z-20 relative">
-          <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest text-orange-300 bg-orange-500/12 border border-orange-500/25">
-            🔥 Pepperoni Large · Live Price Comparison
-          </div>
-        </div>
-
-        <!-- Showcase Quotes List -->
-        <div class="px-4 pb-5 space-y-2 z-20 relative">
-          <div *ngFor="let card of showcaseCards"
-            class="flex items-center gap-3 rounded-2xl px-4 py-2.5 border transition"
-            [class.best-deal-gradient]="card.best"
-            [class.normal-card-bg]="!card.best">
-            <span class="text-base">🍕</span>
-            <span class="flex-1 text-xs sm:text-sm font-bold text-white truncate">{{ card.store }}</span>
-            <span class="text-[10px] text-white/50">{{ card.time }}</span>
-            <span class="text-[10px] text-amber-400">★ {{ card.rating }}</span>
-            <span class="text-sm font-black" [class.text-orange-300]="card.best" [class.text-white/80]="!card.best">
-              {{ card.price | currency }}
-            </span>
-            <span *ngIf="card.best" 
-              class="text-[9px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 shrink-0 bg-orange-500 text-white animate-pulse-scale">
-              Best Deal
-            </span>
-          </div>
-        </div>
+        <button (click)="editPizza()" class="px-5 py-2.5 rounded-xl border border-brand-black text-brand-black hover:bg-brand-black hover:text-brand-white text-xs font-bold transition shadow-sm shrink-0 uppercase tracking-wider">
+          ✏️ Edit Pizza
+        </button>
       </div>
 
-      <!-- INTERACTIVE CONTROLS -->
-      <div class="glass p-6 rounded-[2rem] space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <!-- Size selection -->
-          <div>
-            <label class="block text-xs font-bold text-white/40 uppercase mb-2">Pizza Size</label>
-            <select [(ngModel)]="size" (change)="updateQuotes()"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-red-500">
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
-              <option value="Extra Large">Extra Large</option>
-            </select>
-          </div>
-
-          <!-- Crust selection -->
-          <div>
-            <label class="block text-xs font-bold text-white/40 uppercase mb-2">Crust Type</label>
-            <select [(ngModel)]="crust" (change)="updateQuotes()"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-red-500">
-              <option value="Hand Tossed">Hand Tossed</option>
-              <option value="Handmade Pan">Handmade Pan</option>
-              <option value="Crunchy Thin Crust">Crunchy Thin Crust</option>
-              <option value="Gluten Free Crust">Gluten Free Crust</option>
-            </select>
-          </div>
-
-          <!-- Delivery type preference -->
-          <div>
-            <label class="block text-xs font-bold text-white/40 uppercase mb-2">Fulfillment</label>
-            <select [(ngModel)]="deliveryType" (change)="updateQuotes()"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-red-500">
-              <option value="delivery">Delivery</option>
-              <option value="pickup">Pickup Only</option>
-            </select>
-          </div>
-
-          <!-- Quantity selection -->
-          <div>
-            <label class="block text-xs font-bold text-white/40 uppercase mb-2">Quantity</label>
-            <input type="number" [(ngModel)]="quantity" min="1" (change)="updateQuotes()"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-red-500" />
-          </div>
-        </div>
-
-        <!-- Toppings checklists -->
-        <div>
-          <label class="block text-xs font-bold text-white/40 uppercase mb-3">Add Toppings</label>
-          <div class="flex flex-wrap gap-2">
-            <button *ngFor="let topping of availableToppings" (click)="toggleTopping(topping)"
-              [class]="hasTopping(topping) ? 'bg-red-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition' : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 text-xs px-3.5 py-2 rounded-xl transition'">
-              {{ topping }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- QUOTE SEARCH STATUS -->
+      <!-- LOADING STATE -->
       <div *ngIf="loading()" class="flex justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-brand-red"></div>
       </div>
 
-      <!-- QUOTES RENDER -->
-      <div *ngIf="!loading() && quotes().length === 0" class="text-center py-12 text-white/40">
-        <p>No chains match the selected configuration.</p>
-      </div>
-
-      <div *ngIf="!loading() && quotes().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div *ngFor="let quote of quotes()"
-          class="glass rounded-[2rem] overflow-hidden flex flex-col group relative animate-fade-in">
-          
-          <!-- Banner header -->
-          <div class="h-28 relative flex items-center justify-center p-4"
-            [style.background]="quote.logoColor ? quote.logoColor : 'linear-gradient(135deg, #2b1f41 0%, #171025 100%)'">
-            <div class="text-center">
-              <h3 class="text-xl font-black text-white drop-shadow-md">{{ quote.chainName }}</h3>
-              <p class="text-[10px] text-white/70 mt-1">📍 {{ quote.distance }} away</p>
-            </div>
-            <!-- Overall badges -->
-            <div class="absolute top-3 right-3 flex flex-col gap-1">
-              <span *ngFor="let badge of quote.badges"
-                class="text-[8px] bg-yellow-500 text-black px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
-                {{ badge }}
-              </span>
-            </div>
+      <!-- SPLIT VIEW CONTENT -->
+      <div *ngIf="!loading() && quotes().length > 0" class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 items-start mt-6">
+        
+        <!-- LEFT COLUMN: QUOTES LIST -->
+        <div class="space-y-6">
+          <div class="flex items-center justify-between px-2">
+            <h3 class="text-lg font-black text-brand-black tracking-wider">Compare Quotes</h3>
+            <!-- Optional Top filters -->
           </div>
 
-          <!-- Price & Options Breakdown -->
-          <div class="p-6 flex-1 flex flex-col justify-between space-y-6">
-            
-            <div class="space-y-4">
-              <!-- Item level base math -->
-              <div class="flex justify-between text-xs text-white/40">
-                <span>Base ({{ size }} Size):</span>
-                <span class="text-white font-bold">{{ quote.basePrice | currency }}</span>
+          <!-- Toggles Section -->
+          <div class="flex flex-wrap gap-4 px-2 bg-brand-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">Free Delivery</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" [(ngModel)]="filterFreeDelivery" (change)="applyFilters()" />
+                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
-              <div class="flex justify-between text-xs text-white/40 border-b border-white/5 pb-2">
-                <span>Toppings cost:</span>
-                <span class="text-white font-bold">{{ quote.toppingsCost | currency }}</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">4+ Stars</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" [(ngModel)]="filterHighRating" (change)="applyFilters()" />
+                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">Favourites</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" [(ngModel)]="filterFavs" (change)="applyFilters()" />
+                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">Open Now</span>
+              <div class="relative">
+                <input type="checkbox" class="sr-only peer" [(ngModel)]="filterOpenNow" (change)="applyFilters()" />
+                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+              </div>
+            </label>
+          </div>
+          
+          <div class="space-y-4">
+            <div *ngFor="let quote of quotes(); let i = index" 
+              (click)="selectQuote(quote)"
+              [style.--electric-border-color]="quote.logoColor || '#E23744'"
+              [class]="'electric-border transition-all duration-300 ' + (selectedQuote()?.chainName === quote.chainName ? 'scale-[1.02]' : '')">
+              
+              <!-- Glow layers for the card -->
+              <div class="eb-layers">
+                <div class="eb-glow-1"></div>
+                <div class="eb-glow-2"></div>
+                <div class="eb-background-glow"></div>
               </div>
 
-              <!-- Available delivery options / provider pricing -->
-              <div class="space-y-3">
-                <h4 class="text-xs font-bold text-white/40 uppercase">Delivery Provider Quotes</h4>
+              <!-- Main Card Content Container -->
+              <div class="eb-content clay rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer transition border border-brand-black bg-brand-white shadow-md hover:shadow-lg gap-4"
+                [class.border-brand-red]="selectedQuote()?.chainName === quote.chainName">
                 
-                <div *ngFor="let opt of quote.deliveryOptions"
-                  class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-                  <div class="flex justify-between items-center">
-                    <div>
-                      <span class="font-bold text-xs text-white">{{ opt.providerName }}</span>
-                      <p class="text-[9px] text-white/40 mt-0.5">⏱️ {{ opt.estimatedTimeMin }}-{{ opt.estimatedTimeMax }} mins</p>
-                    </div>
-                    <span class="font-black text-green-400 text-sm">
-                      {{ opt.priceBreakdown.grandTotal | currency }}
-                    </span>
+                <div class="flex flex-col justify-center gap-1.5">
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-lg font-black text-brand-black">{{ quote.chainName }}</h4>
+                    <span *ngIf="i === 0" class="text-[9px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 shrink-0 bg-brand-orange text-brand-white animate-pulse-scale">Best Deal</span>
                   </div>
-                  <!-- Option badges -->
-                  <div *ngIf="opt.badges.length > 0" class="flex gap-1.5 pt-1">
-                    <span *ngFor="let optBadge of opt.badges"
-                      class="text-[8px] font-bold text-red-300 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded">
-                      {{ optBadge }}
-                    </span>
+                  <div class="flex flex-wrap items-center gap-3 text-[11px] text-brand-black font-semibold">
+                    <span class="text-brand-orange">★ {{ quote.rating | number:'1.1-1' }}</span>
+                    <span>📍 {{ quote.distance }} away</span>
+                    <span>{{ quote.reviews.length }} ratings</span>
                   </div>
-
-                  <!-- ORDER / CHECKOUT BUTTON -->
-                  <button (click)="placeOrder(quote, opt)" [disabled]="submitting()"
-                    class="w-full mt-2 py-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-black text-[10px] tracking-wider transition uppercase disabled:opacity-50">
-                    {{ submitting() ? 'Placing Order...' : 'Order Now' }}
-                  </button>
+                </div>
+                
+                <div class="sm:text-right shrink-0">
+                  <p class="text-3xl font-black text-brand-black tracking-tight">{{ quote.basePrice + quote.toppingsCost | currency }}</p>
+                  <p class="text-[10px] font-bold text-brand-black uppercase tracking-wider mt-0.5">Base Quote</p>
                 </div>
               </div>
             </div>
-
-            <!-- Customer Reviews Summary -->
-            <div class="border-t border-white/10 pt-4">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-yellow-400 font-bold text-xs">★ {{ quote.rating | number:'1.1-1' }}</span>
-                <span class="text-[10px] text-white/40">({{ quote.reviews.length }} chain ratings)</span>
-              </div>
-              <div class="space-y-2">
-                <div *ngFor="let rev of quote.reviews.slice(0, 1)" class="bg-black/20 p-2.5 rounded-xl">
-                  <p class="text-[10px] font-bold text-white/70">{{ rev.authorName }}</p>
-                  <p class="text-[10px] text-white/50 mt-0.5 line-clamp-2">"{{ rev.comment }}"</p>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
+
+        <!-- RIGHT COLUMN: CHECKOUT & MODIFICATIONS -->
+        <div *ngIf="selectedQuote()" class="clay rounded-[2rem] p-6 border border-brand-black bg-brand-white shadow-2xl sticky top-6 animate-fade-in">
+          
+          <div class="border-b border-brand-black pb-4 mb-4">
+            <h3 class="text-2xl font-black text-brand-black">{{ selectedQuote()!.chainName }}</h3>
+            <p class="text-[11px] font-bold text-brand-black mt-1 uppercase tracking-wider">Ready for Checkout</p>
+          </div>
+
+          <!-- Restaurant-Specific Modifications -->
+          <div class="mb-6">
+            <h4 class="text-xs font-black uppercase tracking-wider text-brand-black mb-3">Customize this order</h4>
+            <div class="space-y-2">
+              <label *ngFor="let mod of activeModifications()" class="flex items-center justify-between p-3.5 rounded-xl border border-brand-black cursor-pointer hover:bg-brand-white transition bg-brand-white group">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" [(ngModel)]="mod.selected" class="w-4 h-4 accent-red-600 rounded cursor-pointer" />
+                  <span class="text-[13px] font-bold text-brand-black group-hover:text-brand-black transition">{{ mod.label }}</span>
+                </div>
+                <span class="text-xs font-black" [class.text-brand-black]="mod.priceDelta >= 0" [class.text-brand-green]="mod.priceDelta < 0">
+                  {{ mod.priceDelta > 0 ? '+' : '' }}{{ mod.priceDelta | currency }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Math Breakdown -->
+          <div class="bg-brand-white border border-brand-black rounded-xl p-4 mb-6 space-y-2.5 text-xs">
+            <div class="flex justify-between font-bold text-brand-black">
+              <span>Original Price</span>
+              <span>{{ baseQuotePrice() | currency }}</span>
+            </div>
+            
+            <ng-container *ngFor="let mod of activeModifications()">
+              <div *ngIf="mod.selected" class="flex justify-between font-bold text-brand-black animate-fade-in text-[11px]">
+                <span>{{ mod.label }}</span>
+                <span [class.text-brand-green]="mod.priceDelta < 0">{{ mod.priceDelta > 0 ? '+' : '' }}{{ mod.priceDelta | currency }}</span>
+              </div>
+            </ng-container>
+
+            <div class="border-t border-brand-black pt-3 mt-3 flex justify-between items-end">
+              <span class="font-black uppercase tracking-wider text-brand-black text-[13px]">New Total</span>
+              <span class="text-3xl font-black text-brand-black leading-none">{{ newTotal() | currency }}</span>
+            </div>
+          </div>
+
+          <!-- Delivery Providers -->
+          <div class="space-y-3">
+            <h4 class="text-[10px] font-black uppercase tracking-wider text-brand-black border-b border-brand-black pb-1 mb-2">Select Delivery Method</h4>
+            <div *ngFor="let opt of selectedQuote()!.deliveryOptions" class="bg-brand-white border border-brand-black rounded-2xl p-4 hover:border-brand-red transition-colors group">
+              <div class="flex justify-between items-center mb-1">
+                <div>
+                  <span class="font-black text-sm text-brand-black">{{ opt.providerName }}</span>
+                  <p class="text-[10px] font-bold text-brand-black mt-0.5">⏱️ {{ opt.estimatedTimeMin }}-{{ opt.estimatedTimeMax }} mins</p>
+                </div>
+                <div class="text-right">
+                  <span class="font-black text-brand-green text-lg">
+                    {{ (newTotal() + opt.priceBreakdown.deliveryFee + opt.priceBreakdown.serviceFee) | currency }}
+                  </span>
+                  <p class="text-[9px] font-bold text-brand-black uppercase">w/ Fees</p>
+                </div>
+              </div>
+              <button (click)="placeOrder(selectedQuote()!, opt)" [disabled]="submitting()"
+                class="w-full mt-3 py-3 rounded-xl bg-brand-black text-brand-white group-hover:bg-brand-red font-black text-xs tracking-wider transition uppercase disabled:opacity-50">
+                {{ submitting() ? 'Placing Order...' : 'Order via ' + opt.providerName }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Placeholder when nothing is selected -->
+        <div *ngIf="!selectedQuote()" class="clay rounded-[2rem] p-10 border border-brand-black text-center sticky top-6 opacity-60 bg-brand-white shadow-md">
+          <p class="text-5xl mb-4">👈</p>
+          <p class="font-black text-brand-black text-lg">Select a Restaurant</p>
+          <p class="text-xs font-bold text-brand-black mt-2 leading-relaxed">Choose a quote from the left to view checkout options and make minor edits.</p>
+        </div>
+
+      </div>
+
+      <div *ngIf="!loading() && quotes().length === 0" class="text-center py-12 text-brand-black font-bold">
+        <p>No chains match the selected configuration. Try editing your pizza.</p>
       </div>
 
     </div>
   `,
   styles: [`
-    .best-deal-gradient {
-      background: linear-gradient(135deg, rgba(220,80,0,0.28) 0%, rgba(255,150,50,0.12) 100%);
-      border: 1px solid rgba(255,120,30,0.55);
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .normal-card-bg {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-    }
-    @keyframes float-ing {
-      0%, 100% { transform: translateY(0) rotate(-8deg); opacity: 0.55; }
-      50% { transform: translateY(-10px) rotate(8deg); opacity: 0.9; }
-    }
-    .animate-float {
-      animation: float-ing 4s ease-in-out infinite;
-    }
-    @keyframes spin-pizza {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .animate-spin-slow {
-      animation: spin-pizza 22s linear infinite;
+    .animate-fade-in {
+      animation: fade-in 0.3s ease-out forwards;
     }
     @keyframes pulse-scale {
       0%, 100% { transform: scale(1); }
@@ -269,13 +236,6 @@ import { Quote } from '../../shared/models';
     }
     .animate-pulse-scale {
       animation: pulse-scale 1.6s ease-in-out infinite;
-    }
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fade-in 0.5s ease-out forwards;
     }
   `]
 })
@@ -287,86 +247,108 @@ export class ComparisonCardsComponent implements OnInit {
   private readonly router = inject(Router);
 
   quotes = signal<Quote[]>([]);
+  allQuotes = signal<Quote[]>([]);
   loading = signal(false);
   submitting = signal(false);
   successMsg = signal('');
   errorMsg = signal('');
 
-  // Configuration state
-  size = 'Large';
-  crust = 'Hand Tossed';
-  deliveryType = 'delivery';
-  quantity = 1;
-  toppings: string[] = ['Pepperoni'];
+  buildConfig = signal<any>(null);
+  selectedQuote = signal<Quote | null>(null);
+  activeModifications = signal<Modification[]>([]);
 
-  availableToppings = [
-    'Pepperoni', 'Mushrooms', 'Onions', 'Green Peppers', 
-    'Black Olives', 'Italian Sausage', 'Ham', 'Premium Chicken'
-  ];
+  // Filters
+  filterFreeDelivery = false;
+  filterHighRating = false;
+  filterFavs = false;
+  filterOpenNow = false;
 
-  // Pizza price showcase data matching past UI reference
-  showcaseCards = [
-    { store: "Domino's", price: 14.99, time: '25 min', rating: 4.2, best: false },
-    { store: 'Pizza Hut', price: 13.49, time: '30 min', rating: 4.0, best: false },
-    { store: "Papa John's", price: 15.99, time: '35 min', rating: 4.3, best: false },
-    { store: 'Shamz Pizza', price: 11.99, time: '18 min', rating: 4.8, best: true  },
-  ];
+  applyFilters() {
+    let filtered = this.allQuotes();
+    if (this.filterFreeDelivery) {
+      filtered = filtered.filter(q => q.deliveryOptions.some(o => o.priceBreakdown.deliveryFee === 0));
+    }
+    if (this.filterHighRating) {
+      filtered = filtered.filter(q => q.rating >= 4.0);
+    }
+    // Favs & Open Now are mocked in frontend
+    if (this.filterFavs) {
+      filtered = filtered.filter(q => q.rating > 4.5); // just mocking it
+    }
+    this.quotes.set(filtered);
+    if (filtered.length > 0 && !filtered.includes(this.selectedQuote()!)) {
+      this.selectQuote(filtered[0]);
+    } else if (filtered.length === 0) {
+      this.selectedQuote.set(null);
+    }
+  }
 
-  showcaseIngredients = [
-    { emoji: '🌿', x: '6%',  y: '10%', delay: '0s', dur: '4.2s' },
-    { emoji: '🧀', x: '84%', y: '8%',  delay: '0.6s', dur: '3.8s' },
-    { emoji: '🍅', x: '4%',  y: '70%', delay: '1.1s', dur: '4.5s' },
-    { emoji: '🫒', x: '88%', y: '65%', delay: '0.3s', dur: '3.5s' },
-    { emoji: '🌶️', x: '50%', y: '3%',  delay: '0.8s', dur: '4.0s' },
-    { emoji: '🧅', x: '16%', y: '86%', delay: '1.5s', dur: '3.9s' },
-  ];
+  baseQuotePrice = computed(() => {
+    const q = this.selectedQuote();
+    return q ? q.basePrice + q.toppingsCost : 0;
+  });
 
-  private readonly route = inject(ActivatedRoute);
+  newTotal = computed(() => {
+    let total = this.baseQuotePrice();
+    for (const mod of this.activeModifications()) {
+      if (mod.selected) total += mod.priceDelta;
+    }
+    return Math.max(0, total);
+  });
+
+  summaryText = computed(() => {
+    const c = this.buildConfig();
+    if (!c) return 'Loading...';
+    const parts = [
+      c.sauce,
+      ...(c.cheeses || []),
+      ...(c.meats || []),
+      ...(c.veggies || []),
+      ...(c.dips || []),
+      ...(c.seasonings || []),
+      c.bakeInstructions,
+      c.cutInstructions
+    ].filter(p => !!p && p !== 'No Cheese' && p !== 'Normal Bake' && p !== 'Standard Pie Cut');
+    return parts.join(', ');
+  });
 
   ngOnInit() {
-    const sizeParam = this.route.snapshot.queryParamMap.get('size');
-    const crustParam = this.route.snapshot.queryParamMap.get('crust');
-    const toppingsParam = this.route.snapshot.queryParamMap.get('toppings');
-
-    if (sizeParam) this.size = sizeParam;
-    if (crustParam) this.crust = crustParam;
-    if (toppingsParam) {
-      this.toppings = toppingsParam.split(',').map(t => t.trim()).filter(t => t.length > 0);
-    }
-    
-    this.updateQuotes();
-  }
-
-  toggleTopping(topping: string) {
-    const idx = this.toppings.indexOf(topping);
-    if (idx > -1) {
-      this.toppings.splice(idx, 1);
-    } else {
-      this.toppings.push(topping);
+    const rawConfig = localStorage.getItem('mislice_current_build');
+    if (rawConfig) {
+      try {
+        this.buildConfig.set(JSON.parse(rawConfig));
+      } catch (e) {
+        console.error('Failed to parse build config', e);
+      }
     }
     this.updateQuotes();
   }
 
-  hasTopping(topping: string): boolean {
-    return this.toppings.includes(topping);
+  editPizza() {
+    this.router.navigate(['/builder']);
   }
 
   updateQuotes() {
     this.loading.set(true);
-    const config = {
-      size: this.size,
-      crust: this.crust,
-      sauce: 'Robust Inspired Tomato Sauce',
-      cheese: ['Mozzarella'],
-      meats: this.toppings.filter(t => ['Pepperoni', 'Italian Sausage', 'Ham', 'Premium Chicken'].includes(t)),
-      veggies: this.toppings.filter(t => ['Mushrooms', 'Onions', 'Green Peppers', 'Black Olives'].includes(t)),
+    const cfg = this.buildConfig() || {};
+    
+    // Convert new builder config format to what ChainCompareService expects
+    const apiConfig = {
+      size: cfg.size || 'Large',
+      crust: cfg.crust || 'Hand Tossed',
+      sauce: cfg.sauce || 'Robust Inspired Tomato Sauce',
+      cheese: cfg.cheeses || ['Mozzarella'],
+      meats: cfg.meats || [],
+      veggies: cfg.veggies || [],
       extras: [],
-      quantity: this.quantity
+      quantity: cfg.quantity || 1
     };
 
-    this.chainCompareService.comparePizzas(config, this.deliveryType).subscribe({
+    this.chainCompareService.comparePizzas(apiConfig, 'delivery').subscribe({
       next: (quotes) => {
+        this.allQuotes.set(quotes);
         this.quotes.set(quotes);
+        this.applyFilters();
         this.loading.set(false);
       },
       error: () => {
@@ -375,12 +357,35 @@ export class ComparisonCardsComponent implements OnInit {
     });
   }
 
+  selectQuote(quote: Quote) {
+    this.selectedQuote.set(quote);
+    
+    // Generate some contextual modifications based on the config
+    const cfg = this.buildConfig();
+    const mods: Modification[] = [];
+    
+    mods.push({ id: 'extra_cheese', label: '+ Extra Cheese', priceDelta: 2.00, selected: false });
+    
+    if (cfg?.meats?.length > 0) {
+      mods.push({ id: 'extra_meat', label: '+ Extra ' + cfg.meats[0], priceDelta: 2.50, selected: false });
+    } else {
+      mods.push({ id: 'add_pep', label: '+ Add Pepperoni', priceDelta: 1.50, selected: false });
+    }
+    
+    if (cfg?.veggies?.length > 0) {
+      mods.push({ id: 'remove_veg', label: 'Remove ' + cfg.veggies[0], priceDelta: -1.00, selected: false });
+    }
+    
+    mods.push({ id: 'crust_upgrade', label: 'Upgrade to Garlic Parm Crust', priceDelta: 1.25, selected: false });
+
+    this.activeModifications.set(mods);
+  }
+
   placeOrder(quote: Quote, option: any): void {
     this.submitting.set(true);
     this.errorMsg.set('');
     this.successMsg.set('');
 
-    // Fetch live restaurants to resolve correct store UUID
     this.restaurantService.getRestaurants().subscribe({
       next: (stores) => {
         const matched = stores.find(s => 
@@ -394,34 +399,37 @@ export class ComparisonCardsComponent implements OnInit {
           return;
         }
 
-        const mappedToppings = this.toppings.map(t => ({
+        const selectedModsText = this.activeModifications()
+          .filter(m => m.selected)
+          .map(m => m.label)
+          .join(', ');
+
+        const cfg = this.buildConfig() || {};
+        const toppings = [...(cfg.meats || []), ...(cfg.veggies || []), ...(cfg.cheeses || [])];
+
+        const mappedToppings = toppings.map(t => ({
           toppingId: null,
           toppingName: t,
           price: 1.25
         }));
 
-        // Calculate a reasonable comparison estimate price
-        const basePrice = quote.basePrice || 14.99;
-        const totalToppingsCost = this.toppings.length * 1.25;
-        const estimatedUnitPrice = basePrice + totalToppingsCost;
-
         const cartReq = {
           restaurantId: matched.id,
           menuItemId: null,
           itemName: 'Comparison Custom Pizza',
-          size: this.size,
-          crust: this.crust,
-          sauce: 'Robust Inspired Tomato Sauce',
-          quantity: this.quantity,
-          unitPrice: estimatedUnitPrice,
-          notes: `Comparison quote order via ${option.providerName}. Size: ${this.size}, Crust: ${this.crust}.`,
+          size: cfg.size || 'Large',
+          crust: cfg.crust || 'Hand Tossed',
+          sauce: cfg.sauce || 'Robust Inspired Tomato Sauce',
+          quantity: cfg.quantity || 1,
+          unitPrice: this.newTotal(), // Live updated price
+          notes: `Comparison quote via ${option.providerName}. Mods: ${selectedModsText || 'None'}.`,
           toppings: mappedToppings
         };
 
         this.cartService.addToCart(cartReq).subscribe({
           next: () => {
             this.orderService.placeOrder({
-              deliveryType: this.deliveryType === 'delivery' ? 'STORE_DELIVERY' : 'PICKUP',
+              deliveryType: 'STORE_DELIVERY',
               deliveryAddress: 'Detroit, MI',
               deliveryNotes: `Provider: ${option.providerName}`,
               tip: 0,
@@ -429,7 +437,7 @@ export class ComparisonCardsComponent implements OnInit {
             }).subscribe({
               next: (order) => {
                 this.submitting.set(false);
-                this.successMsg.set(`🎉 Order #${order.orderNumber} successfully placed at ${quote.chainName}! The owner dashboard has been updated.`);
+                this.successMsg.set(`🎉 Order #${order.orderNumber} successfully placed at ${quote.chainName}!`);
               },
               error: (e: any) => {
                 this.submitting.set(false);

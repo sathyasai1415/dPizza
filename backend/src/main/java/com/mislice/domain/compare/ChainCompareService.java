@@ -4,7 +4,15 @@ import com.mislice.domain.compare.dto.*;
 import com.mislice.domain.coupon.CouponRepository;
 import com.mislice.domain.coupon.CouponMapper;
 import com.mislice.domain.coupon.dto.CouponDto;
+import com.mislice.domain.menu.MenuItem;
+import com.mislice.domain.menu.MenuItemRepository;
+import com.mislice.domain.menu.StandardPizzaProfile;
+import com.mislice.domain.menu.StandardPizzaProfileRepository;
+import com.mislice.domain.restaurant.Restaurant;
+import com.mislice.domain.restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
+import com.mislice.domain.search.SearchIntentParserService;
+import com.mislice.domain.search.StructuredSearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -13,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +33,199 @@ public class ChainCompareService {
     private final CouponRepository couponRepository;
     private final ChainMapper chainMapper;
     private final CouponMapper couponMapper;
+    private final MenuItemRepository menuItemRepository;
+    private final StandardPizzaProfileRepository standardPizzaProfileRepository;
+    private final SearchIntentParserService searchIntentParserService;
+    private final RestaurantRepository restaurantRepository;
+
+    public List<QuoteDto> calculateSearchQuotes(String query, String deliveryType) {
+        StructuredSearchQuery parsedQuery = searchIntentParserService.parseIntent(query);
+        String lowerQuery = query.toLowerCase();
+
+        // 1. Fetch matching restaurants if any part of the query matches a restaurant name
+        List<Restaurant> allRestaurants = restaurantRepository.findByDeletedFalse();
+        List<Restaurant> matchingRestaurants = allRestaurants.stream()
+            .filter(r -> lowerQuery.contains(r.getName().toLowerCase()) || r.getName().toLowerCase().contains(lowerQuery))
+            .collect(Collectors.toList());
+
+        List<MenuItem> allItems;
+        if (parsedQuery.getCategory() != null) {
+            StandardPizzaProfile profile = standardPizzaProfileRepository.findByCategoryIgnoreCase(parsedQuery.getCategory())
+                .orElse(null);
+            if (profile != null) {
+                allItems = menuItemRepository.findByStandardProfileIdAndDeletedFalse(profile.getId());
+            } else {
+                allItems = new ArrayList<>();
+            }
+        } else {
+            // fallback: return everything if no category is parsed (could be large)
+            allItems = menuItemRepository.findAll();
+        }
+
+        // 2. Filter menu items by matching restaurant IDs if any matching restaurants were found
+        if (!matchingRestaurants.isEmpty()) {
+            List<UUID> matchingIds = matchingRestaurants.stream().map(Restaurant::getId).collect(Collectors.toList());
+            allItems = allItems.stream()
+                .filter(item -> matchingIds.contains(item.getRestaurant().getId()))
+                .collect(Collectors.toList());
+        }
+
+        // Apply size filter if specified, else default to "14"" for fair price sorting, unless they didn't sort by price.
+        String targetSize = parsedQuery.getSize();
+        if (targetSize == null && parsedQuery.getSortType() == StructuredSearchQuery.SortType.CHEAPEST) {
+            targetSize = "14\""; // Default to Large for fair price comparison if unspecified
+        }
+
+        if (targetSize != null) {
+            final String fTargetSize = targetSize;
+            allItems = allItems.stream()
+                .filter(item -> item.getStandardSize() != null && 
+                        (item.getStandardSize().getMeasurementInches() + "\"").equals(fTargetSize))
+                .collect(Collectors.toList());
+        }
+
+        List<QuoteDto> quotes = new ArrayList<>();
+        for (MenuItem item : allItems) {
+            Restaurant rest = item.getRestaurant();
+            if (!rest.isAcceptingOrders()) continue;
+
+            BigDecimal basePrice = item.getBasePrice();
+            BigDecimal toppingsCost = BigDecimal.ZERO;
+
+            List<DeliveryProviderOptionDto> options = new ArrayList<>();
+            if ("delivery".equalsIgnoreCase(deliveryType)) {
+                BigDecimal subtotal = basePrice.add(toppingsCost);
+                BigDecimal deliveryFee = rest.getDeliveryFee() != null ? rest.getDeliveryFee() : BigDecimal.valueOf(3.99);
+                
+                // Price limit filter
+                if (parsedQuery.getMaxPrice() != null) {
+                    if (subtotal.add(deliveryFee).compareTo(parsedQuery.getMaxPrice()) > 0) {
+                        continue; // skip if over budget
+                    }
+                }
+
+                BigDecimal tax = subtotal.multiply(BigDecimal.valueOf(0.0825)).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal tip = subtotal.multiply(BigDecimal.valueOf(0.15)).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal grandTotal = subtotal.add(deliveryFee).add(tax).add(tip);
+                
+                int estMin = rest.getAverageEtaMinutes() != null ? rest.getAverageEtaMinutes() : 25;
+                
+                options.add(new DeliveryProviderOptionDto(
+                    "store", "Store Delivery",
+                    new PriceBreakdownDto(subtotal, deliveryFee, BigDecimal.ZERO, tax, tip, BigDecimal.ZERO, grandTotal),
+                    estMin, estMin + 10, new ArrayList<>(), Collections.emptyList()
+                ));
+            }
+
+            if (options.isEmpty()) continue;
+
+            String nativeSizeStr = item.getStandardSize() != null ? item.getStandardSize().getMeasurementInches() + "\"" : "Large";
+
+            quotes.add(new QuoteDto(
+                rest.getId().toString(),
+                rest.getName(),
+                rest.getBrandColor() != null ? rest.getBrandColor() : "#222222",
+                basePrice,
+                toppingsCost,
+                rest.getRatingAvg() != null ? rest.getRatingAvg().doubleValue() : 4.0,
+                new ArrayList<>(), 
+                "1.5 miles",
+                new ArrayList<>(),
+                options,
+                "store",
+                "store",
+                "store",
+                item.getName(), 
+                nativeSizeStr 
+            ));
+        }
+
+        // Apply Sorting
+        if (parsedQuery.getSortType() == StructuredSearchQuery.SortType.CHEAPEST) {
+            quotes.sort((a, b) -> a.deliveryOptions().get(0).priceBreakdown().grandTotal().compareTo(b.deliveryOptions().get(0).priceBreakdown().grandTotal()));
+        } else if (parsedQuery.getSortType() == StructuredSearchQuery.SortType.FASTEST) {
+            quotes.sort((a, b) -> Integer.compare(a.deliveryOptions().get(0).estimatedTimeMin(), b.deliveryOptions().get(0).estimatedTimeMin()));
+        }
+        
+        return quotes;
+    }
+
+    public List<QuoteDto> calculateQuickQuotes(String intent, String deliveryType) {
+        StandardPizzaProfile profile = standardPizzaProfileRepository.findByCategoryIgnoreCase(intent)
+            .orElseThrow(() -> new IllegalArgumentException("Unknown pizza category: " + intent));
+
+        List<MenuItem> items = menuItemRepository.findByStandardProfileIdAndDeletedFalse(profile.getId());
+        List<QuoteDto> quotes = new ArrayList<>();
+
+        for (MenuItem item : items) {
+            Restaurant rest = item.getRestaurant();
+            if (!rest.isAcceptingOrders()) continue;
+
+            BigDecimal basePrice = item.getBasePrice();
+            BigDecimal toppingsCost = BigDecimal.ZERO; // Built-in to the menu item
+
+            List<DeliveryProviderOptionDto> options = new ArrayList<>();
+            // Assuming store delivery option for local restaurants
+            if ("delivery".equalsIgnoreCase(deliveryType)) {
+                BigDecimal markupPrice = basePrice;
+                BigDecimal subtotal = markupPrice.add(toppingsCost);
+                BigDecimal deliveryFee = rest.getDeliveryFee() != null ? rest.getDeliveryFee() : BigDecimal.valueOf(3.99);
+                BigDecimal tax = subtotal.multiply(BigDecimal.valueOf(0.0825)).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal tip = subtotal.multiply(BigDecimal.valueOf(0.15)).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal grandTotal = subtotal.add(deliveryFee).add(tax).add(tip);
+                
+                int estMin = rest.getAverageEtaMinutes() != null ? rest.getAverageEtaMinutes() : 25;
+                
+                options.add(new DeliveryProviderOptionDto(
+                    "store", "Store Delivery",
+                    new PriceBreakdownDto(subtotal, deliveryFee, BigDecimal.ZERO, tax, tip, BigDecimal.ZERO, grandTotal),
+                    estMin, estMin + 10, new ArrayList<>(), Collections.emptyList()
+                ));
+            }
+
+            if (options.isEmpty()) continue;
+
+            String nativeSizeStr = item.getStandardSize() != null ? item.getStandardSize().getMeasurementInches() + "\"" : "Large";
+
+            quotes.add(new QuoteDto(
+                rest.getId().toString(),
+                rest.getName(),
+                rest.getBrandColor() != null ? rest.getBrandColor() : "#222222",
+                basePrice,
+                toppingsCost,
+                rest.getRatingAvg() != null ? rest.getRatingAvg().doubleValue() : 4.0,
+                new ArrayList<>(), // No reviews for now
+                "1.5 miles",
+                new ArrayList<>(),
+                options,
+                "store",
+                "store",
+                "store",
+                item.getName(), // Native Menu Name
+                nativeSizeStr // Native Size
+            ));
+        }
+
+        quotes.sort((a, b) -> a.deliveryOptions().get(0).priceBreakdown().grandTotal().compareTo(b.deliveryOptions().get(0).priceBreakdown().grandTotal()));
+        return quotes;
+    }
+
+    private ComparePizzaConfig mapIntentToConfig(String intent) {
+        return switch (intent) {
+            case "pepperoni" -> new ComparePizzaConfig("Large", "Hand Tossed", "Robust Inspired Tomato Sauce", 
+                    List.of("Mozzarella"), List.of("Pepperoni"), List.of(), List.of(), 1);
+            case "meat_lovers", "carnivore", "ultimate_meat" -> new ComparePizzaConfig("Large", "Hand Tossed", "Robust Inspired Tomato Sauce", 
+                    List.of("Mozzarella"), List.of("Pepperoni", "Sausage", "Bacon", "Ham", "Beef"), List.of(), List.of(), 1);
+            case "hawaiian" -> new ComparePizzaConfig("Large", "Hand Tossed", "Robust Inspired Tomato Sauce", 
+                    List.of("Mozzarella"), List.of("Ham", "Bacon"), List.of("Pineapple"), List.of(), 1);
+            case "bbq_chicken" -> new ComparePizzaConfig("Large", "Hand Tossed", "BBQ Sauce", 
+                    List.of("Mozzarella", "Cheddar"), List.of("Chicken", "Bacon"), List.of("Onions"), List.of(), 1);
+            case "cheese", "margherita" -> new ComparePizzaConfig("Large", "Hand Tossed", "Robust Inspired Tomato Sauce", 
+                    List.of("Mozzarella", "Parmesan"), List.of(), List.of(), List.of(), 1);
+            default -> new ComparePizzaConfig("Large", "Hand Tossed", "Robust Inspired Tomato Sauce", 
+                    List.of("Mozzarella"), List.of(), List.of(), List.of(), 1);
+        };
+    }
 
     public List<QuoteDto> calculateQuotes(ComparePizzaConfig config, String deliveryType) {
         List<Chain> chains = chainRepository.findAllByOrderBySortOrderAsc();
@@ -121,7 +324,102 @@ public class ChainCompareService {
                 badgedOptions,
                 cheapestId,
                 fastestId,
+                null,
+                null,
                 null
+            ));
+        }
+
+        // Add quotes for local independent approved restaurants dynamically
+        List<Restaurant> localRestaurants = restaurantRepository.findByApprovedTrueAndDeletedFalse();
+        for (Restaurant rest : localRestaurants) {
+            // Calculate base price dynamically based on size
+            BigDecimal sizeBase = BigDecimal.valueOf(14.99); // fallback default
+            if ("Personal".equalsIgnoreCase(config.size())) {
+                sizeBase = BigDecimal.valueOf(8.99);
+            } else if ("Small".equalsIgnoreCase(config.size())) {
+                sizeBase = BigDecimal.valueOf(10.99);
+            } else if ("Medium".equalsIgnoreCase(config.size())) {
+                sizeBase = BigDecimal.valueOf(12.99);
+            } else if ("Large".equalsIgnoreCase(config.size())) {
+                sizeBase = BigDecimal.valueOf(14.99);
+            } else if ("Extra Large".equalsIgnoreCase(config.size())) {
+                sizeBase = BigDecimal.valueOf(17.99);
+            } else if ("Party".equalsIgnoreCase(config.size())) {
+                sizeBase = BigDecimal.valueOf(24.99);
+            }
+            
+            // Apply custom crust up-charge if any
+            BigDecimal crustPremium = BigDecimal.ZERO;
+            if (config.crust() != null) {
+                String crust = config.crust().toLowerCase();
+                if (crust.contains("pan") || crust.contains("deep dish") || crust.contains("detroit")) {
+                    crustPremium = BigDecimal.valueOf(2.00);
+                } else if (crust.contains("stuffed") || crust.contains("chicago")) {
+                    crustPremium = BigDecimal.valueOf(2.50);
+                } else if (crust.contains("gluten-free") || crust.contains("cauliflower")) {
+                    crustPremium = BigDecimal.valueOf(2.00);
+                }
+            }
+            
+            BigDecimal basePrice = sizeBase.add(crustPremium).multiply(BigDecimal.valueOf(config.quantity()));
+
+            // Calculate toppings count (cheese, meats, veggies, extras)
+            int toppingsCount = 0;
+            if (config.cheese() != null) toppingsCount += config.cheese().size();
+            if (config.meats() != null) toppingsCount += config.meats().size();
+            if (config.veggies() != null) toppingsCount += config.veggies().size();
+            if (config.extras() != null) toppingsCount += config.extras().size();
+
+            // Subtract 1 free cheese
+            if (config.cheese() != null && !config.cheese().isEmpty()) {
+                toppingsCount = Math.max(0, toppingsCount - 1);
+            }
+
+            BigDecimal toppingPrice = BigDecimal.valueOf(1.50); // local stores standard topping price
+            BigDecimal toppingsCost = toppingPrice.multiply(BigDecimal.valueOf(toppingsCount)).multiply(BigDecimal.valueOf(config.quantity()));
+
+            List<DeliveryProviderOptionDto> options = new ArrayList<>();
+            BigDecimal subtotal = basePrice.add(toppingsCost);
+            BigDecimal deliveryFee = rest.getDeliveryFee() != null ? rest.getDeliveryFee() : BigDecimal.valueOf(3.99);
+            BigDecimal tax = subtotal.multiply(BigDecimal.valueOf(0.0825)).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal tip = subtotal.multiply(BigDecimal.valueOf(0.15)).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal grandTotal = subtotal.add(deliveryFee).add(tax).add(tip);
+            int estMin = rest.getAverageEtaMinutes() != null ? rest.getAverageEtaMinutes() : 25;
+
+            // Generate delivery option
+            if ("delivery".equalsIgnoreCase(deliveryType)) {
+                options.add(new DeliveryProviderOptionDto(
+                    "store", "Store Delivery",
+                    new PriceBreakdownDto(subtotal, deliveryFee, BigDecimal.ZERO, tax, tip, BigDecimal.ZERO, grandTotal),
+                    estMin, estMin + 10, new ArrayList<>(), Collections.emptyList()
+                ));
+            } else {
+                options.add(new DeliveryProviderOptionDto(
+                    "pickup", "Pickup",
+                    new PriceBreakdownDto(subtotal, BigDecimal.ZERO, BigDecimal.ZERO, tax, BigDecimal.ZERO, BigDecimal.ZERO, subtotal.add(tax)),
+                    estMin - 10, estMin, new ArrayList<>(), Collections.emptyList()
+                ));
+            }
+
+            if (options.isEmpty()) continue;
+
+            quotes.add(new QuoteDto(
+                rest.getId().toString(),
+                rest.getName(),
+                rest.getBrandColor() != null ? rest.getBrandColor() : "#FF2400",
+                basePrice,
+                toppingsCost,
+                rest.getRatingAvg() != null ? rest.getRatingAvg().doubleValue() : 4.5,
+                new ArrayList<>(), // no reviews
+                "1.8 miles",
+                new ArrayList<>(),
+                options,
+                "store",
+                "store",
+                null,
+                "Custom Pizza",
+                config.size()
             ));
         }
 
@@ -143,7 +441,8 @@ public class ChainCompareService {
                 cheapestQuote.basePrice(), cheapestQuote.toppingsCost(), cheapestQuote.rating(),
                 cheapestQuote.reviews(), cheapestQuote.distance(), quoteBadges,
                 cheapestQuote.deliveryOptions(), cheapestQuote.cheapestOptionId(),
-                cheapestQuote.fastestOptionId(), cheapestQuote.cheapestOptionId()
+                cheapestQuote.fastestOptionId(), cheapestQuote.cheapestOptionId(),
+                cheapestQuote.nativeMenuName(), cheapestQuote.nativeSize()
             ));
         }
 

@@ -12,24 +12,24 @@ type Stage = { key: string; label: string; sub: string; emoji: string };
   imports: [CommonModule],
   template: `
     <div *ngIf="loading()" class="flex justify-center py-24">
-      <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-red-500"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-brand-red"></div>
     </div>
 
     <div *ngIf="!loading() && order()" class="w-full max-w-3xl mx-auto py-8 px-1 space-y-6">
       
       <!-- Header -->
       <div class="text-center">
-        <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        <h1 class="text-3xl sm:text-4xl font-black text-brand-black tracking-tight">
           {{ isDelivered() ? 'Order Delivered! 🎉' : 'Tracking your order' }}
         </h1>
-        <p class="text-white/50 text-sm mt-2">
+        <p class="text-brand-black text-sm mt-2">
           {{ order()?.restaurantName }} · Order #{{ order()?.orderNumber }}
         </p>
       </div>
 
       <!-- Live route map simulation (SVG track) -->
-      <div class="glass rounded-3xl overflow-hidden">
-        <div class="relative h-40 bg-gradient-to-br from-stone-900 to-black overflow-hidden">
+      <div class="clay rounded-3xl overflow-hidden">
+        <div class="relative h-40 to-black overflow-hidden">
           <!-- Dots background -->
           <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)]" style="background-size: 20px 20px;"></div>
           
@@ -39,7 +39,7 @@ type Stage = { key: string; label: string; sub: string; emoji: string };
           </svg>
 
           <!-- Store marker -->
-          <div class="absolute left-[8%] bottom-[20%] w-8 h-8 rounded-full bg-red-600/20 border border-red-500/30 flex items-center justify-center text-lg">
+          <div class="absolute left-[8%] bottom-[20%] w-8 h-8 rounded-full bg-brand-red text-brand-white border border-brand-red flex items-center justify-center text-lg">
             🏪
           </div>
 
@@ -47,7 +47,7 @@ type Stage = { key: string; label: string; sub: string; emoji: string };
           <div class="absolute transition-all duration-1000 ease-in-out"
             [style.left.%]="10 + progressPct() * 0.75"
             [style.top.%]="70 - progressPct() * 0.5">
-            <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-xl shadow-lg shadow-red-600/30 ring-4 ring-white/10">
+            <div class="w-10 h-10 rounded-full bg-brand-red text-brand-white flex items-center justify-center text-xl shadow-lg shadow-red-600/30 ring-4 ring-white/10">
               🚴
             </div>
           </div>
@@ -59,19 +59,19 @@ type Stage = { key: string; label: string; sub: string; emoji: string };
         </div>
 
         <!-- ETA Countdown -->
-        <div class="flex items-center justify-between px-6 py-5 border-t border-white/10">
+        <div class="flex items-center justify-between px-6 py-5 border-t border-brand-black">
           <div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">
+            <p class="text-[10px] font-black uppercase tracking-widest text-brand-black mb-1">
               {{ isDelivered() ? 'Status' : 'Arriving in' }}
             </p>
-            <p class="text-2xl font-black text-white flex items-center gap-2">
-              <span *ngIf="isDelivered()" class="text-green-400">Complete</span>
+            <p class="text-2xl font-black text-brand-black flex items-center gap-2">
+              <span *ngIf="isDelivered()" class="text-brand-green">Complete</span>
               <span *ngIf="!isDelivered()">⏱️ {{ etaMinutes() }} mins</span>
             </p>
           </div>
           <div class="text-right">
-            <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Method</p>
-            <p class="text-sm font-black text-red-400 capitalize">
+            <p class="text-[10px] font-black uppercase tracking-widest text-brand-black mb-1">Method</p>
+            <p class="text-sm font-black text-brand-red capitalize">
               {{ order()?.deliveryType?.replace('_', ' ') }}
             </p>
           </div>
@@ -79,19 +79,19 @@ type Stage = { key: string; label: string; sub: string; emoji: string };
       </div>
 
       <!-- Fulfillment Stepper -->
-      <div class="glass rounded-3xl p-6">
+      <div class="clay rounded-3xl p-6">
         <div class="relative space-y-6">
-          <div class="absolute left-[19px] top-3 bottom-3 w-0.5 bg-white/10"></div>
-          <div class="absolute left-[19px] top-3 w-0.5 bg-red-500 transition-all duration-1000"
+          <div class="absolute left-[19px] top-3 bottom-3 w-0.5 bg-brand-white"></div>
+          <div class="absolute left-[19px] top-3 w-0.5 bg-brand-red text-brand-white transition-all duration-1000"
             [style.height.%]="progressPct()"></div>
 
           <div *ngFor="let stage of stages; let i = index" class="flex gap-4 relative z-10">
-            <div [class]="i <= stageIdx() ? 'w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-lg' : 'w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white/30 flex items-center justify-center font-bold text-sm shrink-0'">
+            <div [class]="i <= stageIdx() ? 'w-10 h-10 rounded-full bg-brand-red text-brand-white flex items-center justify-center font-bold text-sm shrink-0 shadow-lg' : 'w-10 h-10 rounded-full bg-brand-white border border-brand-black text-brand-black flex items-center justify-center font-bold text-sm shrink-0'">
               {{ stage.emoji }}
             </div>
             <div>
-              <p class="text-sm font-bold text-white">{{ stage.label }}</p>
-              <p class="text-xs text-white/50 mt-0.5">{{ stage.sub }}</p>
+              <p class="text-sm font-bold text-brand-black">{{ stage.label }}</p>
+              <p class="text-xs text-brand-black mt-0.5">{{ stage.sub }}</p>
             </div>
           </div>
         </div>
