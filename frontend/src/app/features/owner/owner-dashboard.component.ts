@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { OrderService } from '../../core/services/order.service';
@@ -29,7 +29,7 @@ interface PayoutRecord {
 @Component({
   selector: 'app-owner-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe, RouterLink],
+  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe],
   template: `
     <div class="max-w-7xl mx-auto py-6 px-4 space-y-6">
 
@@ -94,43 +94,8 @@ interface PayoutRecord {
         <p class="text-xs text-white/50 mt-1 max-w-sm mx-auto">Only the account registered as a RESTAURANT_OWNER can access this console.</p>
       </div>
 
-      <!-- MAIN TABS GRID -->
-      <div *ngIf="selectedShop()" class="grid gap-6 items-start owner-grid" [class.nav-collapsed]="navCollapsed()">
-
-        <!-- Sidebar Navigation (collapsible) -->
-        <div class="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-none shrink-0 lg:w-full min-w-0">
-
-          <!-- Collapse toggle (desktop) -->
-          <button (click)="navCollapsed.set(!navCollapsed())" [title]="navCollapsed() ? 'Expand menu' : 'Collapse menu'"
-            class="hidden lg:flex items-center h-9 mb-1 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition"
-            [class.justify-center]="navCollapsed()" [class.justify-end]="!navCollapsed()" [class.px-3]="!navCollapsed()">
-            <span class="text-base">{{ navCollapsed() ? '»' : '«' }}</span>
-          </button>
-
-          @for (tab of tabs; track tab.id) {
-            <button (click)="activeTab.set(tab.id)" [title]="tab.name"
-              [class]="'glare-hover rounded-2xl text-xs font-black transition flex items-center gap-3 whitespace-nowrap min-w-[132px] lg:min-w-0 py-3 ' +
-                (navCollapsed() ? 'lg:justify-center lg:px-0 px-4' : 'px-4') + ' ' +
-                (activeTab() === tab.id
-                  ? 'bg-gradient-to-r from-red-700/80 to-orange-600/50 text-white border border-red-500/30 shadow-md shadow-red-600/10'
-                  : 'text-white/60 hover:text-white')">
-              <span class="text-base leading-none">{{ tab.icon }}</span>
-              <span [class.lg:hidden]="navCollapsed()">{{ tab.name }}</span>
-            </button>
-          }
-
-          <!-- Bottom: Help & Support -->
-          <div class="hidden lg:block pt-3 mt-2 border-t border-white/10 space-y-1">
-            <a routerLink="/how-it-works" title="Help Center"
-              [class]="'glare-hover flex items-center gap-3 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition py-2.5 ' + (navCollapsed() ? 'justify-center px-0' : 'px-4')">
-              <span class="text-sm">❓</span><span [class.hidden]="navCollapsed()">Help Center</span>
-            </a>
-            <a routerLink="/contact" title="Contact Support"
-              [class]="'glare-hover flex items-center gap-3 rounded-2xl text-[11px] font-bold text-white/50 hover:text-white transition py-2.5 ' + (navCollapsed() ? 'justify-center px-0' : 'px-4')">
-              <span class="text-sm">✉️</span><span [class.hidden]="navCollapsed()">Contact Support</span>
-            </a>
-          </div>
-        </div>
+      <!-- MAIN CONTENT — navigation now lives in the app sidebar under "Merchant Portal" -->
+      <div *ngIf="selectedShop()">
 
         <!-- Selected Tab View Content -->
         <div class="glass rounded-[2rem] p-6 min-h-[500px] border border-white/10 bg-black/35 shadow-2xl space-y-6">
@@ -986,6 +951,7 @@ export class OwnerDashboardComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly menuService = inject(MenuService);
   private readonly reviewService = inject(ReviewService);
+  private readonly route = inject(ActivatedRoute);
 
   shops = signal<Store[]>([]);
   shopsLoaded = signal(false);
@@ -1117,6 +1083,8 @@ export class OwnerDashboardComponent implements OnInit {
   ];
 
   ngOnInit() {
+    // Active section is driven by the ?tab= URL param set by the app sidebar.
+    this.route.queryParamMap.subscribe(p => this.activeTab.set(p.get('tab') || 'dashboard'));
     this.restaurantService.getMyRestaurants().subscribe({
       next: (data) => {
         this.shops.set(data);

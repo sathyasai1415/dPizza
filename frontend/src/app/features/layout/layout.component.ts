@@ -1,8 +1,10 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { MERCHANT_TABS } from '../owner/merchant-nav';
 import { CartService } from '../../core/services/cart.service';
 import { GridScanComponent } from '../../shared/gridscan/gridscan.component';
 import { VideoIntroComponent } from '../../shared/video-intro/video-intro.component';
@@ -151,12 +153,27 @@ import { ElectricBorderComponent } from '../../shared/electric-border/electric-b
 
           <!-- Store Owner Navigation -->
           <ng-container *ngIf="authService.isStoreOwner()">
-            <a routerLink="/owner" routerLinkActive="active-tab"
-              class="glare-hover flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition">
-              <span class="relative z-10 flex items-center gap-3">
-                <span>📊</span> Merchant Portal
-              </span>
-            </a>
+            <div class="space-y-1">
+              <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">🏪 Merchant Portal</p>
+              <a *ngFor="let t of merchantTabs" [routerLink]="['/owner']" [queryParams]="{ tab: t.id }"
+                (click)="closeSidebar()"
+                [class]="'glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition ' + (currentTab() === t.id ? 'active-tab' : 'text-white/70 hover:text-white')">
+                <span class="relative z-10 flex items-center gap-2.5">
+                  <span>{{ t.icon }}</span> {{ t.name }}
+                </span>
+              </a>
+            </div>
+            <div class="space-y-1 pt-2 border-t border-white/5">
+              <p class="text-[9px] font-black text-white/30 uppercase tracking-widest px-3 mb-2">Support</p>
+              <a routerLink="/how-it-works" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5"><span>❓</span> Help Center</span>
+              </a>
+              <a routerLink="/contact" routerLinkActive="active-tab"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold text-white/50 hover:text-white transition">
+                <span class="relative z-10 flex items-center gap-2.5"><span>✉️</span> Contact Support</span>
+              </a>
+            </div>
           </ng-container>
 
           <!-- Platform Admin Navigation -->
@@ -307,6 +324,15 @@ export class LayoutComponent implements OnInit {
   searchQuery = '';
   logoActive = signal(false);
 
+  // Merchant portal sub-navigation (driven by the ?tab= URL param)
+  merchantTabs = MERCHANT_TABS;
+  currentTab = signal('dashboard');
+
+  private syncTab() {
+    const tab = this.router.parseUrl(this.router.url).queryParams['tab'];
+    this.currentTab.set(this.router.url.startsWith('/owner') ? (tab || 'dashboard') : '');
+  }
+
   toggleLogoAnimation(event: Event) {
     event.preventDefault();
     this.logoActive.update(v => !v);
@@ -319,6 +345,8 @@ export class LayoutComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.syncTab();
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => this.syncTab());
     if (this.authService.isAuthenticated()) {
       this.cartService.loadCart().subscribe();
     }
