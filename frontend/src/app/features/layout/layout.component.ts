@@ -233,8 +233,17 @@ import { OnboardingService } from '../../core/services/onboarding.service';
         <header class="sticky top-0 z-30 px-3 sm:px-6 lg:px-8 pt-3">
           <div class="h-16 flex items-center gap-3 px-4 sm:px-6 lg:px-8 backdrop-blur-md border border-[#D4AF37]/25 bg-[#0A0A0A] rounded-full shadow-[0_2px_16px_rgba(17,24,39,0.06)]">
 
+            <!-- Mini Logo for Mobile/Tablet -->
+            <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" routerLink="/home" class="lg:hidden flex items-center gap-1.5 shrink-0 mr-1.5">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-inner" style="background: var(--gradient-mislice);">🍕</span>
+              <span class="font-black text-sm tracking-tight"><span style="color: #FF8A00">MI</span><span style="color: #D4AF37">Slice</span></span>
+            </a>
+
           <!-- Top Nav buttons for customers -->
-          <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" class="flex items-center gap-2 flex-1 overflow-x-auto lg:overflow-visible scrollbar-none">
+          <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" 
+            [class.overflow-visible]="cityDropdownOpen()" 
+            [class.overflow-x-auto]="!cityDropdownOpen()"
+            class="flex items-center gap-2 flex-1 lg:overflow-visible scrollbar-none">
 
             <!-- Pick City / Location dropdown -->
             <div class="relative shrink-0 flex-1 lg:flex-initial min-w-0">
@@ -395,6 +404,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
           <div *ngIf="accountMenuOpen()" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl py-1.5">
             <a routerLink="/orders" (click)="accountMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">📦 Order History</a>
             <a routerLink="/rewards" (click)="accountMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">🎁 Rewards Hub</a>
+            <button (click)="handleLogout(); accountMenuOpen.set(false)" class="w-full text-left px-4 py-2.5 text-xs font-bold text-[#FF8A00] hover:bg-[#D4AF37]/10 rounded-b-2xl border-t border-[#D4AF37]/15">🚪 Sign Out</button>
           </div>
         </div>
 
