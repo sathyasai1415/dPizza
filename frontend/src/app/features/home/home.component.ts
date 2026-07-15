@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { LocationService } from '../../core/services/location.service';
+import { OnboardingService } from '../../core/services/onboarding.service';
 import { Store } from '../../shared/models';
-import { MagicBentoComponent, BentoCard } from '../../shared/magic-bento/magic-bento.component';
 import * as L from 'leaflet';
 
 interface MapPin {
@@ -23,28 +23,34 @@ interface MapPin {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, MagicBentoComponent, CurrencyPipe],
+  imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
     <div class="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 rounded-[32px] bg-[color:var(--color-hero-bg)]">
 
       <!-- LIVE DEALS TICKER (sits directly under the top navigation) -->
-      <div class="w-full py-3.5 bg-brand-white backdrop-blur-md rounded-2xl border border-brand-black overflow-hidden relative group shadow-sm">
-        <div class="flex whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused] text-sm font-semibold text-neutral-600 gap-12">
-          <span class="inline-flex items-center gap-2"><strong class="text-[color:var(--color-brand-red)]">🍕 Shamz Pizza:</strong> Large Pepperoni now $11.99</span>
-          <span class="inline-flex items-center gap-2"><strong class="text-amber-600">🏷️ Marco's:</strong> Buy One Get One Free — Tuesdays only</span>
-          <span class="inline-flex items-center gap-2"><strong class="text-[color:var(--color-brand-blue)]">⚡ Pizza Hut:</strong> Free delivery on orders over $20</span>
-          <span class="inline-flex items-center gap-2"><strong class="text-[color:var(--color-brand-orange)]">🔥 Jet's Pizza:</strong> 30% off all deep dish orders</span>
-          <span class="inline-flex items-center gap-2"><strong class="text-emerald-600">💰 Bunty's Pizza:</strong> $5 off any extra-large pizza</span>
+      <div class="w-full py-3 bg-[#0A0A0A] rounded-2xl border border-[#D4AF37]/20 overflow-hidden relative group shadow-sm">
+        <div class="flex whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused] text-xs font-medium text-[#D4AF37]/80 gap-16">
+          <span class="inline-flex items-center gap-1.5">🍕 <strong class="text-[#F4EFE6]">Shamz Pizza:</strong> Large Pepperoni now $11.99</span>
+          <span class="inline-flex items-center gap-1.5">🏷️ <strong class="text-[#F4EFE6]">Marco's:</strong> Buy One Get One Free</span>
+          <span class="inline-flex items-center gap-1.5">⚡ <strong class="text-[#F4EFE6]">Pizza Hut:</strong> Free delivery on orders over $20</span>
+          <span class="inline-flex items-center gap-1.5">🔥 <strong class="text-[#F4EFE6]">Jet's Pizza:</strong> 30% off all deep dish orders</span>
+          <span class="inline-flex items-center gap-1.5">💰 <strong class="text-[#F4EFE6]">Bunty's Pizza:</strong> $5 off any extra-large pizza</span>
         </div>
       </div>
 
       <!-- SEARCH & QUICK INTENT SECTION -->
       <section class="space-y-6">
-        <!-- Search Bar -->
-        <div class="relative w-full max-w-3xl mx-auto">
-          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="executeGlobalSearch()" placeholder="Search pizzas, restaurants, or deals..."
-            class="w-full bg-brand-white border-2 border-brand-black focus:border-[color:var(--color-brand-blue)] rounded-3xl py-4 pl-14 pr-6 text-brand-black text-lg placeholder-neutral-400 shadow-md transition-colors outline-none" />
-          <span class="absolute left-5 top-1/2 -translate-y-1/2 text-2xl">🔍</span>
+        <!-- Search Bar (with a "Near Me" shortcut beside it on mobile — desktop keeps the pill in the top nav) -->
+        <div class="flex items-center gap-3 w-full max-w-2xl mx-auto">
+          <div class="relative flex-1 min-w-0">
+            <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="executeGlobalSearch()" placeholder="Search pizzas, restaurants, or deals..."
+              class="w-full bg-[#0A0A0A] border border-[#D4AF37]/35 focus:border-[#D4AF37] rounded-full py-3.5 pl-12 pr-6 text-[#F4EFE6] text-base placeholder-[#D4AF37]/40 shadow-inner transition outline-none" />
+            <span class="absolute left-4.5 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+          </div>
+          <button (click)="scrollToMap()" title="Near Me"
+            class="shrink-0 w-12 h-12 rounded-full bg-[#0A0A0A] border border-[#D4AF37]/35 hover:border-[#D4AF37] hover:bg-[#D4AF37]/15 flex items-center justify-center shadow-md text-xl active:scale-95 transition-all duration-200">
+            🗺️
+          </button>
         </div>
 
         <!-- Popular Pizzas (Quick Order) -->
@@ -70,150 +76,9 @@ interface MapPin {
             </button>
           </div>
         </div>
-
-        <!-- Build Your Own Entry -->
-        <div class="max-w-3xl mx-auto mt-6">
-          <button (click)="navigateToBuilder()" class="w-full relative overflow-hidden rounded-3xl border border-brand-black p-6 shadow-md transition-all group flex items-center justify-between" style="background: var(--gradient-mislice);">
-            <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors"></div>
-            <div class="relative z-10 flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">🛠️</div>
-              <div class="text-left">
-                <h3 class="font-black text-white text-lg">Build Your Own Pizza</h3>
-                <p class="text-xs text-white/70 mt-1">Customize half-and-half, crust, and premium toppings.</p>
-              </div>
-            </div>
-            <span class="text-white font-bold relative z-10">Start →</span>
-          </button>
-        </div>
       </section>
 
-      <!-- MARKETPLACE STORES SECTION -->
-      <section class="space-y-6">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-brand-black pb-5">
-          <div>
-            <h2 class="text-2xl font-black text-[color:var(--color-hero-text)]">Marketplace Pizzerias</h2>
-            <p class="text-sm text-neutral-600 font-semibold">Order directly from top rated local stores and national chains</p>
-          </div>
-
-          <!-- City Filters -->
-          <div class="flex flex-wrap gap-2">
-            <button *ngFor="let city of cities()" (click)="selectCity(city)"
-              [class]="locationService.selectedCity() === city
-                ? 'bg-[color:var(--color-brand-blue)] text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm'
-                : 'bg-brand-white border border-brand-black text-brand-black hover:bg-black/5 px-4 py-2 rounded-xl text-xs transition'">
-              {{ city === 'All' ? 'All Cities' : city }}
-            </button>
-          </div>
-        </div>
-
-        <!-- FILTER BAR -->
-        <div class="bg-brand-white border border-brand-black rounded-2xl p-4 flex flex-wrap items-center gap-4 text-xs shadow-sm">
-          <!-- Distance -->
-          <div class="flex items-center gap-2">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Distance:</span>
-            <select [(ngModel)]="filterDistance"
-              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
-              <option [value]="0">Any distance</option>
-              <option [value]="5">Within 5 miles</option>
-              <option [value]="10">Within 10 miles</option>
-              <option [value]="20">Within 20 miles</option>
-            </select>
-          </div>
-
-          <!-- Rating -->
-          <div class="flex items-center gap-2">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Rating:</span>
-            <select [(ngModel)]="filterRating"
-              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
-              <option [value]="0">Any rating</option>
-              <option [value]="4">4.0+ ★</option>
-              <option [value]="4.5">4.5+ ★</option>
-            </select>
-          </div>
-
-          <!-- Dietary -->
-          <div class="flex items-center gap-2">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Dietary:</span>
-            <select [(ngModel)]="filterDiet"
-              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
-              <option value="All">Any diet</option>
-              <option value="Vegetarian">🥗 Vegetarian</option>
-              <option value="Vegan">🌱 Vegan</option>
-              <option value="Gluten-Free">🌾 Gluten-Free</option>
-            </select>
-          </div>
-
-          <!-- Open Now Toggle Switch -->
-          <label class="flex items-center gap-3 cursor-pointer ml-auto">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Open Now Only:</span>
-            <button (click)="filterOpen.set(!filterOpen())" type="button"
-              [class]="'w-10 h-6 rounded-full relative transition-colors duration-200 ' + (filterOpen() ? 'bg-[color:var(--color-brand-blue)]' : 'bg-neutral-300')">
-              <span class="absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-200" [style.left]="filterOpen() ? '20px' : '4px'"></span>
-            </button>
-          </label>
-        </div>
-
-        <!-- STORES GRID -->
-        @if (loadingStore()) {
-          <div class="flex flex-col items-center justify-center py-20 gap-3">
-            <div class="animate-spin rounded-full h-10 w-10 border-2 border-[color:var(--color-brand-red)] border-t-transparent"></div>
-            <p class="text-xs text-neutral-500 font-medium">Fetching store deals...</p>
-          </div>
-        } @else if (filteredStores().length === 0) {
-          <div class="rounded-3xl p-16 text-center bg-brand-white border border-brand-black text-neutral-500 shadow-sm">
-            <p class="text-4xl mb-3">🍽️</p>
-            <p class="text-base font-semibold text-brand-black">No stores match your search</p>
-            <p class="text-xs text-neutral-500 mt-1">Try adjusting distance or dietary filters in {{ locationService.selectedCity() === 'All' ? 'all cities' : locationService.selectedCity() }}.</p>
-          </div>
-        } @else {
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div *ngFor="let store of filteredStores()" (click)="viewStore(store.slug)"
-              class="group rounded-3xl bg-brand-white border border-brand-black hover:shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-sm">
-
-              <!-- Card Header -->
-              <div class="h-36 relative flex items-center justify-center text-6xl"
-                [style.background]="store.brandColor ? store.brandColor : 'var(--gradient-mislice)'">
-                <span>{{ store.emoji }}</span>
-                <span *ngIf="store.featured" class="absolute top-3 right-3 text-[10px] bg-[color:var(--color-brand-red)] text-white px-2.5 py-1 rounded-full font-black uppercase tracking-wider shadow-md">
-                  Featured
-                </span>
-              </div>
-
-              <!-- Card Content -->
-              <div class="p-6 space-y-4">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 class="font-black text-xl text-brand-black group-hover:text-[color:var(--color-brand-red)] transition-colors">{{ store.name }}</h3>
-                    <p class="text-xs text-neutral-500 mt-0.5">{{ store.neighborhood || store.city }}</p>
-                  </div>
-                  <div class="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg text-xs text-amber-600 font-extrabold shrink-0 border border-amber-200">
-                    ★ {{ store.ratingAvg | number:'1.1-1' }}
-                  </div>
-                </div>
-
-                <p class="text-xs text-neutral-500 line-clamp-2 leading-relaxed">
-                  {{ store.tagline || store.description || 'Fresh ingredients, fast delivery, and customizable pizzas.' }}
-                </p>
-
-                <!-- Badges -->
-                <div class="pt-2 flex flex-wrap gap-2 text-[11px] font-bold">
-                  <span class="bg-[color:var(--color-brand-blue)]/10 border border-[color:var(--color-brand-blue)]/20 text-[color:var(--color-brand-blue)] px-2.5 py-1 rounded-lg">
-                    🚴 {{ store.deliveryFee === 0 ? 'Free Delivery' : (store.deliveryFee | currency) }}
-                  </span>
-                  <span class="bg-[color:var(--color-brand-orange)]/10 border border-[color:var(--color-brand-orange)]/20 text-[color:var(--color-brand-orange)] px-2.5 py-1 rounded-lg">
-                    ⏱️ {{ store.averageEtaMinutes || 25 }} min
-                  </span>
-                  <span *ngFor="let tag of store.tags" class="bg-black/5 text-neutral-600 px-2.5 py-1 rounded-lg border border-black/10 capitalize">
-                    {{ tag }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-      </section>
-
-      <!-- INTERACTIVE PRICE MAP WIDGET -->
+      <!-- INTERACTIVE PRICE MAP WIDGET (moved up, right after search, per discovery-first layout) -->
       <section id="price-map" class="space-y-5">
         <div class="flex items-center justify-between">
           <div>
@@ -275,10 +140,230 @@ interface MapPin {
         </div>
       </section>
 
-      <!-- MAGIC BENTO GRID -->
-      <app-magic-bento [cards]="bentoCards"></app-magic-bento>
+      <!-- Reusable discovery-row store card -->
+      <ng-template #storeCardTpl let-store let-badgeIcon="badgeIcon" let-badgeLabel="badgeLabel">
+        <div (click)="viewStore(store.slug)"
+          class="shrink-0 w-60 rounded-2xl bg-[#0A0A0A] border border-[#D4AF37]/25 hover:border-[#D4AF37]/60 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-sm">
+          <div class="h-28 relative flex items-center justify-center text-5xl"
+            [style.background]="store.brandColor ? store.brandColor : 'var(--gradient-mislice)'">
+            <span>{{ store.emoji }}</span>
+            <span class="absolute top-2 left-2 text-[9px] bg-[#1E3A8A] border border-[#D4AF37]/50 text-[#D4AF37] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
+              {{ badgeIcon }} {{ badgeLabel }}
+            </span>
+            <button (click)="toggleFavourite(store.id); $event.stopPropagation()"
+              class="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#0A0A0A]/80 border border-[#D4AF37]/40 flex items-center justify-center text-xs">
+              {{ isFavourite(store.id) ? '❤️' : '🤍' }}
+            </button>
+          </div>
+          <div class="p-4 space-y-2">
+            <h4 class="font-black text-sm text-[#D4AF37] truncate">{{ store.name }}</h4>
+            <div class="flex items-center gap-1.5 text-[11px] text-[#D4AF37]/70 flex-wrap">
+              <span>★ {{ store.ratingAvg | number:'1.1-1' }}</span>
+              <span>·</span>
+              <span>🚴 {{ store.deliveryFee === 0 ? 'Free' : (store.deliveryFee | currency) }}</span>
+              <span>·</span>
+              <span>⏱️ {{ store.averageEtaMinutes || 25 }}m</span>
+            </div>
+            <button (click)="viewStore(store.slug); $event.stopPropagation()"
+              class="w-full mt-1 py-1.5 rounded-lg text-[11px] font-bold bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/20 transition">
+              🔄 Compare Prices
+            </button>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- DISCOVERY SECTIONS — dynamic rows, each derived from real store data -->
+      @if (!loadingStore()) {
+        @if (trendingStores().length > 0) {
+          <section class="space-y-4">
+            <h2 class="text-xl font-black text-[color:var(--color-hero-text)] flex items-center gap-2">🔥 Trending Near You</h2>
+            <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              <ng-container *ngFor="let store of trendingStores()">
+                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '🔥', badgeLabel: 'Trending' }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+        }
+
+        @if (bestDealStores().length > 0) {
+          <section class="space-y-4">
+            <h2 class="text-xl font-black text-[color:var(--color-hero-text)] flex items-center gap-2">💰 Best Deals Today</h2>
+            <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              <ng-container *ngFor="let store of bestDealStores()">
+                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '💰', badgeLabel: 'Best Deal' }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+        }
+
+        @if (topRatedStores().length > 0) {
+          <section class="space-y-4">
+            <h2 class="text-xl font-black text-[color:var(--color-hero-text)] flex items-center gap-2">⭐ Highest Rated Nearby</h2>
+            <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              <ng-container *ngFor="let store of topRatedStores()">
+                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '⭐', badgeLabel: 'Top Rated' }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+        }
+
+        @if (fastestStores().length > 0) {
+          <section class="space-y-4">
+            <h2 class="text-xl font-black text-[color:var(--color-hero-text)] flex items-center gap-2">⚡ Fastest Delivery</h2>
+            <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              <ng-container *ngFor="let store of fastestStores()">
+                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '⚡', badgeLabel: 'Fastest' }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+        }
+
+        @if (favouriteStores().length > 0) {
+          <section class="space-y-4">
+            <h2 class="text-xl font-black text-[color:var(--color-hero-text)] flex items-center gap-2">❤️ Your Favourites</h2>
+            <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              <ng-container *ngFor="let store of favouriteStores()">
+                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '❤️', badgeLabel: 'Favourite' }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+        }
+      }
+
+      <!-- MARKETPLACE STORES SECTION -->
+      <section class="space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-brand-black pb-5">
+          <div>
+            <h2 class="text-2xl font-black text-[color:var(--color-hero-text)]">Marketplace Pizzerias</h2>
+            <p class="text-sm text-neutral-600 font-semibold">Order directly from top rated local stores and national chains</p>
+          </div>
+
+          <!-- City Filters -->
+          <div class="flex flex-wrap gap-2">
+            <button *ngFor="let city of cities()" (click)="selectCity(city)"
+              [class]="locationService.selectedCity() === city
+                ? 'bg-[#0A0A0A] border border-[#D4AF37] text-[#D4AF37] font-bold px-4 py-2 rounded-xl text-xs shadow-sm'
+                : 'bg-brand-white border border-brand-black text-brand-black hover:bg-black/5 px-4 py-2 rounded-xl text-xs transition'">
+              {{ city === 'All' ? 'All Cities' : city }}
+            </button>
+          </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="bg-brand-white border border-brand-black rounded-2xl p-4 flex flex-wrap items-center gap-4 text-xs shadow-sm">
+          <!-- Distance -->
+          <div class="flex items-center gap-2">
+            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Distance:</span>
+            <select [(ngModel)]="filterDistance"
+              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
+              <option [value]="0">Any distance</option>
+              <option [value]="5">Within 5 miles</option>
+              <option [value]="10">Within 10 miles</option>
+              <option [value]="20">Within 20 miles</option>
+            </select>
+          </div>
+
+          <!-- Rating -->
+          <div class="flex items-center gap-2">
+            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Rating:</span>
+            <select [(ngModel)]="filterRating"
+              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
+              <option [value]="0">Any rating</option>
+              <option [value]="4">4.0+ ★</option>
+              <option [value]="4.5">4.5+ ★</option>
+            </select>
+          </div>
+
+          <!-- Dietary -->
+          <div class="flex items-center gap-2">
+            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Dietary:</span>
+            <select [(ngModel)]="filterDiet"
+              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
+              <option value="All">Any diet</option>
+              <option value="Vegetarian">🥗 Vegetarian</option>
+              <option value="Vegan">🌱 Vegan</option>
+              <option value="Gluten-Free">🌾 Gluten-Free</option>
+            </select>
+          </div>
+
+          <!-- Open Now Toggle Switch -->
+          <label class="flex items-center gap-3 cursor-pointer ml-auto">
+            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Open Now Only:</span>
+            <button (click)="filterOpen.set(!filterOpen())" type="button"
+              [class]="'w-10 h-6 rounded-full relative transition-colors duration-200 ' + (filterOpen() ? 'bg-[color:var(--color-brand-blue)]' : 'bg-neutral-300')">
+              <span class="absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-200" [style.left]="filterOpen() ? '20px' : '4px'"></span>
+            </button>
+          </label>
+        </div>
+
+        <!-- STORES GRID -->
+        @if (loadingStore()) {
+          <div class="flex flex-col items-center justify-center py-20 gap-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-2 border-[color:var(--color-brand-red)] border-t-transparent"></div>
+            <p class="text-xs text-neutral-500 font-medium">Fetching store deals...</p>
+          </div>
+        } @else if (filteredStores().length === 0) {
+          <div class="rounded-3xl p-16 text-center bg-[#0A0A0A] border border-[#D4AF37]/25 text-[#D4AF37]/70 shadow-sm">
+            <p class="text-4xl mb-3">🍽️</p>
+            <p class="text-base font-semibold text-[#D4AF37]">No stores match your search</p>
+            <p class="text-xs text-[#D4AF37]/60 mt-1">Try adjusting distance or dietary filters in {{ locationService.selectedCity() === 'All' ? 'all cities' : locationService.selectedCity() }}.</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let store of filteredStores()" (click)="viewStore(store.slug)"
+              class="group rounded-3xl bg-[#0A0A0A] border border-[#D4AF37]/25 hover:shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-sm">
+
+              <!-- Card Header -->
+              <div class="h-36 relative flex items-center justify-center text-6xl"
+                [style.background]="store.brandColor ? store.brandColor : 'var(--gradient-mislice)'">
+                <span>{{ store.emoji }}</span>
+                <span *ngIf="store.featured" class="absolute top-3 right-3 text-[10px] bg-[#1E3A8A] border border-[#D4AF37]/50 text-[#D4AF37] px-2.5 py-1 rounded-full font-black uppercase tracking-wider shadow-md">
+                  Featured
+                </span>
+              </div>
+
+              <!-- Card Content -->
+              <div class="p-6 space-y-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="font-black text-xl text-[#D4AF37] group-hover:text-[#D4AF37]/80 transition-colors">{{ store.name }}</h3>
+                    <p class="text-xs text-[#D4AF37]/60 mt-0.5">{{ store.neighborhood || store.city }}</p>
+                  </div>
+                  <div class="flex items-center gap-1 bg-[#1E3A8A] px-2.5 py-1 rounded-lg text-xs text-[#D4AF37] font-extrabold shrink-0 border border-[#D4AF37]/30">
+                    ★ {{ store.ratingAvg | number:'1.1-1' }}
+                  </div>
+                </div>
+
+                <p class="text-xs text-[#D4AF37]/60 line-clamp-2 leading-relaxed">
+                  {{ store.tagline || store.description || 'Fresh ingredients, fast delivery, and customizable pizzas.' }}
+                </p>
+
+                <!-- Badges -->
+                <div class="pt-2 flex flex-wrap gap-2 text-[11px] font-bold">
+                  <span class="bg-[#1E3A8A] border border-[#D4AF37]/25 text-[#D4AF37] px-2.5 py-1 rounded-lg">
+                    🚴 {{ store.deliveryFee === 0 ? 'Free Delivery' : (store.deliveryFee | currency) }}
+                  </span>
+                  <span class="bg-[#1E3A8A] border border-[#D4AF37]/25 text-[#D4AF37] px-2.5 py-1 rounded-lg">
+                    ⏱️ {{ store.averageEtaMinutes || 25 }} min
+                  </span>
+                  <span *ngFor="let tag of store.tags" class="bg-[#1E3A8A] text-[#D4AF37]/90 px-2.5 py-1 rounded-lg border border-[#D4AF37]/20 capitalize">
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </section>
 
     </div>
+
+    <!-- FLOATING ACTION BUTTON — AI/Manual Pizza Builder lives here, not as homepage content -->
+    <button (click)="navigateToBuilder()" title="Build a Pizza"
+      class="fixed bottom-24 lg:bottom-8 right-6 z-40 flex items-center gap-2 pl-4 pr-5 py-3.5 rounded-full shadow-lg font-black text-sm text-white transition-transform hover:-translate-y-0.5 active:scale-95"
+      style="background: var(--gradient-mislice);">
+      <span class="text-lg">✨</span> Build a Pizza
+    </button>
     
     <!-- LOCATION PROMPT MODAL -->
     <div *ngIf="showLocationPrompt()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
@@ -336,6 +421,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly restaurantService = inject(RestaurantService);
   private readonly router = inject(Router);
   readonly locationService = inject(LocationService);
+  private readonly onboarding = inject(OnboardingService);
 
   stores = signal<Store[]>([]);
   cities = signal<string[]>([]);
@@ -356,12 +442,24 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const stores = this.stores();
       const city = this.locationService.selectedCity();
       const selectedPin = this.selectedMapPin(); // track selection changes
-      
+
       if (this.map) {
         this.updateMapMarkers(stores, city);
       }
     });
+
+    // Only ask for location once the post-login welcome showcase (if any) has
+    // been dismissed — never show both prompts stacked on top of each other.
+    effect(() => {
+      if (this.onboarding.showWelcome()) return;
+      if (!this.locationPromptArmed) return;
+      if (localStorage.getItem('mislice_customer_location')) return;
+      this.locationPromptArmed = false;
+      setTimeout(() => this.showLocationPrompt.set(true), 500);
+    });
   }
+
+  private locationPromptArmed = true;
 
   private readonly locationEffect = effect(() => {
     const city = this.locationService.selectedCity();
@@ -503,14 +601,30 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  bentoCards: BentoCard[] = [
-    { color: '#1A0A0A', title: 'Compare Prices', description: 'See live quotes from every pizza chain near you — Dominos, Pizza Hut, Jets and more.', label: 'Compare', icon: '📊', accent: '#FF6B35', action: () => this.router.navigate(['/compare']) },
-    { color: '#0F1020', title: 'AI Pizza Builder', description: 'Describe your perfect pizza in plain English and let AI configure it for you.', label: 'Build', icon: '🤖', accent: '#818CF8', action: () => this.router.navigate(['/builder']) },
-    { color: '#120A18', title: 'Best Deals Near You', description: 'Michigan-exclusive flash deals, BOGO offers, and student discounts updated in real time from local pizzerias.', label: 'Deals', icon: '🏷️', accent: '#F59E0B', action: () => this.router.navigate(['/deals']) },
-    { color: '#071510', title: 'Local Michigan Stores', description: "Discover independent pizzerias — Bunty's, Shamz, Motor City Slice and more hidden gems.", label: 'Discover', icon: '📍', accent: '#34D399', action: () => this.router.navigate(['/home']) },
-    { color: '#15080A', title: 'Smart Search', description: 'Search by price, topping, delivery time or diet. MiSlice Pro unlocks AI-powered precision results.', label: 'Search', icon: '🔍', accent: '#F87171' },
-    { color: '#0A0F18', title: 'Track Orders', description: 'Follow your order from oven to door with live status updates across all delivery platforms.', label: 'Track', icon: '🛵', accent: '#60A5FA', action: () => this.router.navigate(['/orders']) },
-  ];
+  // Real favourites, shared with the Favourites page (same localStorage key)
+  favouriteIds = signal<string[]>(this.readFavouriteIds());
+
+  private readFavouriteIds(): string[] {
+    try { return JSON.parse(localStorage.getItem('mislice_fav_stores') || '[]'); } catch { return []; }
+  }
+
+  isFavourite(storeId: string): boolean {
+    return this.favouriteIds().includes(storeId);
+  }
+
+  toggleFavourite(storeId: string) {
+    const current = this.favouriteIds();
+    const next = current.includes(storeId) ? current.filter(id => id !== storeId) : [...current, storeId];
+    this.favouriteIds.set(next);
+    localStorage.setItem('mislice_fav_stores', JSON.stringify(next));
+  }
+
+  // Discovery sections — all derived from real store data (rating, trend score, ETA, delivery fee), never fabricated.
+  trendingStores = computed(() => [...this.filteredStores()].sort((a, b) => (b.trendScore ?? 0) - (a.trendScore ?? 0)).slice(0, 8));
+  bestDealStores = computed(() => [...this.filteredStores()].sort((a, b) => (a.deliveryFee ?? 0) - (b.deliveryFee ?? 0)).slice(0, 8));
+  topRatedStores = computed(() => [...this.filteredStores()].sort((a, b) => (b.ratingAvg ?? 0) - (a.ratingAvg ?? 0)).slice(0, 8));
+  fastestStores = computed(() => [...this.filteredStores()].sort((a, b) => (a.averageEtaMinutes ?? 99) - (b.averageEtaMinutes ?? 99)).slice(0, 8));
+  favouriteStores = computed(() => this.filteredStores().filter(s => this.favouriteIds().includes(s.id)));
 
   filteredStores = computed(() => {
     let list = this.stores();
@@ -563,13 +677,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.loadCities();
     this.loadRestaurants();
-
-    const savedLocation = localStorage.getItem('mislice_customer_location');
-    if (!savedLocation) {
-      setTimeout(() => {
-        this.showLocationPrompt.set(true);
-      }, 500);
-    }
   }
 
   detectLocation() {
@@ -619,6 +726,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   executeGlobalSearch() {
     if (this.searchQuery.trim()) {
       this.router.navigate(['/quick-compare'], { queryParams: { q: this.searchQuery.trim() } });
+    }
+  }
+
+  scrollToMap() {
+    const el = document.getElementById('price-map');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 

@@ -20,9 +20,16 @@ interface RewardItem {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         <!-- HEADER -->
-        <header>
-          <h1 class="text-3xl font-black tracking-tight text-[#111827]">MiSlice Rewards Hub</h1>
-          <p class="text-[#6B7280] text-sm mt-1 font-medium">Compare, order, and earn free pizza.</p>
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-black tracking-tight text-[#111827]">MiSlice Rewards Hub</h1>
+            <p class="text-[#6B7280] text-sm mt-1 font-medium">Compare, order, and earn free pizza.</p>
+          </div>
+          <a routerLink="/rewards/gold"
+            class="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-black text-[#060606]"
+            style="background: linear-gradient(90deg,#8B6110,#D4AF37,#FFE7A0,#D4AF37,#8B6110); box-shadow: 0 4px 20px rgba(212,175,55,0.3);">
+            ✦ Discover MiSlice Gold
+          </a>
         </header>
 
         <!-- Messages -->

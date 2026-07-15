@@ -199,6 +199,11 @@ export interface UserProfile {
   avatarUrl?: string;
   notificationsEnabled: boolean;
   addresses?: Address[];
+  createdAt?: string;
+  preferredLanguage?: string;
+  timeZone?: string;
+  defaultFulfillment?: 'DELIVERY' | 'PICKUP';
+  notificationPrefs?: string[];
 }
 
 export interface Address {
@@ -212,6 +217,33 @@ export interface Address {
   latitude?: number;
   longitude?: number;
   defaultAddress: boolean;
+  deliveryInstructions?: string;
+  contactName?: string;
+  contactPhone?: string;
+}
+
+export interface PaymentMethodDto {
+  id?: string;
+  brand: 'Visa' | 'Mastercard' | 'Amex' | 'Discover';
+  last4: string;
+  expMonth: number;
+  expYear: number;
+  isDefault: boolean;
+}
+
+export interface LoyaltyAccountDto {
+  id: string;
+  points: number;
+  lifetimePoints: number;
+  referralCode?: string;
+}
+
+export interface LoyaltyTransactionDto {
+  id: string;
+  type: string;
+  points: number;
+  description?: string;
+  createdAt: string;
 }
 
 export interface Store {

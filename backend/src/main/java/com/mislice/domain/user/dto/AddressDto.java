@@ -12,5 +12,8 @@ public record AddressDto(
         String postalCode,
         Double latitude,
         Double longitude,
-        boolean defaultAddress
+        boolean defaultAddress,
+        String deliveryInstructions,
+        String contactName,
+        String contactPhone
 ) {}

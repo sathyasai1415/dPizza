@@ -521,17 +521,17 @@ export class BuilderComponent {
   }
   chip(active: boolean): string {
     return `text-center rounded-2xl py-3 transition ${active
-      ? 'bg-brand-red text-brand-white border border-brand-red text-brand-black'
-      : 'bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white'}`;
+      ? 'bg-[#D4AF37] text-white border border-[#D4AF37]'
+      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10'}`;
   }
   pill(active: boolean): string {
     return `px-3.5 py-2 rounded-xl text-xs font-bold transition ${active
-      ? 'bg-brand-red text-brand-white'
-      : 'bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white'}`;
+      ? 'bg-[#D4AF37] text-white'
+      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10'}`;
   }
   miniChip(active: boolean): string {
     return `px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${active
-      ? 'bg-brand-red text-brand-white'
-      : 'bg-brand-white text-brand-black hover:text-brand-black'}`;
+      ? 'bg-[#D4AF37] text-white'
+      : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-[#D4AF37] hover:bg-[#D4AF37]/10'}`;
   }
 }

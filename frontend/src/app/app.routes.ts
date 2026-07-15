@@ -10,6 +10,7 @@ import { QuickCompareComponent } from './features/compare/quick-compare.componen
 import { OrdersComponent } from './features/orders/orders.component';
 import { OrderTrackingComponent } from './features/tracking/order-tracking.component';
 import { RewardsComponent } from './features/rewards/rewards.component';
+import { MisliceGoldComponent } from './features/rewards/mislice-gold.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard.component';
 import { OwnerDashboardComponent } from './features/owner/owner-dashboard.component';
 import { BuilderComponent } from './features/builder/builder.component';
@@ -40,6 +41,7 @@ export const routes: Routes = [
       { path: 'orders', component: OrdersComponent },
       { path: 'orders/tracking/:id', component: OrderTrackingComponent },
       { path: 'rewards', component: RewardsComponent },
+      { path: 'rewards/gold', component: MisliceGoldComponent },
       { path: 'deals', component: DealsComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'notifications', component: NotificationsComponent },

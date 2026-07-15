@@ -86,6 +86,18 @@ public class User extends BaseEntity {
     @Builder.Default
     private boolean notificationsEnabled = true;
 
+    @Column(name = "preferred_language", length = 10)
+    private String preferredLanguage;
+
+    @Column(name = "time_zone", length = 64)
+    private String timeZone;
+
+    @Column(name = "default_fulfillment", length = 20)
+    private String defaultFulfillment; // DELIVERY | PICKUP
+
+    @Column(name = "notification_prefs", columnDefinition = "text[]")
+    private String[] notificationPrefs;
+
     @OneToMany(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();

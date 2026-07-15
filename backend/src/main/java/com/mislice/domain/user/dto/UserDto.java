@@ -2,6 +2,7 @@ package com.mislice.domain.user.dto;
 
 import com.mislice.domain.user.AccountStatus;
 import com.mislice.domain.user.Role;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -22,5 +23,10 @@ public record UserDto(
         String budgetRange,
         String avatarUrl,
         boolean notificationsEnabled,
-        List<AddressDto> addresses
+        List<AddressDto> addresses,
+        Instant createdAt,
+        String preferredLanguage,
+        String timeZone,
+        String defaultFulfillment,
+        String[] notificationPrefs
 ) {}

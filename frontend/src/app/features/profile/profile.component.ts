@@ -1,94 +1,126 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { UserProfile } from '../../shared/models';
+import { OrderService } from '../../core/services/order.service';
+import { LoyaltyService } from '../../core/services/loyalty.service';
+import { PaymentMethodService } from '../../core/services/payment-method.service';
+import { RestaurantService } from '../../core/services/restaurant.service';
+import { UserProfile, Address, OrderDto, PaymentMethodDto, LoyaltyAccountDto } from '../../shared/models';
 
-type Section = 'home' | 'personal' | 'security' | 'privacy';
+type Section = 'overview' | 'personal' | 'addresses' | 'payment' | 'security' | 'notifications' | 'preferences' | 'privacy' | 'support';
+
+interface Toast { type: 'success' | 'error'; message: string; }
+interface ConfirmState { message: string; onConfirm: () => void; }
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="max-w-6xl mx-auto py-6 px-4 space-y-6">
+    <div class="max-w-6xl mx-auto py-6 px-4 space-y-6" style="background:#FAFAFA">
 
-      <!-- MAIN HEADER CONSOLE -->
-      <div class="clay rounded-[2rem] p-6 border border-brand-black flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl bg-brand-white">
+      <!-- HEADER -->
+      <div class="rounded-2xl p-6 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <div class="flex items-center gap-2.5">
-            <span class="text-3xl">👤</span>
-            <div>
-              <h2 class="text-2xl font-black text-brand-black tracking-tight">Profile Settings</h2>
-              <p class="text-xs text-brand-black font-medium">Manage your personal information, security preferences, and food choices.</p>
-            </div>
-          </div>
+          <h2 class="text-2xl font-bold" style="color:#1C1C1C">My Account</h2>
+          <p class="text-sm mt-0.5" style="color:#696969">Manage your profile, addresses, payments, and preferences.</p>
         </div>
       </div>
 
-      <!-- MAIN CONTENT CONSOLE -->
-      <div class="clay rounded-[2rem] border border-brand-black bg-brand-white shadow-2xl overflow-hidden">
-        <div class="grid md:grid-cols-[240px_1fr]">
+      @if (loadingProfile()) {
+        <!-- SKELETON -->
+        <div class="rounded-2xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] p-6 animate-pulse space-y-4">
+          <div class="h-16 w-16 rounded-full bg-neutral-200"></div>
+          <div class="h-4 w-40 rounded bg-neutral-200"></div>
+          <div class="h-4 w-64 rounded bg-neutral-200"></div>
+          <div class="h-4 w-56 rounded bg-neutral-200"></div>
+        </div>
+      } @else {
 
-          <!-- Left Sub Navigation with Dashboard Pill Styling -->
-          <nav class="md:border-r border-brand-black p-4 space-y-2 bg-neutral-900/5">
-            <div class="text-[10px] font-black text-brand-black uppercase tracking-widest px-3 mb-3">Settings Console</div>
+      <!-- MAIN LAYOUT -->
+      <div class="rounded-2xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div class="grid md:grid-cols-[220px_1fr]">
+
+          <!-- LEFT SUB-NAV -->
+          <nav class="md:border-r p-3 space-y-1" style="border-color:#EFEFEF">
             @for (s of sections; track s.id) {
               <button (click)="section.set(s.id)"
-                [class]="'w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ' +
-                  (section() === s.id 
-                    ? 'border border-brand-black bg-brand-red text-white font-black shadow-md shadow-red-600/20' 
-                    : 'text-brand-black hover:bg-neutral-800/10')">
-                <span>
-                  @if (s.id === 'home') { 🏠 }
-                  @else if (s.id === 'personal') { 📝 }
-                  @else if (s.id === 'security') { 🔒 }
-                  @else if (s.id === 'privacy') { 🛡️ }
-                </span>
-                {{ s.label }}
+                [class]="'w-full text-left px-4 py-2.5 rounded-xl text-[13px] font-medium transition flex items-center gap-2.5 ' +
+                  (section() === s.id ? 'font-semibold' : 'hover:bg-black/[0.03]')"
+                [style]="section() === s.id ? 'background:#FFF2F3;color:#E23744' : 'color:#1C1C1C'">
+                <span>{{ s.icon }}</span> {{ s.label }}
               </button>
             }
           </nav>
 
-          <!-- Content Panel -->
-          <div class="p-6 sm:p-10 min-h-[520px] bg-brand-white">
+          <!-- CONTENT -->
+          <div class="p-5 sm:p-8 min-h-[540px]">
 
-            <!-- ============ HOME ============ -->
-            @if (section() === 'home') {
-              <div class="max-w-md mx-auto text-center space-y-6">
-                <div class="w-24 h-24 mx-auto rounded-full bg-brand-white border border-brand-black flex items-center justify-center overflow-hidden shadow-inner">
-                  <svg viewBox="0 0 24 24" class="w-14 h-14 text-brand-black" fill="currentColor"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/></svg>
-                </div>
-                <div>
-                  <h2 class="text-2xl font-black text-brand-black tracking-tight">{{ fullName || 'Customer' }}</h2>
-                  <p class="text-xs text-brand-black font-semibold mt-0.5 opacity-80">{{ user()?.email }}</p>
-                </div>
-
-                <!-- Quick cards -->
-                <div class="grid grid-cols-3 gap-3">
-                  <button (click)="section.set('personal')" class="clay hover:border-brand-red bg-brand-white p-5 rounded-2xl flex flex-col items-center gap-2 transition hover:-translate-y-0.5 shadow-sm">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" class="text-brand-black"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                    <span class="text-[11px] font-black text-brand-black leading-tight">Personal Info</span>
-                  </button>
-                  <button (click)="section.set('security')" class="clay hover:border-brand-red bg-brand-white p-5 rounded-2xl flex flex-col items-center gap-2 transition hover:-translate-y-0.5 shadow-sm">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="text-brand-black"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Zm-1 14-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6Z"/></svg>
-                    <span class="text-[11px] font-black text-brand-black leading-tight">Security</span>
-                  </button>
-                  <button (click)="section.set('privacy')" class="clay hover:border-brand-red bg-brand-white p-5 rounded-2xl flex flex-col items-center gap-2 transition hover:-translate-y-0.5 shadow-sm">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="text-brand-black"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 0 1 6 0v3H9Z"/></svg>
-                    <span class="text-[11px] font-black text-brand-black leading-tight">Privacy</span>
-                  </button>
-                </div>
-
-                <!-- Suggestions -->
-                <div class="clay rounded-3xl p-6 border border-brand-black bg-brand-white shadow-md text-left space-y-3">
-                  <div class="flex items-start justify-between gap-4">
-                    <h4 class="text-base font-black text-brand-black leading-snug">Complete your account checkup</h4>
-                    <svg viewBox="0 0 48 40" class="w-10 h-8 shrink-0"><rect x="10" y="6" width="34" height="24" rx="3" fill="#111"/><rect x="4" y="12" width="34" height="24" rx="3" fill="#3b82f6"/><circle cx="13" cy="21" r="4" fill="#fff"/><rect x="20" y="18" width="14" height="2.5" rx="1.25" fill="#fff"/><rect x="20" y="24" width="10" height="2.5" rx="1.25" fill="#fff"/></svg>
+            <!-- ============ OVERVIEW: Rewards + Order Stats ============ -->
+            @if (section() === 'overview') {
+              <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                  <div class="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-neutral-100 flex items-center justify-center">
+                    @if (avatarPreview() || user()?.avatarUrl) {
+                      <img [src]="avatarPreview() || user()?.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
+                    } @else {
+                      <span class="text-2xl font-bold" style="color:#BDBDBD">{{ (fullName || 'U').charAt(0).toUpperCase() }}</span>
+                    }
                   </div>
-                  <p class="text-[11px] text-brand-black font-semibold opacity-75">Complete your account checkup to make MiSlice work better for you and keep you secure.</p>
-                  <button (click)="section.set('personal')" class="clay-btn font-extrabold px-5 py-2.5 rounded-xl transition shadow-sm hover:bg-brand-black hover:text-brand-white text-xs">Begin checkup</button>
+                  <div>
+                    <h3 class="text-lg font-semibold" style="color:#1C1C1C">{{ fullName || 'Customer' }}</h3>
+                    <p class="text-[13px]" style="color:#828282">{{ user()?.email }}</p>
+                  </div>
+                </div>
+
+                <!-- Rewards Summary -->
+                <div class="rounded-2xl p-5 text-white shadow-[0_4px_16px_rgba(0,0,0,0.12)]" style="background:linear-gradient(135deg,#E23744 0%,#F05563 100%)">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-[11px] font-semibold uppercase tracking-widest opacity-80">MiPoints Balance</p>
+                      <p class="text-3xl font-bold mt-1">{{ loyalty()?.points ?? 0 }}</p>
+                    </div>
+                    <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/20">{{ membershipTier() }}</span>
+                  </div>
+                  <div class="flex items-center gap-6 mt-4 text-[12px] opacity-90">
+                    <span>Lifetime: <strong>{{ loyalty()?.lifetimePoints ?? 0 }}</strong> pts</span>
+                    <span>Available rewards: <strong>{{ availableRewards() }}</strong></span>
+                  </div>
+                  <button routerLink="/rewards" (click)="goRewards()" class="mt-4 text-[12px] font-semibold px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 transition">View Rewards →</button>
+                </div>
+
+                <!-- Order Statistics -->
+                <div>
+                  <h4 class="text-sm font-semibold mb-3" style="color:#1C1C1C">Order Statistics</h4>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="rounded-xl p-4" style="background:#F8F8F8">
+                      <p class="text-xl font-bold" style="color:#1C1C1C">{{ orderStats().totalOrders }}</p>
+                      <p class="text-[11px] mt-0.5" style="color:#828282">Total Orders</p>
+                    </div>
+                    <div class="rounded-xl p-4" style="background:#F8F8F8">
+                      <p class="text-xl font-bold" style="color:#1C1C1C">{{ orderStats().totalSaved | currency }}</p>
+                      <p class="text-[11px] mt-0.5" style="color:#828282">Total Saved</p>
+                    </div>
+                    <div class="rounded-xl p-4" style="background:#F8F8F8">
+                      <p class="text-xl font-bold" style="color:#1C1C1C">{{ orderStats().avgOrderValue | currency }}</p>
+                      <p class="text-[11px] mt-0.5" style="color:#828282">Avg Order Value</p>
+                    </div>
+                    <div class="rounded-xl p-4" style="background:#F8F8F8">
+                      <p class="text-sm font-bold truncate" style="color:#1C1C1C">{{ orderStats().favoritePizza || '—' }}</p>
+                      <p class="text-[11px] mt-0.5" style="color:#828282">Favorite Pizza</p>
+                    </div>
+                    <div class="rounded-xl p-4" style="background:#F8F8F8">
+                      <p class="text-sm font-bold truncate" style="color:#1C1C1C">{{ orderStats().favoriteRestaurant || '—' }}</p>
+                      <p class="text-[11px] mt-0.5" style="color:#828282">Favorite Restaurant</p>
+                    </div>
+                    <div class="rounded-xl p-4" style="background:#F8F8F8">
+                      <p class="text-sm font-bold" style="color:#1C1C1C">{{ orderStats().lastOrderDate || '—' }}</p>
+                      <p class="text-[11px] mt-0.5" style="color:#828282">Last Order</p>
+                    </div>
+                  </div>
+                  <p class="text-[11px] mt-2" style="color:#BDBDBD">Member since {{ memberSince() }}</p>
                 </div>
               </div>
             }
@@ -96,272 +128,726 @@ type Section = 'home' | 'personal' | 'security' | 'privacy';
             <!-- ============ PERSONAL INFO ============ -->
             @if (section() === 'personal') {
               <div class="max-w-lg space-y-6">
-                <div>
-                  <h2 class="text-2xl font-black text-brand-black tracking-tight">Personal info</h2>
-                  <p class="text-xs text-brand-black font-semibold opacity-75 mt-0.5">Manage your details and food preferences.</p>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h2 class="text-xl font-bold" style="color:#1C1C1C">Personal Information</h2>
+                    <p class="text-[13px] mt-0.5" style="color:#696969">Your basic account details.</p>
+                  </div>
+                  @if (!editingPersonal()) {
+                    <button (click)="startEditPersonal()" class="text-[13px] font-semibold px-4 py-2 rounded-xl border transition" style="border-color:#E23744;color:#E23744">Edit Profile</button>
+                  }
+                </div>
+
+                <!-- Avatar -->
+                <div class="flex items-center gap-4">
+                  <div class="relative w-20 h-20 rounded-full overflow-hidden shrink-0 bg-neutral-100 flex items-center justify-center">
+                    @if (avatarPreview() || user()?.avatarUrl) {
+                      <img [src]="avatarPreview() || user()?.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
+                    } @else {
+                      <span class="text-2xl font-bold" style="color:#BDBDBD">{{ (fullName || 'U').charAt(0).toUpperCase() }}</span>
+                    }
+                  </div>
+                  @if (editingPersonal()) {
+                    <div>
+                      <input #fileInput type="file" accept="image/*" class="hidden" (change)="onAvatarSelected($event)" />
+                      <button (click)="fileInput.click()" class="text-[12px] font-semibold px-3.5 py-2 rounded-lg" style="background:#F8F8F8;color:#1C1C1C">Change photo</button>
+                    </div>
+                  }
                 </div>
 
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-[10px] font-black text-brand-black uppercase tracking-wider mb-1.5">Full name</label>
-                    <input [(ngModel)]="fullName" (ngModelChange)="saved.set(false)"
-                      class="w-full clay rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-red bg-brand-white font-medium text-brand-black transition" />
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Full Name</label>
+                    <input [(ngModel)]="fullName" [disabled]="!editingPersonal()"
+                      class="w-full rounded-xl px-4 py-3 text-sm border outline-none transition disabled:bg-neutral-50 disabled:text-neutral-400"
+                      [style]="editingPersonal() ? 'border-color:#BDBDBD;color:#1C1C1C' : 'border-color:#EFEFEF'" />
+                    @if (editingPersonal() && !fullName.trim()) { <p class="text-[11px] mt-1" style="color:#E23744">Full name is required.</p> }
                   </div>
                   <div>
-                    <label class="block text-[10px] font-black text-brand-black uppercase tracking-wider mb-1.5">Email</label>
-                    <input [value]="user()?.email" disabled
-                      class="w-full clay rounded-xl px-4 py-3 text-sm bg-neutral-100 border-neutral-300 text-neutral-400 font-medium cursor-not-allowed" />
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Email Address</label>
+                    <input [value]="user()?.email" disabled class="w-full rounded-xl px-4 py-3 text-sm border bg-neutral-50 text-neutral-400" style="border-color:#EFEFEF" />
                   </div>
                   <div>
-                    <label class="block text-[10px] font-black text-brand-black uppercase tracking-wider mb-1.5">Phone</label>
-                    <input [(ngModel)]="phone" (ngModelChange)="saved.set(false)" placeholder="e.g. 313-555-0199"
-                      class="w-full clay rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-red bg-brand-white font-medium text-brand-black transition" />
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Phone Number</label>
+                    <input [(ngModel)]="phone" [disabled]="!editingPersonal()" placeholder="e.g. 313-555-0199"
+                      class="w-full rounded-xl px-4 py-3 text-sm border outline-none transition disabled:bg-neutral-50 disabled:text-neutral-400"
+                      [style]="editingPersonal() ? 'border-color:#BDBDBD;color:#1C1C1C' : 'border-color:#EFEFEF'" />
+                    @if (editingPersonal() && phone && !phoneValid()) { <p class="text-[11px] mt-1" style="color:#E23744">Enter a valid phone number.</p> }
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Date Joined MiSlice</label>
+                    <input [value]="memberSince()" disabled class="w-full rounded-xl px-4 py-3 text-sm border bg-neutral-50 text-neutral-400" style="border-color:#EFEFEF" />
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Preferred Language</label>
+                      <select [(ngModel)]="preferredLanguage" [disabled]="!editingPersonal()"
+                        class="w-full rounded-xl px-3 py-3 text-sm border outline-none disabled:bg-neutral-50 disabled:text-neutral-400" style="border-color:#EFEFEF">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="ar">العربية</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Time Zone</label>
+                      <select [(ngModel)]="timeZone" [disabled]="!editingPersonal()"
+                        class="w-full rounded-xl px-3 py-3 text-sm border outline-none disabled:bg-neutral-50 disabled:text-neutral-400" style="border-color:#EFEFEF">
+                        @for (tz of timeZones; track tz) { <option [value]="tz">{{ tz }}</option> }
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Food preferences -->
-                <div>
-                  <h3 class="text-xs font-black uppercase tracking-wider text-brand-black mb-3">Dietary preferences</h3>
-                  <div class="flex flex-wrap gap-2">
-                    @for (d of diets; track d.key) {
-                      <button (click)="toggleDiet(d.key)"
-                        [class]="'clay px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ' + 
-                          (getDietState(d.key) 
-                            ? 'bg-brand-red text-brand-white border-brand-red shadow-md shadow-red-600/10' 
-                            : 'bg-brand-white text-brand-black border-brand-black hover:border-brand-black')">
-                        {{ d.emoji }} {{ d.label }}
-                      </button>
-                    }
+                @if (editingPersonal()) {
+                  <div class="flex gap-3">
+                    <button (click)="savePersonal()" [disabled]="saving() || !fullName.trim() || (!!phone && !phoneValid())"
+                      class="flex-1 py-3 rounded-xl font-semibold text-white text-sm shadow-sm transition disabled:opacity-50" style="background:#E23744">
+                      {{ saving() ? 'Saving…' : 'Save Changes' }}
+                    </button>
+                    <button (click)="cancelEditPersonal()" class="flex-1 py-3 rounded-xl font-semibold text-sm border" style="border-color:#EFEFEF;color:#696969">Cancel</button>
                   </div>
+                }
+              </div>
+            }
+
+            <!-- ============ SAVED ADDRESSES ============ -->
+            @if (section() === 'addresses') {
+              <div class="max-w-2xl space-y-5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h2 class="text-xl font-bold" style="color:#1C1C1C">Saved Addresses</h2>
+                    <p class="text-[13px] mt-0.5" style="color:#696969">Manage your delivery addresses.</p>
+                  </div>
+                  <button (click)="startAddAddress()" class="text-[13px] font-semibold px-4 py-2 rounded-xl text-white" style="background:#FF8A00">+ Add New Address</button>
                 </div>
 
-                <div>
-                  <h3 class="text-xs font-black uppercase tracking-wider text-brand-black mb-3">Avoid allergens</h3>
-                  <div class="flex flex-wrap gap-2">
-                    @for (a of allergenOptions; track a) {
-                      <button (click)="toggleAllergen(a)"
-                        [class]="'clay px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ' + 
-                          (avoidedAllergens.includes(a) 
-                            ? 'bg-brand-red text-brand-white border-brand-red shadow-md shadow-red-600/10' 
-                            : 'bg-brand-white text-brand-black border-brand-black hover:border-brand-black')">
-                        {{ a }}
-                      </button>
-                    }
+                @if (addressForm()) {
+                  <div class="rounded-2xl p-5 space-y-3" style="background:#F8F8F8">
+                    <div class="grid grid-cols-2 gap-3">
+                      <input [(ngModel)]="addressForm()!.label" placeholder="Label (Home, Work…)" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                      <input [(ngModel)]="addressForm()!.line2" placeholder="Apartment / Suite #" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    </div>
+                    <input [(ngModel)]="addressForm()!.line1" placeholder="Street address" class="w-full rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    <div class="grid grid-cols-3 gap-3">
+                      <input [(ngModel)]="addressForm()!.city" placeholder="City" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                      <input [(ngModel)]="addressForm()!.state" placeholder="State" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                      <input [(ngModel)]="addressForm()!.postalCode" placeholder="ZIP" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    </div>
+                    <input [(ngModel)]="addressForm()!.deliveryInstructions" placeholder="Delivery instructions (optional)" class="w-full rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    <div class="grid grid-cols-2 gap-3">
+                      <input [(ngModel)]="addressForm()!.contactName" placeholder="Contact name" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                      <input [(ngModel)]="addressForm()!.contactPhone" placeholder="Contact phone" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    </div>
+                    <div class="flex gap-3 pt-1">
+                      <button (click)="saveAddress()" [disabled]="!addressFormValid()" class="px-5 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50" style="background:#E23744">Save Address</button>
+                      <button (click)="addressForm.set(null)" class="px-5 py-2.5 rounded-xl text-sm font-semibold" style="color:#696969">Cancel</button>
+                    </div>
                   </div>
+                }
+
+                @if (!loadingAddresses() && addresses().length === 0 && !addressForm()) {
+                  <p class="text-sm text-center py-10" style="color:#828282">No saved addresses yet.</p>
+                }
+
+                <div class="space-y-3">
+                  @for (a of addresses(); track a.id) {
+                    <div class="rounded-2xl p-4 flex items-start justify-between gap-3" style="background:#F8F8F8">
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-semibold" style="color:#1C1C1C">{{ a.label }}</span>
+                          @if (a.defaultAddress) { <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style="background:#FF8A00">Default</span> }
+                        </div>
+                        <p class="text-[13px] mt-1" style="color:#696969">{{ a.line1 }}{{ a.line2 ? ', ' + a.line2 : '' }}, {{ a.city }}, {{ a.state }} {{ a.postalCode }}</p>
+                        @if (a.deliveryInstructions) { <p class="text-[12px] mt-1" style="color:#828282">📝 {{ a.deliveryInstructions }}</p> }
+                        @if (a.contactName) { <p class="text-[12px]" style="color:#828282">👤 {{ a.contactName }} {{ a.contactPhone ? '· ' + a.contactPhone : '' }}</p> }
+                      </div>
+                      <div class="flex flex-col gap-1.5 shrink-0 items-end">
+                        <button (click)="startEditAddress(a)" class="text-[11px] font-semibold" style="color:#1C1C1C">Edit</button>
+                        @if (!a.defaultAddress) { <button (click)="setDefaultAddress(a)" class="text-[11px] font-semibold" style="color:#FF8A00">Set Default</button> }
+                        <button (click)="confirmDeleteAddress(a)" class="text-[11px] font-semibold" style="color:#E23744">Delete</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- ============ PAYMENT METHODS ============ -->
+            @if (section() === 'payment') {
+              <div class="max-w-lg space-y-5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h2 class="text-xl font-bold" style="color:#1C1C1C">Payment Methods</h2>
+                    <p class="text-[13px] mt-0.5" style="color:#696969">Cards are tokenized — full numbers are never stored.</p>
+                  </div>
+                  <button (click)="showAddCard.set(!showAddCard())" class="text-[13px] font-semibold px-4 py-2 rounded-xl text-white" style="background:#FF8A00">+ Add New Card</button>
                 </div>
 
-                <button (click)="save()" [disabled]="loading()"
-                  class="clay-accent font-black px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition select-none flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 text-xs">
-                  {{ loading() ? 'Saving…' : (saved() ? '✓ Saved' : 'Save changes') }}
-                </button>
+                @if (showAddCard()) {
+                  <div class="rounded-2xl p-5 space-y-3" style="background:#F8F8F8">
+                    <div class="grid grid-cols-2 gap-3">
+                      <select [(ngModel)]="newCard.brand" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF">
+                        <option>Visa</option><option>Mastercard</option><option>Amex</option><option>Discover</option>
+                      </select>
+                      <input [(ngModel)]="newCard.last4" maxlength="4" placeholder="Last 4 digits" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <input type="number" [(ngModel)]="newCard.expMonth" placeholder="Exp. month" min="1" max="12" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                      <input type="number" [(ngModel)]="newCard.expYear" placeholder="Exp. year" min="2024" class="rounded-xl px-3 py-2.5 text-sm border" style="border-color:#EFEFEF" />
+                    </div>
+                    <p class="text-[11px]" style="color:#BDBDBD">Demo only — this stores masked card metadata for display; it does not process real payments.</p>
+                    <div class="flex gap-3">
+                      <button (click)="addCard()" [disabled]="newCard.last4.length !== 4" class="px-5 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50" style="background:#E23744">Save Card</button>
+                      <button (click)="showAddCard.set(false)" class="px-5 py-2.5 rounded-xl text-sm font-semibold" style="color:#696969">Cancel</button>
+                    </div>
+                  </div>
+                }
+
+                @if (!loadingCards() && cards().length === 0 && !showAddCard()) {
+                  <p class="text-sm text-center py-10" style="color:#828282">No saved payment methods.</p>
+                }
+
+                <div class="space-y-3">
+                  @for (c of cards(); track c.id) {
+                    <div class="rounded-2xl p-4 flex items-center justify-between" style="background:#F8F8F8">
+                      <div class="flex items-center gap-3">
+                        <span class="text-xl">{{ cardIcon(c.brand) }}</span>
+                        <div>
+                          <p class="text-sm font-semibold" style="color:#1C1C1C">{{ c.brand }} •••• {{ c.last4 }}</p>
+                          <p class="text-[12px]" style="color:#828282">Expires {{ c.expMonth.toString().padStart(2,'0') }}/{{ c.expYear.toString().slice(-2) }}</p>
+                        </div>
+                        @if (c.isDefault) { <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style="background:#FF8A00">Default</span> }
+                      </div>
+                      <div class="flex gap-3 shrink-0">
+                        @if (!c.isDefault) { <button (click)="setDefaultCard(c)" class="text-[11px] font-semibold" style="color:#FF8A00">Set Default</button> }
+                        <button (click)="confirmDeleteCard(c)" class="text-[11px] font-semibold" style="color:#E23744">Remove</button>
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
             }
 
             <!-- ============ SECURITY ============ -->
             @if (section() === 'security') {
-              <div class="max-w-lg space-y-6">
+              <div class="max-w-md space-y-5">
                 <div>
-                  <h2 class="text-2xl font-black text-brand-black tracking-tight">Security</h2>
-                  <p class="text-xs text-brand-black font-semibold opacity-75 mt-0.5">Manage how you sign in to MiSlice.</p>
+                  <h2 class="text-xl font-bold" style="color:#1C1C1C">Security</h2>
+                  <p class="text-[13px] mt-0.5" style="color:#696969">Change your account password.</p>
                 </div>
-
-                <div class="clay rounded-2xl border border-brand-black bg-brand-white shadow-sm overflow-hidden divide-y divide-neutral-200">
-                  <div class="flex items-center justify-between px-5 py-4">
-                    <div>
-                      <p class="font-bold text-brand-black text-sm">Email</p>
-                      <p class="text-xs text-brand-black opacity-75 mt-0.5">{{ user()?.email }}</p>
-                    </div>
-                    <span class="text-xs font-bold text-brand-green bg-green-500/10 px-2.5 py-1 rounded-lg border border-green-500/20">Verified</span>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Current Password</label>
+                    <input type="password" [(ngModel)]="currentPassword" class="w-full rounded-xl px-4 py-3 text-sm border" style="border-color:#EFEFEF" />
                   </div>
-                  <div class="flex items-center justify-between px-5 py-4">
-                    <div>
-                      <p class="font-bold text-brand-black text-sm">Password</p>
-                      <p class="text-xs text-brand-black opacity-75 mt-0.5">Change your account password</p>
-                    </div>
-                    <button (click)="resetPassword()" [disabled]="resetSent()" class="clay-btn text-xs font-black px-4 py-2 hover:bg-brand-black hover:text-brand-white transition">
-                      {{ resetSent() ? 'Reset link sent ✓' : 'Change password' }}
-                    </button>
+                  <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">New Password</label>
+                    <input type="password" [(ngModel)]="newPassword" class="w-full rounded-xl px-4 py-3 text-sm border" style="border-color:#EFEFEF" />
                   </div>
-                  <div class="flex items-center justify-between px-5 py-4">
-                    <div>
-                      <p class="font-bold text-brand-black text-sm">Sign out</p>
-                      <p class="text-xs text-brand-black opacity-75 mt-0.5">Sign out of this device</p>
-                    </div>
-                    <button (click)="signOut()" class="clay border border-brand-red bg-brand-white hover:bg-brand-red text-brand-red hover:text-brand-white text-xs font-black px-4 py-2 transition-all rounded-xl">
-                      Sign out
-                    </button>
+                  <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style="color:#828282">Confirm New Password</label>
+                    <input type="password" [(ngModel)]="confirmPassword" class="w-full rounded-xl px-4 py-3 text-sm border" style="border-color:#EFEFEF" />
                   </div>
+                  @if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+                    <p class="text-[11px]" style="color:#E23744">Passwords do not match.</p>
+                  }
                 </div>
-                @if (resetSent()) { <p class="text-xs font-semibold text-brand-green">We've sent a password reset link to {{ user()?.email }}.</p> }
+                <button (click)="updatePassword()" [disabled]="!canChangePassword() || changingPassword()"
+                  class="w-full py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50" style="background:#E23744">
+                  {{ changingPassword() ? 'Updating…' : 'Update Password' }}
+                </button>
               </div>
             }
 
-            <!-- ============ PRIVACY & DATA ============ -->
+            <!-- ============ NOTIFICATIONS ============ -->
+            @if (section() === 'notifications') {
+              <div class="max-w-md space-y-5">
+                <div>
+                  <h2 class="text-xl font-bold" style="color:#1C1C1C">Notifications</h2>
+                  <p class="text-[13px] mt-0.5" style="color:#696969">Choose what MiSlice can notify you about.</p>
+                </div>
+                <div class="space-y-1">
+                  @for (n of notifOptions; track n.key) {
+                    <div class="flex items-center justify-between py-2.5 border-b" style="border-color:#EFEFEF">
+                      <span class="text-sm" style="color:#1C1C1C">{{ n.label }}</span>
+                      <button (click)="toggleNotif(n.key)" [style]="'background:' + (notifPrefs.includes(n.key) ? '#E23744' : '#EFEFEF')" class="w-11 h-6 rounded-full relative transition">
+                        <span class="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all shadow" [style.left]="notifPrefs.includes(n.key) ? '22px' : '2px'"></span>
+                      </button>
+                    </div>
+                  }
+                </div>
+                <button (click)="saveNotifications()" [disabled]="saving()" class="w-full py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50" style="background:#E23744">
+                  {{ saving() ? 'Saving…' : 'Save Preferences' }}
+                </button>
+              </div>
+            }
+
+            <!-- ============ PREFERENCES ============ -->
+            @if (section() === 'preferences') {
+              <div class="max-w-lg space-y-6">
+                <div>
+                  <h2 class="text-xl font-bold" style="color:#1C1C1C">Preferences</h2>
+                  <p class="text-[13px] mt-0.5" style="color:#696969">Personalize your MiSlice experience.</p>
+                </div>
+
+                <div>
+                  <h3 class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:#828282">Dietary Preferences</h3>
+                  <div class="flex flex-wrap gap-2">
+                    @for (d of diets; track d.key) {
+                      <button (click)="toggleDiet(d.key)"
+                        [style]="getDietState(d.key) ? 'background:#E23744;color:#fff' : 'background:#F8F8F8;color:#1C1C1C'"
+                        class="px-4 py-2 rounded-xl text-[13px] font-medium transition">{{ d.emoji }} {{ d.label }}</button>
+                    }
+                  </div>
+                </div>
+
+                <div>
+                  <h3 class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:#828282">Default Fulfillment Method</h3>
+                  <div class="flex gap-2">
+                    @for (f of fulfillmentOptions; track f) {
+                      <button (click)="setDefaultFulfillment(f)"
+                        [style]="defaultFulfillment === f ? 'background:#FF8A00;color:#fff' : 'background:#F8F8F8;color:#1C1C1C'"
+                        class="px-4 py-2 rounded-xl text-[13px] font-medium transition">{{ f === 'DELIVERY' ? '🛵 Delivery' : '🏬 Pickup' }}</button>
+                    }
+                  </div>
+                </div>
+
+                <div>
+                  <h3 class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:#828282">Favorite Restaurants</h3>
+                  @if (favoriteRestaurants().length === 0) {
+                    <p class="text-[13px]" style="color:#828282">No favorite restaurants yet — heart a store to see it here.</p>
+                  } @else {
+                    <div class="flex flex-wrap gap-2">
+                      @for (r of favoriteRestaurants(); track r) { <span class="px-3 py-1.5 rounded-lg text-[12px] font-medium" style="background:#F8F8F8;color:#1C1C1C">{{ r }}</span> }
+                    </div>
+                  }
+                </div>
+
+                <div>
+                  <h3 class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:#828282">Favorite Payment Method</h3>
+                  <p class="text-[13px]" style="color:#1C1C1C">{{ defaultCardLabel() }}</p>
+                </div>
+
+                <div>
+                  <h3 class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:#828282">Favorite Address</h3>
+                  <p class="text-[13px]" style="color:#1C1C1C">{{ defaultAddressLabel() }}</p>
+                </div>
+
+                <button (click)="savePreferences()" [disabled]="saving()" class="w-full py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50" style="background:#E23744">
+                  {{ saving() ? 'Saving…' : 'Save Preferences' }}
+                </button>
+              </div>
+            }
+
+            <!-- ============ PRIVACY ============ -->
             @if (section() === 'privacy') {
-              <div class="max-w-lg space-y-6">
+              <div class="max-w-md space-y-3">
                 <div>
-                  <h2 class="text-2xl font-black text-brand-black tracking-tight">Privacy &amp; Data</h2>
-                  <p class="text-xs text-brand-black font-semibold opacity-75 mt-0.5">Control your data and privacy on MiSlice.</p>
+                  <h2 class="text-xl font-bold" style="color:#1C1C1C">Privacy</h2>
+                  <p class="text-[13px] mt-0.5" style="color:#696969">Review how MiSlice handles your data.</p>
                 </div>
-
-                <div class="clay rounded-2xl border border-brand-black bg-brand-white shadow-sm overflow-hidden divide-y divide-neutral-200">
-                  <div class="flex items-center justify-between px-5 py-4">
-                    <div>
-                      <p class="font-bold text-brand-black text-sm">Download your data</p>
-                      <p class="text-xs text-brand-black opacity-75 mt-0.5">Get a copy of your MiSlice data</p>
-                    </div>
-                    <button (click)="downloadData()" class="clay-btn text-xs font-black px-4 py-2 hover:bg-brand-black hover:text-brand-white transition">
-                      Download
-                    </button>
-                  </div>
-                  <div class="flex items-center justify-between px-5 py-4">
-                    <div>
-                      <p class="font-bold text-brand-black text-sm">Marketing notifications</p>
-                      <p class="text-xs text-brand-black opacity-75 mt-0.5">Deals and updates by email</p>
-                    </div>
-                    <button (click)="notif = !notif" [class]="'w-11 h-6 rounded-full relative transition border border-brand-black ' + (notif ? 'bg-brand-red' : 'bg-neutral-200')">
-                      <span class="absolute top-0.5 w-4 h-4 rounded-full bg-brand-white transition-all shadow-md" [style.left]="notif ? '22px' : '2px'"></span>
-                    </button>
-                  </div>
-                  <div class="flex items-center justify-between px-5 py-4">
-                    <div>
-                      <p class="font-bold text-brand-red text-sm">Delete account</p>
-                      <p class="text-xs text-brand-black opacity-75 mt-0.5">Permanently delete your account</p>
-                    </div>
-                    <button (click)="deleteAccount()" class="clay border border-brand-red bg-brand-white hover:bg-brand-red text-brand-red hover:text-brand-white text-xs font-black px-4 py-2 transition-all rounded-xl">
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                @if (privacyMsg()) { <p class="text-xs text-brand-black">{{ privacyMsg() }}</p> }
+                <a routerLink="/legal" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">Privacy Policy</span><span style="color:#BDBDBD">→</span>
+                </a>
+                <a routerLink="/legal" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">Terms of Service</span><span style="color:#BDBDBD">→</span>
+                </a>
+                <a routerLink="/legal" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">Data Usage Information</span><span style="color:#BDBDBD">→</span>
+                </a>
               </div>
             }
+
+            <!-- ============ SUPPORT ============ -->
+            @if (section() === 'support') {
+              <div class="max-w-md space-y-3">
+                <div>
+                  <h2 class="text-xl font-bold" style="color:#1C1C1C">Customer Support</h2>
+                  <p class="text-[13px] mt-0.5" style="color:#696969">We're here to help.</p>
+                </div>
+                <a routerLink="/how-it-works" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">❓ Help Center</span><span style="color:#BDBDBD">→</span>
+                </a>
+                <a routerLink="/contact" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">✉️ Contact Support</span><span style="color:#BDBDBD">→</span>
+                </a>
+                <div class="flex items-center justify-between rounded-xl p-4 opacity-50" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">💬 Live Chat</span><span class="text-[11px] font-semibold" style="color:#828282">Coming Soon</span>
+                </div>
+                <a routerLink="/contact" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">🚩 Report an Issue</span><span style="color:#BDBDBD">→</span>
+                </a>
+                <a routerLink="/how-it-works" class="flex items-center justify-between rounded-xl p-4 transition hover:bg-black/[0.02]" style="background:#F8F8F8">
+                  <span class="text-sm font-medium" style="color:#1C1C1C">📖 FAQs</span><span style="color:#BDBDBD">→</span>
+                </a>
+              </div>
+            }
+
           </div>
         </div>
       </div>
+      }
     </div>
+
+    <!-- TOAST -->
+    @if (toast(); as t) {
+      <div class="fixed bottom-6 right-6 z-[999] px-5 py-3.5 rounded-xl shadow-lg text-sm font-semibold text-white animate-fadeIn"
+        [style.background]="t.type === 'success' ? '#1C1C1C' : '#E23744'">
+        {{ t.type === 'success' ? '✓ ' : '⚠️ ' }}{{ t.message }}
+      </div>
+    }
+
+    <!-- CONFIRM DIALOG -->
+    @if (confirmState(); as c) {
+      <div class="fixed inset-0 z-[998] flex items-center justify-center p-4 bg-black/40">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+          <p class="text-sm font-medium" style="color:#1C1C1C">{{ c.message }}</p>
+          <div class="flex gap-3">
+            <button (click)="c.onConfirm(); confirmState.set(null)" class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold" style="background:#E23744">Confirm</button>
+            <button (click)="confirmState.set(null)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold border" style="border-color:#EFEFEF;color:#696969">Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
   `,
+  styles: [`
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fadeIn { animation: fadeIn 0.25s ease-out; }
+  `]
 })
 export class ProfileComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly orderService = inject(OrderService);
+  private readonly loyaltyService = inject(LoyaltyService);
+  private readonly paymentMethodService = inject(PaymentMethodService);
+  private readonly restaurantService = inject(RestaurantService);
+
   user = this.auth.currentUser;
 
-  section = signal<Section>('home');
-  sections: { id: Section; label: string }[] = [
-    { id: 'home', label: 'Home' },
-    { id: 'personal', label: 'Personal info' },
-    { id: 'security', label: 'Security' },
-    { id: 'privacy', label: 'Privacy & Data' },
+  section = signal<Section>('overview');
+  sections: { id: Section; label: string; icon: string }[] = [
+    { id: 'overview', label: 'Overview', icon: '🏠' },
+    { id: 'personal', label: 'Personal Info', icon: '👤' },
+    { id: 'addresses', label: 'Addresses', icon: '📍' },
+    { id: 'payment', label: 'Payment', icon: '💳' },
+    { id: 'security', label: 'Security', icon: '🔒' },
+    { id: 'notifications', label: 'Notifications', icon: '🔔' },
+    { id: 'preferences', label: 'Preferences', icon: '⚙️' },
+    { id: 'privacy', label: 'Privacy', icon: '🛡️' },
+    { id: 'support', label: 'Support', icon: '💬' },
   ];
 
+  loadingProfile = signal(true);
+  saving = signal(false);
+  toast = signal<Toast | null>(null);
+  confirmState = signal<ConfirmState | null>(null);
+
+  // Personal info
   fullName = '';
   phone = '';
-  vegetarian = false;
-  vegan = false; halal = false; glutenFree = false;
-  diets = [
-    { key: 'vegan', label: 'Vegan', emoji: '🌱', desc: 'No animal products' },
-    { key: 'halal', label: 'Halal', emoji: '🕌', desc: 'Halal-certified' },
-    { key: 'glutenFree', label: 'Gluten Free', emoji: '🌾', desc: 'Gluten-free' },
-  ];
-  allergenOptions = ['Dairy', 'Nuts', 'Soy', 'Eggs', 'Shellfish', 'Wheat', 'Gluten'];
-  avoidedAllergens: string[] = [];
-  meatPrefs: string[] = [];
-  notif = true;
+  preferredLanguage = 'en';
+  timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  timeZones = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Detroit', Intl.DateTimeFormat().resolvedOptions().timeZone]
+    .filter((v, i, arr) => arr.indexOf(v) === i);
+  editingPersonal = signal(false);
+  private personalSnapshot: { fullName: string; phone: string; preferredLanguage: string; timeZone: string } | null = null;
+  avatarPreview = signal<string | null>(null);
+  private avatarDraft: string | null = null;
 
-  saved = signal(false);
-  loading = signal(false);
-  resetSent = signal(false);
-  privacyMsg = signal('');
+  phoneValid(): boolean {
+    return /^[\d\s\-+().]{7,20}$/.test(this.phone.trim());
+  }
+
+  // Dietary / preferences
+  diets = [
+    { key: 'vegan', label: 'Vegan', emoji: '🌱' },
+    { key: 'halal', label: 'Halal', emoji: '🕌' },
+    { key: 'glutenFree', label: 'Gluten Free', emoji: '🌾' },
+    { key: 'vegetarian', label: 'Vegetarian', emoji: '🥗' },
+  ];
+  dietaryState = new Set<string>();
+  fulfillmentOptions: ('DELIVERY' | 'PICKUP')[] = ['DELIVERY', 'PICKUP'];
+  defaultFulfillment: 'DELIVERY' | 'PICKUP' = 'DELIVERY';
+  setDefaultFulfillment(f: 'DELIVERY' | 'PICKUP') { this.defaultFulfillment = f; }
+
+  // Notifications
+  notifOptions = [
+    { key: 'ORDER_UPDATES', label: 'Order Updates' },
+    { key: 'DEALS', label: 'Deal Notifications' },
+    { key: 'NEW_RESTAURANTS', label: 'New Restaurant Alerts' },
+    { key: 'REWARDS', label: 'Rewards Notifications' },
+    { key: 'PROMOTIONS', label: 'Promotional Offers' },
+    { key: 'EMAIL', label: 'Email Notifications' },
+    { key: 'PUSH', label: 'Push Notifications' },
+    { key: 'SMS', label: 'SMS Notifications' },
+  ];
+  notifPrefs: string[] = [];
+
+  // Addresses
+  addresses = signal<Address[]>([]);
+  loadingAddresses = signal(false);
+  addressForm = signal<Address | null>(null);
+
+  // Payment methods
+  cards = signal<PaymentMethodDto[]>([]);
+  loadingCards = signal(false);
+  showAddCard = signal(false);
+  newCard: { brand: 'Visa' | 'Mastercard' | 'Amex' | 'Discover'; last4: string; expMonth: number; expYear: number } =
+    { brand: 'Visa', last4: '', expMonth: 1, expYear: new Date().getFullYear() + 2 };
+
+  // Security
+  currentPassword = ''; newPassword = ''; confirmPassword = '';
+  changingPassword = signal(false);
+  canChangePassword(): boolean {
+    return this.currentPassword.length > 0 && this.newPassword.length >= 6 && this.newPassword === this.confirmPassword;
+  }
+
+  // Rewards + order stats
+  loyalty = signal<LoyaltyAccountDto | null>(null);
+  private orders = signal<OrderDto[]>([]);
+
+  membershipTier = computed(() => {
+    const lp = this.loyalty()?.lifetimePoints ?? 0;
+    return lp >= 2000 ? 'Gold' : lp >= 500 ? 'Silver' : 'Bronze';
+  });
+  availableRewards = computed(() => Math.floor((this.loyalty()?.points ?? 0) / 100));
+
+  orderStats = computed(() => {
+    const list = this.orders();
+    const totalOrders = list.length;
+    const totalSaved = list.reduce((s, o) => s + (Number(o.discount) || 0), 0);
+    const avgOrderValue = totalOrders ? list.reduce((s, o) => s + (Number(o.total) || 0), 0) / totalOrders : 0;
+    const restaurantCounts = new Map<string, number>();
+    const pizzaCounts = new Map<string, number>();
+    for (const o of list) {
+      restaurantCounts.set(o.restaurantName, (restaurantCounts.get(o.restaurantName) || 0) + 1);
+      for (const item of o.items ?? []) {
+        pizzaCounts.set(item.itemName, (pizzaCounts.get(item.itemName) || 0) + item.quantity);
+      }
+    }
+    const topOf = (m: Map<string, number>) => [...m.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    const dates = list.map(o => new Date(o.placedAt).getTime()).filter(t => !isNaN(t));
+    const lastOrderDate = dates.length ? new Date(Math.max(...dates)).toLocaleDateString() : '';
+    return {
+      totalOrders, totalSaved, avgOrderValue,
+      favoriteRestaurant: topOf(restaurantCounts), favoritePizza: topOf(pizzaCounts), lastOrderDate,
+    };
+  });
+
+  memberSince = computed(() => {
+    const created = this.user()?.createdAt;
+    if (!created) return '—';
+    return new Date(created).toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+  });
+
+  favoriteRestaurants = computed<string[]>(() => {
+    try {
+      const ids: string[] = JSON.parse(localStorage.getItem('mislice_fav_stores') || '[]');
+      return ids.slice(0, 6);
+    } catch { return []; }
+  });
+
+  defaultCardLabel(): string {
+    const def = this.cards().find(c => c.isDefault) ?? this.cards()[0];
+    return def ? `${def.brand} •••• ${def.last4}` : 'None saved';
+  }
+  defaultAddressLabel(): string {
+    const def = this.addresses().find(a => a.defaultAddress) ?? this.addresses()[0];
+    return def ? `${def.label} — ${def.line1}, ${def.city}` : 'None saved';
+  }
 
   ngOnInit(): void {
+    this.loadingProfile.set(true);
     this.auth.getProfile().subscribe({
-      next: (p) => this.initializeProfile(p),
-      error: () => { const u = this.user(); if (u) this.initializeProfile(u); },
+      next: (p) => { this.initializeProfile(p); this.loadingProfile.set(false); },
+      error: () => { const u = this.user(); if (u) this.initializeProfile(u); this.loadingProfile.set(false); },
     });
+    this.auth.getAddresses().subscribe({ next: (list) => { this.addresses.set(list); this.loadingAddresses.set(false); }, error: () => this.loadingAddresses.set(false) });
+    this.loadingAddresses.set(true);
+    this.paymentMethodService.list().subscribe({ next: (list) => { this.cards.set(list); this.loadingCards.set(false); }, error: () => this.loadingCards.set(false) });
+    this.loadingCards.set(true);
+    this.loyaltyService.getAccount().subscribe({ next: (acc) => this.loyalty.set(acc), error: () => {} });
+    this.orderService.getMyOrders().subscribe({ next: (list) => this.orders.set(list), error: () => {} });
   }
 
   private initializeProfile(profile: UserProfile) {
     this.fullName = profile.fullName || '';
     this.phone = profile.phone || '';
-    this.vegetarian = profile.vegetarian || false;
-    this.notif = profile.notificationsEnabled ?? true;
+    this.preferredLanguage = profile.preferredLanguage || 'en';
+    this.timeZone = profile.timeZone || this.timeZone;
+    this.defaultFulfillment = profile.defaultFulfillment || 'DELIVERY';
+    this.notifPrefs = profile.notificationPrefs ?? ['ORDER_UPDATES', 'DEALS', 'EMAIL', 'PUSH'];
     const prefs = profile.dietaryPrefs ?? [];
-    this.vegan = prefs.includes('VEGAN');
-    this.halal = prefs.includes('HALAL');
-    this.glutenFree = prefs.includes('GLUTEN_FREE');
-    this.avoidedAllergens = prefs.filter(p => p.startsWith('ALLERGY_')).map(p => p.substring(8));
-    this.meatPrefs = profile.meatPrefs ?? [];
-    this.saved.set(false);
+    this.dietaryState = new Set(['vegan', 'halal', 'glutenFree', 'vegetarian'].filter(k => {
+      if (k === 'vegetarian') return profile.vegetarian;
+      const tag = k === 'glutenFree' ? 'GLUTEN_FREE' : k.toUpperCase();
+      return prefs.includes(tag);
+    }));
   }
 
-  getDietState(key: string): boolean {
-    return key === 'vegan' ? this.vegan : key === 'halal' ? this.halal : key === 'glutenFree' ? this.glutenFree : false;
-  }
-  toggleDiet(key: string): void {
-    if (key === 'vegan') { this.vegan = !this.vegan; if (this.vegan) this.vegetarian = true; }
-    if (key === 'halal') this.halal = !this.halal;
-    if (key === 'glutenFree') this.glutenFree = !this.glutenFree;
-    this.saved.set(false);
-  }
-  toggleAllergen(a: string): void {
-    this.avoidedAllergens = this.avoidedAllergens.includes(a) ? this.avoidedAllergens.filter(x => x !== a) : [...this.avoidedAllergens, a];
-    this.saved.set(false);
+  private showToast(type: Toast['type'], message: string) {
+    this.toast.set({ type, message });
+    setTimeout(() => this.toast.set(null), 3200);
   }
 
-  save(): void {
-    this.loading.set(true); this.saved.set(false);
-    const prefs: string[] = [];
-    if (this.vegan) prefs.push('VEGAN');
-    if (this.halal) prefs.push('HALAL');
-    if (this.glutenFree) prefs.push('GLUTEN_FREE');
-    this.avoidedAllergens.forEach(a => prefs.push(`ALLERGY_${a.toUpperCase()}`));
-    this.auth.updateProfile({
+  // ---- Personal info ----
+  startEditPersonal() {
+    this.personalSnapshot = { fullName: this.fullName, phone: this.phone, preferredLanguage: this.preferredLanguage, timeZone: this.timeZone };
+    this.editingPersonal.set(true);
+  }
+  cancelEditPersonal() {
+    if (this.personalSnapshot) Object.assign(this, this.personalSnapshot);
+    this.avatarPreview.set(null);
+    this.avatarDraft = null;
+    this.editingPersonal.set(false);
+  }
+  onAvatarSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.avatarDraft = reader.result as string;
+      this.avatarPreview.set(this.avatarDraft);
+    };
+    reader.readAsDataURL(file);
+  }
+  savePersonal() {
+    if (!this.fullName.trim() || (this.phone && !this.phoneValid())) return;
+    this.saving.set(true);
+    const payload: Partial<UserProfile> = {
       fullName: this.fullName.trim(), phone: this.phone.trim(),
-      vegetarian: this.vegetarian, dietaryPrefs: prefs, meatPrefs: this.meatPrefs,
-      notificationsEnabled: this.notif,
-    }).subscribe({
-      next: (p) => { this.initializeProfile(p); this.loading.set(false); this.saved.set(true); },
-      error: () => this.loading.set(false),
+      preferredLanguage: this.preferredLanguage, timeZone: this.timeZone,
+    };
+    if (this.avatarDraft) payload.avatarUrl = this.avatarDraft;
+    this.auth.updateProfile(payload).subscribe({
+      next: (p) => { this.initializeProfile(p); this.saving.set(false); this.editingPersonal.set(false); this.avatarPreview.set(null); this.avatarDraft = null; this.showToast('success', 'Profile updated.'); },
+      error: () => { this.saving.set(false); this.showToast('error', 'Failed to update profile.'); },
     });
   }
 
-  resetPassword(): void {
-    const email = this.user()?.email;
-    if (!email) return;
-    this.auth.sendPasswordReset(email).subscribe({
-      next: () => this.resetSent.set(true),
-      error: () => this.resetSent.set(true), // avoid leaking whether an email exists
+  // ---- Preferences ----
+  getDietState(key: string): boolean { return this.dietaryState.has(key); }
+  toggleDiet(key: string) { this.dietaryState.has(key) ? this.dietaryState.delete(key) : this.dietaryState.add(key); }
+  savePreferences() {
+    this.saving.set(true);
+    const prefs: string[] = [];
+    if (this.dietaryState.has('vegan')) prefs.push('VEGAN');
+    if (this.dietaryState.has('halal')) prefs.push('HALAL');
+    if (this.dietaryState.has('glutenFree')) prefs.push('GLUTEN_FREE');
+    this.auth.updateProfile({ dietaryPrefs: prefs, vegetarian: this.dietaryState.has('vegetarian'), defaultFulfillment: this.defaultFulfillment }).subscribe({
+      next: () => { this.saving.set(false); this.showToast('success', 'Preferences saved.'); },
+      error: () => { this.saving.set(false); this.showToast('error', 'Failed to save preferences.'); },
     });
   }
 
-  signOut(): void {
-    this.auth.logout().subscribe({ next: () => this.router.navigate(['/welcome']) });
+  // ---- Notifications ----
+  toggleNotif(key: string) {
+    this.notifPrefs = this.notifPrefs.includes(key) ? this.notifPrefs.filter(k => k !== key) : [...this.notifPrefs, key];
+  }
+  saveNotifications() {
+    this.saving.set(true);
+    this.auth.updateProfile({ notificationPrefs: this.notifPrefs, notificationsEnabled: this.notifPrefs.length > 0 }).subscribe({
+      next: () => { this.saving.set(false); this.showToast('success', 'Notification preferences saved.'); },
+      error: () => { this.saving.set(false); this.showToast('error', 'Failed to save preferences.'); },
+    });
   }
 
-  downloadData(): void {
-    const data = JSON.stringify(this.user() ?? {}, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'mislice-account-data.json';
-    a.click();
-    URL.revokeObjectURL(a.href);
+  // ---- Addresses ----
+  startAddAddress() {
+    this.addressForm.set({ label: '', line1: '', city: '', state: 'MI', postalCode: '', defaultAddress: this.addresses().length === 0 });
+  }
+  startEditAddress(a: Address) { this.addressForm.set({ ...a }); }
+  addressFormValid(): boolean {
+    const f = this.addressForm();
+    return !!f && !!f.label.trim() && !!f.line1.trim() && !!f.city.trim() && !!f.postalCode.trim();
+  }
+  saveAddress() {
+    const f = this.addressForm();
+    if (!f || !this.addressFormValid()) return;
+    const req = f.id ? this.auth.updateAddress(f.id, f) : this.auth.addAddress(f);
+    req.subscribe({
+      next: () => {
+        this.addressForm.set(null);
+        this.auth.getAddresses().subscribe(list => this.addresses.set(list));
+        this.showToast('success', 'Address saved.');
+      },
+      error: () => this.showToast('error', 'Failed to save address.'),
+    });
+  }
+  setDefaultAddress(a: Address) {
+    if (!a.id) return;
+    this.auth.updateAddress(a.id, { ...a, defaultAddress: true }).subscribe({
+      next: () => { this.auth.getAddresses().subscribe(list => this.addresses.set(list)); this.showToast('success', 'Default address updated.'); },
+      error: () => this.showToast('error', 'Failed to update default address.'),
+    });
+  }
+  confirmDeleteAddress(a: Address) {
+    this.confirmState.set({
+      message: `Delete the "${a.label}" address? This cannot be undone.`,
+      onConfirm: () => {
+        if (!a.id) return;
+        this.auth.deleteAddress(a.id).subscribe({
+          next: () => { this.addresses.update(list => list.filter(x => x.id !== a.id)); this.showToast('success', 'Address deleted.'); },
+          error: () => this.showToast('error', 'Failed to delete address.'),
+        });
+      }
+    });
   }
 
-  deleteAccount(): void {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      this.auth.deleteAccount().subscribe({
-        next: () => {
-          this.auth.logout().subscribe(() => {
-            this.router.navigate(['/']);
-          });
-        },
-        error: (err: any) => {
-          console.error('Failed to delete account', err);
-          this.privacyMsg.set('Failed to delete account. Please try again.');
-        }
-      });
-    }
+  // ---- Payment methods ----
+  cardIcon(brand: string): string {
+    return { Visa: '💳', Mastercard: '💳', Amex: '💳', Discover: '💳' }[brand] ?? '💳';
   }
+  addCard() {
+    if (this.newCard.last4.length !== 4) return;
+    this.paymentMethodService.add({ ...this.newCard, isDefault: this.cards().length === 0 }).subscribe({
+      next: (card) => {
+        this.cards.update(list => [...list, card]);
+        this.showAddCard.set(false);
+        this.newCard = { brand: 'Visa', last4: '', expMonth: 1, expYear: new Date().getFullYear() + 2 };
+        this.showToast('success', 'Card added.');
+      },
+      error: () => this.showToast('error', 'Failed to add card.'),
+    });
+  }
+  setDefaultCard(c: PaymentMethodDto) {
+    if (!c.id) return;
+    this.paymentMethodService.setDefault(c.id).subscribe({
+      next: () => this.paymentMethodService.list().subscribe(list => this.cards.set(list)),
+      error: () => this.showToast('error', 'Failed to update default card.'),
+    });
+  }
+  confirmDeleteCard(c: PaymentMethodDto) {
+    this.confirmState.set({
+      message: `Remove ${c.brand} •••• ${c.last4}?`,
+      onConfirm: () => {
+        if (!c.id) return;
+        this.paymentMethodService.remove(c.id).subscribe({
+          next: () => { this.cards.update(list => list.filter(x => x.id !== c.id)); this.showToast('success', 'Card removed.'); },
+          error: () => this.showToast('error', 'Failed to remove card.'),
+        });
+      }
+    });
+  }
+
+  // ---- Security ----
+  updatePassword() {
+    if (!this.canChangePassword()) return;
+    this.changingPassword.set(true);
+    this.auth.changePassword(this.currentPassword, this.newPassword).subscribe({
+      next: () => {
+        this.changingPassword.set(false);
+        this.currentPassword = this.newPassword = this.confirmPassword = '';
+        this.showToast('success', 'Password updated.');
+      },
+      error: (err) => {
+        this.changingPassword.set(false);
+        this.showToast('error', err?.code === 'auth/invalid-credential' ? 'Current password is incorrect.' : 'Failed to update password.');
+      },
+    });
+  }
+
+  goRewards() { this.router.navigate(['/rewards']); }
 }

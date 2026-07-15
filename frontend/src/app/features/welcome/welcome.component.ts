@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { OnboardingService } from '../../core/services/onboarding.service';
 import { UserProfile, AuthResponse } from '../../shared/models';
 import { LightfallComponent } from '../../shared/lightfall/lightfall.component';
 
@@ -405,6 +406,7 @@ export class WelcomeComponent {
   ];
 
   private readonly authService = inject(AuthService);
+  private readonly onboarding = inject(OnboardingService);
   private readonly router = inject(Router);
 
   mode = signal<Mode>('login');
@@ -659,6 +661,7 @@ export class WelcomeComponent {
     } else if (roles.includes('RESTAURANT_OWNER') || roles.includes('RESTAURANT_STAFF')) {
       this.router.navigate(['/owner']);
     } else {
+      this.onboarding.triggerWelcome();
       this.router.navigate(['/home']);
     }
   }

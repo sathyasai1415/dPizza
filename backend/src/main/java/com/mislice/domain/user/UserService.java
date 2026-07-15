@@ -39,6 +39,10 @@ public class UserService {
         user.setBudgetRange(dto.budgetRange());
         user.setAvatarUrl(dto.avatarUrl());
         user.setNotificationsEnabled(dto.notificationsEnabled());
+        if (dto.preferredLanguage() != null) user.setPreferredLanguage(dto.preferredLanguage());
+        if (dto.timeZone() != null) user.setTimeZone(dto.timeZone());
+        if (dto.defaultFulfillment() != null) user.setDefaultFulfillment(dto.defaultFulfillment());
+        if (dto.notificationPrefs() != null) user.setNotificationPrefs(dto.notificationPrefs());
 
         User saved = userRepository.save(user);
         return userMapper.toDto(saved);
@@ -64,6 +68,9 @@ public class UserService {
                 .latitude(dto.latitude())
                 .longitude(dto.longitude())
                 .defaultAddress(dto.defaultAddress())
+                .deliveryInstructions(dto.deliveryInstructions())
+                .contactName(dto.contactName())
+                .contactPhone(dto.contactPhone())
                 .build();
 
         if (dto.defaultAddress()) {
@@ -95,7 +102,10 @@ public class UserService {
         address.setPostalCode(dto.postalCode());
         address.setLatitude(dto.latitude());
         address.setLongitude(dto.longitude());
-        
+        address.setDeliveryInstructions(dto.deliveryInstructions());
+        address.setContactName(dto.contactName());
+        address.setContactPhone(dto.contactPhone());
+
         if (dto.defaultAddress() && !address.isDefaultAddress()) {
             List<Address> existing = addressRepository.findByUserIdAndDeletedFalse(userId);
             for (Address add : existing) {

@@ -51,4 +51,13 @@ public class Address extends BaseEntity {
     @Column(name = "is_default", nullable = false)
     @Builder.Default
     private boolean defaultAddress = false;
+
+    @Column(name = "delivery_instructions", length = 500)
+    private String deliveryInstructions;
+
+    @Column(name = "contact_name", length = 120)
+    private String contactName;
+
+    @Column(name = "contact_phone", length = 30)
+    private String contactPhone;
 }

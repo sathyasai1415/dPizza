@@ -2,17 +2,20 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, tap, catchError, throwError, of, switchMap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, UserProfile } from '../../shared/models';
+import { AuthResponse, UserProfile, Address } from '../../shared/models';
 
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
   GoogleAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
+  reauthenticateWithCredential,
+  updatePassword,
+  EmailAuthProvider,
   User as FirebaseUser
 } from 'firebase/auth';
 
@@ -253,6 +256,35 @@ export class AuthService {
 
   sendPasswordReset(email: string): Observable<void> {
     return from(sendPasswordResetEmail(this.firebaseAuth, email));
+  }
+
+  /** Changes the signed-in user's password after re-verifying their current one. */
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    const user = this.firebaseAuth.currentUser;
+    if (!user || !user.email) {
+      return throwError(() => new Error('No active session.'));
+    }
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    return from(
+      reauthenticateWithCredential(user, credential).then(() => updatePassword(user, newPassword))
+    ).pipe(catchError(err => throwError(() => err)));
+  }
+
+  // ---- Saved addresses ----
+  getAddresses(): Observable<Address[]> {
+    return this.http.get<Address[]>(`${this.apiUrl}/users/me/addresses`);
+  }
+
+  addAddress(address: Partial<Address>): Observable<Address> {
+    return this.http.post<Address>(`${this.apiUrl}/users/me/addresses`, address);
+  }
+
+  updateAddress(id: string, address: Partial<Address>): Observable<Address> {
+    return this.http.put<Address>(`${this.apiUrl}/users/me/addresses/${id}`, address);
+  }
+
+  deleteAddress(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/me/addresses/${id}`);
   }
 
   deleteAccount(): Observable<void> {
