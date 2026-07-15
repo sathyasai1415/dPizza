@@ -269,11 +269,14 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               </div>
 
               <!-- Search Bar -->
-              <div class="mt-4 flex items-center bg-[#111111] border border-[#D4AF37]/15 rounded-xl px-3 py-2.5">
-                <span class="text-base mr-2">🔍</span>
-                <input type="text" [(ngModel)]="customAddressInput" placeholder="Enter Your Address" (keyup.enter)="selectCustomAddress()"
-                  class="w-full bg-transparent text-xs text-white placeholder-neutral-500 outline-none" />
-                <button (click)="selectCustomAddress()" class="text-[10px] font-black text-[#D4AF37] hover:underline uppercase shrink-0 ml-2">Select</button>
+              <div class="mt-4 flex flex-col gap-1.5 bg-[#111111] border border-[#D4AF37]/15 rounded-xl px-3 py-2.5">
+                <div class="flex items-center w-full">
+                  <span class="text-base mr-2">🔍</span>
+                  <input type="text" [(ngModel)]="customAddressInput" placeholder="Manually write address (e.g. 123 Main St, Detroit)" (keyup.enter)="selectCustomAddress()"
+                    class="w-full bg-transparent text-xs text-white placeholder-neutral-500 outline-none" />
+                  <button (click)="selectCustomAddress()" class="text-[10px] font-black text-[#D4AF37] hover:underline uppercase shrink-0 ml-2">Select</button>
+                </div>
+                <p class="text-[9px] text-[#D4AF37]/60 font-semibold px-6">Or manually write location above and press Select/Enter</p>
               </div>
 
               <!-- Quick Labels -->

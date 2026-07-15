@@ -289,23 +289,23 @@ interface MapPin {
       </section>
 
       <!-- Reusable discovery-row store card -->
-      <ng-template #storeCardTpl let-store let-badgeIcon="badgeIcon" let-badgeLabel="badgeLabel">
+      <ng-template #storeCardTpl let-store let-badgeIcon="badgeIcon" let-badgeLabel="badgeLabel" let-isFav="isFav">
         <div (click)="viewStore(store.slug)"
-          class="shrink-0 w-60 rounded-2xl bg-[#0A0A0A] border border-[#D4AF37]/25 hover:border-[#D4AF37]/60 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-sm">
+          [class]="'shrink-0 w-60 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-md border ' + (isFav ? 'bg-[#7B1B38] border-[#7B1B38] text-white' : 'bg-[#0A0A0A] border-[#D4AF37]/25 hover:border-[#D4AF37]/60 text-white')">
           <div class="h-28 relative flex items-center justify-center text-5xl"
-            [style.background]="store.brandColor ? store.brandColor : 'var(--gradient-mislice)'">
+            [style.background]="isFav ? 'transparent' : (store.brandColor ? store.brandColor : 'var(--gradient-mislice)')">
             <span>{{ store.emoji }}</span>
-            <span class="absolute top-2 left-2 text-[9px] bg-[#1E3A8A] border border-[#D4AF37]/50 text-[#D4AF37] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
+            <span [class]="'absolute top-2 left-2 text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider border ' + (isFav ? 'bg-white/10 border-white/30 text-white' : 'bg-[#1E3A8A] border-[#D4AF37]/50 text-[#D4AF37]')">
               {{ badgeIcon }} {{ badgeLabel }}
             </span>
             <button (click)="toggleFavourite(store.id); $event.stopPropagation()"
-              class="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#0A0A0A]/80 border border-[#D4AF37]/40 flex items-center justify-center text-xs">
+              [class]="'absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs border ' + (isFav ? 'bg-white/10 border-white/20' : 'bg-[#0A0A0A]/80 border-[#D4AF37]/40')">
               {{ isFavourite(store.id) ? '❤️' : '🤍' }}
             </button>
           </div>
           <div class="p-4 space-y-2">
-            <h4 class="font-black text-sm text-[#D4AF37] truncate">{{ store.name }}</h4>
-            <div class="flex items-center gap-1.5 text-[11px] text-[#D4AF37]/70 flex-wrap">
+            <h4 [class]="'font-black text-sm truncate ' + (isFav ? 'text-white' : 'text-[#D4AF37]')">{{ store.name }}</h4>
+            <div [class]="'flex items-center gap-1.5 text-[11px] flex-wrap ' + (isFav ? 'text-white/80' : 'text-[#D4AF37]/70')">
               <span>★ {{ store.ratingAvg | number:'1.1-1' }}</span>
               <span>·</span>
               <span>🚴 {{ store.deliveryFee === 0 ? 'Free' : (store.deliveryFee | currency) }}</span>
@@ -313,7 +313,7 @@ interface MapPin {
               <span>⏱️ {{ store.averageEtaMinutes || 25 }}m</span>
             </div>
             <button (click)="viewStore(store.slug); $event.stopPropagation()"
-              class="w-full mt-1 py-1.5 rounded-lg text-[11px] font-bold bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/20 transition">
+              [class]="'w-full mt-1 py-1.5 rounded-lg text-[11px] font-bold transition border ' + (isFav ? 'bg-white/10 border-white/20 text-white hover:bg-white/20' : 'bg-[#D4AF37]/10 border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/20')">
               🔄 Compare Prices
             </button>
           </div>
@@ -371,7 +371,7 @@ interface MapPin {
             <h2 class="text-xl font-black text-[color:var(--color-hero-text)] flex items-center gap-2">❤️ Your Favourites</h2>
             <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
               <ng-container *ngFor="let store of favouriteStores()">
-                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '❤️', badgeLabel: 'Favourite' }"></ng-container>
+                <ng-container *ngTemplateOutlet="storeCardTpl; context: { $implicit: store, badgeIcon: '❤️', badgeLabel: 'Favourite', isFav: true }"></ng-container>
               </ng-container>
             </div>
           </section>
