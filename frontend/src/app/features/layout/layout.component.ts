@@ -241,32 +241,73 @@ import { OnboardingService } from '../../core/services/onboarding.service';
 
           <!-- Top Nav buttons for customers -->
           <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" 
-            [class.overflow-visible]="cityDropdownOpen()" 
-            [class.overflow-x-auto]="!cityDropdownOpen()"
             class="flex items-center gap-2 flex-1 lg:overflow-visible scrollbar-none">
 
-            <!-- Pick City / Location dropdown -->
+            <!-- Pick City / Location display (DoorDash Style) -->
             <div class="relative shrink-0 flex-1 lg:flex-initial min-w-0">
-              <button (click)="toggleCityDropdown($event)" class="w-full lg:w-auto pill-fx pill-fx-blue flex items-center gap-1.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#D4AF37] px-3.5 py-1.5 rounded-full text-nav transition">
+              <button (click)="openAddressModal($event)" class="w-full lg:w-auto pill-fx pill-fx-blue flex items-center gap-1.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#D4AF37] px-3.5 py-1.5 rounded-full text-nav transition hover:bg-[#D4AF37]/10">
                 <span class="pill-fx-fill" aria-hidden="true"></span>
                 <span class="pill-fx-content relative z-10 flex items-center gap-1.5 min-w-0">
                   <span class="shrink-0">📍</span>
-                  <span class="truncate">{{ locationService.selectedCity() === 'All' ? 'Pick your city' : locationService.selectedCity() }}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 shrink-0 transition-transform duration-200" [class.rotate-180]="cityDropdownOpen()">
+                  <span class="truncate font-bold">{{ locationService.selectedCity() === 'All' ? 'Select Location' : locationService.selectedCity() }}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 shrink-0 text-[#D4AF37]">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                   </svg>
                 </span>
               </button>
+            </div>
+          </div>
 
-              <!-- Dropdown Menu -->
-              <div *ngIf="cityDropdownOpen()" class="absolute left-0 mt-2 w-48 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl z-50 py-1.5 overflow-hidden animate-fadeIn animate-duration-150">
-                <div class="px-3 py-1.5 text-[9px] font-black text-[#D4AF37]/70 uppercase tracking-widest border-b border-[#D4AF37]/25">Select City</div>
-                <button *ngFor="let city of locationService.citiesList()" (click)="selectCity(city)"
-                  class="w-full text-left px-4 py-2 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20 transition flex items-center justify-between">
-                  <span>{{ city === 'All' ? 'All Cities' : city }}</span>
-                  <span *ngIf="locationService.selectedCity() === city" class="text-[#FF8A00] text-xs">✓</span>
-                </button>
+          <!-- DoorDash Addresses Modal Overlay -->
+          <div *ngIf="addressModalOpen()" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <div class="relative w-full max-w-md rounded-[28px] border border-[#D4AF37]/25 bg-[#0A0A0A] p-6 shadow-2xl text-white animate-fadeIn">
+              
+              <!-- Header -->
+              <div class="flex items-center justify-between pb-4 border-b border-[#D4AF37]/10">
+                <h3 class="text-lg font-black text-[#D4AF37]">Addresses</h3>
+                <button (click)="addressModalOpen.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition text-sm">✕</button>
               </div>
+
+              <!-- Search Bar -->
+              <div class="mt-4 flex items-center bg-[#111111] border border-[#D4AF37]/15 rounded-xl px-3 py-2.5">
+                <span class="text-base mr-2">🔍</span>
+                <input type="text" [(ngModel)]="customAddressInput" placeholder="Enter Your Address" (keyup.enter)="selectCustomAddress()"
+                  class="w-full bg-transparent text-xs text-white placeholder-neutral-500 outline-none" />
+                <button (click)="selectCustomAddress()" class="text-[10px] font-black text-[#D4AF37] hover:underline uppercase shrink-0 ml-2">Select</button>
+              </div>
+
+              <!-- Quick Labels -->
+              <div class="mt-4 flex items-center gap-2">
+                <button (click)="selectCustomAddress('Work')" class="px-3 py-1.5 rounded-full border border-neutral-700 bg-white/5 text-[10px] font-bold text-neutral-300 hover:border-[#D4AF37] hover:text-white transition">🏢 Work</button>
+                <button (click)="selectCustomAddress('Home')" class="px-3 py-1.5 rounded-full border border-neutral-700 bg-white/5 text-[10px] font-bold text-neutral-300 hover:border-[#D4AF37] hover:text-white transition">🏠 Home</button>
+                <span class="text-[10px] font-bold text-[#D4AF37] cursor-pointer hover:underline">+ Add label</span>
+              </div>
+
+              <!-- Address List -->
+              <div class="mt-5 space-y-2.5 max-h-56 overflow-y-auto pr-1 scrollbar-none">
+                <p class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Selectable Addresses & Cities</p>
+                
+                <!-- Saved items mock list -->
+                <button *ngFor="let item of savedAddresses" (click)="selectCity(item.address)"
+                  class="w-full text-left p-3 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition flex items-start gap-3">
+                  <span class="text-xs mt-0.5" [class.text-[#FF8A00]]="locationService.selectedCity() === item.address">●</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-white truncate">{{ item.label }}</p>
+                    <p class="text-[10px] text-neutral-400 truncate">{{ item.address }}</p>
+                  </div>
+                </button>
+
+                <!-- Cities dynamically loaded from DB -->
+                <div class="pt-2 border-t border-neutral-800 space-y-1.5">
+                  <p class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Michigan Cities</p>
+                  <button *ngFor="let city of locationService.citiesList()" (click)="selectCity(city)"
+                    class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/10 transition flex items-center justify-between">
+                    <span>📍 {{ city === 'All' ? 'All Michigan Cities' : city }}</span>
+                    <span *ngIf="locationService.selectedCity() === city" class="text-[#FF8A00] text-xs">✓</span>
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -545,7 +586,15 @@ export class LayoutComponent implements OnInit {
   showIntro = signal(false);
   searchQuery = '';
   logoActive = signal(false);
-  cityDropdownOpen = signal(false);
+  addressModalOpen = signal(false);
+  customAddressInput = '';
+
+  savedAddresses = [
+    { label: 'Work', address: '22701 Gratiot Ave, Eastpointe, MI 48021, USA' },
+    { label: 'Home', address: '35301 Drakeshire Ln, Farmington, MI 48335, USA' },
+    { label: 'Alternate', address: '28500 Franklin River Dr, 308, Southfield, MI 48034, USA' },
+    { label: 'Campus', address: '21870 Green Hill Rd, Farmington, MI 48335, USA' }
+  ];
 
   // Mobile bottom tab bar popovers (customer)
   buildMenuOpen = signal(false);
@@ -642,21 +691,31 @@ export class LayoutComponent implements OnInit {
 
   @HostListener('document:click')
   closeDropdowns() {
-    this.cityDropdownOpen.set(false);
     this.buildMenuOpen.set(false);
     this.accountMenuOpen.set(false);
     this.supportMenuOpen.set(false);
     this.ownerMoreOpen.set(false);
   }
 
-  toggleCityDropdown(event: Event) {
+  openAddressModal(event: Event) {
     event.stopPropagation();
-    this.cityDropdownOpen.update(v => !v);
+    this.addressModalOpen.set(true);
+  }
+
+  selectCustomAddress(label?: string) {
+    const addr = label 
+      ? this.savedAddresses.find(a => a.label === label)?.address 
+      : this.customAddressInput.trim();
+    
+    if (addr) {
+      this.selectCity(addr);
+      this.customAddressInput = '';
+    }
   }
 
   selectCity(city: string) {
     this.locationService.selectCity(city);
-    this.cityDropdownOpen.set(false);
+    this.addressModalOpen.set(false);
   }
 
   navigateToExplore() {

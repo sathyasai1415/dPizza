@@ -40,17 +40,165 @@ interface MapPin {
 
       <!-- SEARCH & QUICK INTENT SECTION -->
       <section class="space-y-6">
-        <!-- Search Bar (with a "Near Me" shortcut beside it on mobile — desktop keeps the pill in the top nav) -->
-        <div class="flex items-center gap-3 w-full max-w-2xl mx-auto">
-          <div class="relative flex-1 min-w-0">
-            <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="executeGlobalSearch()" placeholder="Search pizzas, restaurants, or deals..."
-              class="w-full bg-[#0A0A0A] border border-[#D4AF37]/35 focus:border-[#D4AF37] rounded-full py-3.5 pl-12 pr-6 text-[#F4EFE6] text-base placeholder-[#D4AF37]/40 shadow-inner transition outline-none" />
-            <span class="absolute left-4.5 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+        <!-- Search Bar (DoorDash/UberEats Optimized Suggestion Search) -->
+        <div class="relative w-full max-w-2xl mx-auto z-40">
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 min-w-0">
+              <input type="text" [(ngModel)]="searchQuery" (focus)="showSearchSuggestions.set(true)" (keyup.enter)="executeGlobalSearch()" placeholder="Search pizzas, restaurants, or deals..."
+                class="w-full bg-[#0A0A0A] border border-[#D4AF37]/35 focus:border-[#D4AF37] rounded-full py-3.5 pl-12 pr-6 text-[#F4EFE6] text-base placeholder-[#D4AF37]/40 shadow-inner transition outline-none" />
+              <span class="absolute left-4.5 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+            </div>
+            <button (click)="scrollToMap()" title="Near Me"
+              class="shrink-0 w-12 h-12 rounded-full bg-[#0A0A0A] border border-[#D4AF37]/35 hover:border-[#D4AF37] hover:bg-[#D4AF37]/15 flex items-center justify-center shadow-md text-xl active:scale-95 transition-all duration-200">
+              🗺️
+            </button>
           </div>
-          <button (click)="scrollToMap()" title="Near Me"
-            class="shrink-0 w-12 h-12 rounded-full bg-[#0A0A0A] border border-[#D4AF37]/35 hover:border-[#D4AF37] hover:bg-[#D4AF37]/15 flex items-center justify-center shadow-md text-xl active:scale-95 transition-all duration-200">
-            🗺️
-          </button>
+
+          <!-- Click-away backdrop for suggestions -->
+          <div *ngIf="showSearchSuggestions()" (click)="showSearchSuggestions.set(false)" class="fixed inset-0 z-30 bg-transparent"></div>
+
+          <!-- Suggestion Dropdown -->
+          <div *ngIf="showSearchSuggestions()" class="absolute left-0 right-0 mt-2 rounded-[24px] border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl z-40 overflow-hidden text-left py-3">
+            
+            <!-- Quick filters list -->
+            <div class="px-4 py-2 border-b border-[#D4AF37]/10 space-y-1">
+              <p class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Quick Custom Queries</p>
+              <button (click)="selectCheapestShortcut()" class="w-full text-left py-2 px-3 rounded-xl hover:bg-[#D4AF37]/10 text-xs font-bold text-white hover:text-[#D4AF37] flex items-center justify-between transition">
+                <span class="flex items-center gap-2">💰 Cheapest pizza near me</span>
+                <span class="text-[10px] text-neutral-500">Configure Meat & Toppings →</span>
+              </button>
+              <button (click)="selectFastestShortcut()" class="w-full text-left py-2 px-3 rounded-xl hover:bg-[#D4AF37]/10 text-xs font-bold text-white hover:text-[#D4AF37] flex items-center justify-between transition">
+                <span class="flex items-center gap-2">⚡ Fastest pepperoni pizza near me</span>
+                <span class="text-[10px] text-neutral-500">Configure Size & Details →</span>
+              </button>
+            </div>
+
+            <!-- Matching restaurants suggestion -->
+            <div class="px-4 pt-2 space-y-2">
+              <p class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Matching Restaurants</p>
+              <div *ngIf="matchingSearchRestaurants().length === 0" class="text-xs text-neutral-500 py-2 text-center">
+                {{ searchQuery.trim() ? 'No matching pizzerias found' : 'Start typing to find local restaurants...' }}
+              </div>
+              <div class="space-y-1.5 max-h-56 overflow-y-auto scrollbar-none">
+                <button *ngFor="let store of matchingSearchRestaurants()" (click)="viewStore(store.slug)"
+                  class="w-full text-left p-3 rounded-xl border border-neutral-900 bg-neutral-950/20 hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/25 transition flex items-center justify-between">
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-white truncate">🍕 {{ store.name }}</p>
+                    <p class="text-[9px] text-neutral-400 truncate">{{ store.description || 'Michigan local pizza joint' }}</p>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-[10px] font-bold text-[#D4AF37]">★ {{ store.ratingAvg || '4.5' }}</span>
+                    <p class="text-[9px] text-neutral-500">{{ store.city }}</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- CHEAPEST CUSTOM PIZZA INTERACTIVE MODAL -->
+        <div *ngIf="showCheapestModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/85 backdrop-blur-sm">
+          <div class="relative w-full max-w-md rounded-[28px] border border-[#D4AF37]/25 bg-[#0A0A0A] p-6 shadow-2xl text-white">
+            <button (click)="showCheapestModal.set(false)" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition text-sm">✕</button>
+            
+            <h3 class="text-lg font-black text-[#D4AF37] pb-3 border-b border-[#D4AF37]/10">💰 Cheapest Custom Pizza Near Me</h3>
+            
+            <div class="mt-4 space-y-4 text-left">
+              <!-- Meat Selection -->
+              <div>
+                <label class="block text-xs font-bold text-neutral-400 uppercase mb-1.5">Select Meat Preference</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button *ngFor="let m of ['None', 'Pepperoni', 'Chicken', 'Beef', 'Pork']" (click)="cheapestMeat = m"
+                    [class]="'py-2 rounded-xl text-xs font-bold transition border ' + (cheapestMeat === m ? 'border-[#D4AF37] bg-[#D4AF37]/15 text-white' : 'border-neutral-800 bg-neutral-900 text-neutral-400')">
+                    {{ m === 'None' ? '🥗 Veggie' : m }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Toppings Selection -->
+              <div>
+                <label class="block text-xs font-bold text-neutral-400 uppercase mb-2">Select Toppings</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="cheapestToppings.mushrooms" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🍄 Mushrooms</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="cheapestToppings.olives" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🫒 Olives</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="cheapestToppings.onions" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🧅 Onions</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="cheapestToppings.peppers" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🫑 Green Peppers</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="cheapestToppings.jalapenos" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🌶️ Jalapenos</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="cheapestToppings.cheese" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🧀 Extra Cheese</span>
+                  </label>
+                </div>
+              </div>
+
+              <button (click)="findCheapestPizza()"
+                class="w-full mt-2 py-3 rounded-xl bg-[#D4AF37] hover:brightness-110 text-black font-black text-sm shadow-lg transition">
+                Find Cheapest Match
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASTEST PEPPERONI PIZZA INTERACTIVE MODAL -->
+        <div *ngIf="showFastestModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/85 backdrop-blur-sm">
+          <div class="relative w-full max-w-md rounded-[28px] border border-[#D4AF37]/25 bg-[#0A0A0A] p-6 shadow-2xl text-white">
+            <button (click)="showFastestModal.set(false)" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition text-sm">✕</button>
+            
+            <h3 class="text-lg font-black text-[#D4AF37] pb-3 border-b border-[#D4AF37]/10">⚡ Fastest Pepperoni Pizza Near Me</h3>
+            
+            <div class="mt-4 space-y-4 text-left">
+              <!-- Size Selection -->
+              <div>
+                <label class="block text-xs font-bold text-neutral-400 uppercase mb-1.5">Select Size Preference</label>
+                <div class="grid grid-cols-4 gap-2">
+                  <button *ngFor="let sz of ['Small', 'Medium', 'Large', 'Extra Large']" (click)="fastestSize = sz"
+                    [class]="'py-2 rounded-xl text-xs font-bold transition border ' + (fastestSize === sz ? 'border-[#D4AF37] bg-[#D4AF37]/15 text-white' : 'border-neutral-800 bg-neutral-900 text-neutral-400')">
+                    {{ sz }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Options Selection -->
+              <div>
+                <label class="block text-xs font-bold text-neutral-400 uppercase mb-2">Options</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="fastestToppings.cheese" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🧀 Extra Cheese</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="fastestToppings.pepperoni" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🍕 Double Pepperoni</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 rounded-xl border border-neutral-800 bg-neutral-900/50 cursor-pointer col-span-2">
+                    <input type="checkbox" [(ngModel)]="fastestToppings.jalapenos" class="accent-[#D4AF37]" />
+                    <span class="text-xs text-neutral-300">🌶️ Add Jalapenos for Kick</span>
+                  </label>
+                </div>
+              </div>
+
+              <button (click)="findFastestPizza()"
+                class="w-full mt-2 py-3 rounded-xl bg-[#D4AF37] hover:brightness-110 text-black font-black text-sm shadow-lg transition">
+                Compare Fastest Match
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Popular Pizzas (Quick Order) -->
@@ -477,6 +625,27 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   searchLocationQuery = '';
   searchQuery = '';
 
+  // Optimized search bar & modal states
+  showSearchSuggestions = signal(false);
+  showCheapestModal = signal(false);
+  showFastestModal = signal(false);
+
+  cheapestMeat = '';
+  cheapestToppings = { mushrooms: false, olives: false, onions: false, peppers: false, jalapenos: false, cheese: false };
+
+  fastestSize = 'Large';
+  fastestToppings = { cheese: false, pepperoni: false, jalapenos: false };
+
+  matchingSearchRestaurants = computed(() => {
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return this.stores().filter(s => 
+      s.name.toLowerCase().includes(q) || 
+      (s.description ?? '').toLowerCase().includes(q) ||
+      (s.city ?? '').toLowerCase().includes(q)
+    );
+  });
+
   // Selected map pin overlay state
   selectedMapPin = signal<MapPin | null>(null);
 
@@ -729,6 +898,46 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  selectCheapestShortcut() {
+    this.showSearchSuggestions.set(false);
+    this.showCheapestModal.set(true);
+  }
+
+  selectFastestShortcut() {
+    this.showSearchSuggestions.set(false);
+    this.showFastestModal.set(true);
+  }
+
+  findCheapestPizza() {
+    this.showCheapestModal.set(false);
+    const toppings = Object.keys(this.cheapestToppings)
+      .filter(k => (this.cheapestToppings as any)[k])
+      .join(',');
+
+    this.router.navigate(['/quick-compare'], {
+      queryParams: {
+        intent: 'Cheapest',
+        meat: this.cheapestMeat,
+        toppings: toppings
+      }
+    });
+  }
+
+  findFastestPizza() {
+    this.showFastestModal.set(false);
+    const toppings = Object.keys(this.fastestToppings)
+      .filter(k => (this.fastestToppings as any)[k])
+      .join(',');
+
+    this.router.navigate(['/quick-compare'], {
+      queryParams: {
+        intent: 'Fastest',
+        size: this.fastestSize,
+        toppings: toppings
+      }
+    });
+  }
+
   scrollToMap() {
     const el = document.getElementById('price-map');
     if (el) {
@@ -737,6 +946,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   viewStore(slug: string) {
+    this.showSearchSuggestions.set(false);
     this.router.navigate(['/restaurants', slug]);
   }
 }
