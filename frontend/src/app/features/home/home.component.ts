@@ -893,7 +893,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   executeGlobalSearch() {
-    if (this.searchQuery.trim()) {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) return;
+
+    const matchingStore = this.stores().find(s => 
+      s.name.toLowerCase().includes(query) || 
+      s.slug.toLowerCase().includes(query)
+    );
+
+    if (matchingStore) {
+      this.showSearchSuggestions.set(false);
+      this.router.navigate(['/restaurants', matchingStore.slug]);
+    } else {
       this.router.navigate(['/quick-compare'], { queryParams: { q: this.searchQuery.trim() } });
     }
   }
