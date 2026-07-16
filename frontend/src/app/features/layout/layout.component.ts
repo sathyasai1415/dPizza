@@ -79,7 +79,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
             <!-- Section 1: Core Marketplace -->
             <div class="space-y-1">
               <p [class.lg:hidden]="navCollapsed()" class="text-[12px] font-bold tracking-[0.15em] uppercase text-[#B28D2C] px-3 mb-2">Marketplace</p>
-              <a routerLink="/home" routerLinkActive="active-tab" title="Order Food"
+              <a routerLink="/order" routerLinkActive="active-tab" title="Order Food"
                 [attr.data-tooltip]="navCollapsed() ? 'Order Food' : null"
                 [class.lg:justify-center]="navCollapsed()"
                 class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
@@ -239,24 +239,31 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               <span class="font-black text-sm tracking-tight"><span style="color: #FF8A00">MI</span><span style="color: #D4AF37">Slice</span></span>
             </a>
 
-          <!-- Top Nav buttons for customers -->
-          <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" 
-            class="flex items-center gap-2 flex-1 lg:overflow-visible scrollbar-none">
+            <!-- Top Nav buttons for customers -->
+            <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" 
+              class="flex items-center gap-4 flex-1 lg:overflow-visible scrollbar-none">
 
-            <!-- Pick City / Location display (DoorDash Style) -->
-            <div class="relative shrink-0 flex-1 lg:flex-initial min-w-0">
-              <button (click)="openAddressModal($event)" class="w-full lg:w-auto pill-fx pill-fx-blue flex items-center gap-1.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#D4AF37] px-3.5 py-1.5 rounded-full text-nav transition hover:bg-[#D4AF37]/10">
-                <span class="pill-fx-fill" aria-hidden="true"></span>
-                <span class="pill-fx-content relative z-10 flex items-center gap-1.5 min-w-0">
-                  <span class="shrink-0">📍</span>
-                  <span class="truncate font-bold">{{ locationService.selectedCity() === 'All' ? 'Select Location' : locationService.selectedCity() }}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 shrink-0 text-[#D4AF37]">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </span>
-              </button>
+              <!-- Pick City / Location display (DoorDash Style) -->
+              <div class="relative shrink-0 flex-1 lg:flex-initial min-w-0">
+                <button (click)="openAddressModal($event)" class="w-full lg:w-auto pill-fx pill-fx-blue flex items-center gap-1.5 bg-[#0E0E10] border border-[#2B2B31] text-[#D4AF37] px-3.5 py-1.5 rounded-full text-nav transition hover:bg-white/5">
+                  <span class="pill-fx-fill" aria-hidden="true"></span>
+                  <span class="pill-fx-content relative z-10 flex items-center gap-1.5 min-w-0">
+                    <span class="shrink-0">📍</span>
+                    <span class="truncate font-bold text-white">{{ locationService.selectedCity() === 'All' ? 'Select Location' : locationService.selectedCity() }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 shrink-0 text-[#D4AF37]">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </span>
+                </button>
+              </div>
+
+              <!-- Global Search bar in top navigation -->
+              <div class="hidden md:flex items-center gap-2.5 flex-1 max-w-md bg-[#18181B] border border-[#2B2B31] rounded-full px-4 py-1.5">
+                <span class="text-sm text-[#B8B8B8] select-none">🔍</span>
+                <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()" placeholder="Search pizza, pizzerias..." 
+                  class="flex-1 bg-transparent text-sm text-[#FFFFFF] placeholder-[#8A8A8A] outline-none font-semibold" />
+              </div>
             </div>
-          </div>
 
           <!-- DoorDash Addresses Modal Overlay -->
           <div *ngIf="addressModalOpen()" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -651,7 +658,7 @@ export class LayoutComponent implements OnInit {
   submitSearch() {
     const q = this.searchQuery.trim();
     if (!q) return;
-    this.router.navigate(['/home'], { queryParams: { q } });
+    this.router.navigate(['/order'], { queryParams: { q } });
   }
 
   ngOnInit() {

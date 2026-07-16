@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { WelcomeComponent } from './features/welcome/welcome.component';
 import { LayoutComponent } from './features/layout/layout.component';
 import { HomeComponent } from './features/home/home.component';
+import { OrderComponent } from './features/order/order.component';
 import { StoreDetailComponent } from './features/store-detail/store-detail.component';
 import { CartComponent } from './features/cart/cart.component';
 import { CheckoutComponent } from './features/checkout/checkout.component';
@@ -32,6 +33,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
+      { path: 'order', component: OrderComponent },
       { path: 'builder', component: BuilderComponent },
       { path: 'restaurants/:slug', component: StoreDetailComponent },
       { path: 'cart', component: CartComponent },
