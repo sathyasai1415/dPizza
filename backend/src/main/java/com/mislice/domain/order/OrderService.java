@@ -7,6 +7,7 @@ import com.mislice.domain.cart.CartRepository;
 import com.mislice.domain.coupon.Coupon;
 import com.mislice.domain.order.dto.OrderDto;
 import com.mislice.domain.order.dto.PlaceOrderRequest;
+import com.mislice.domain.notification.OrderNotificationService;
 import com.mislice.domain.restaurant.Restaurant;
 import com.mislice.domain.restaurant.RestaurantRepository;
 import com.mislice.domain.user.User;
@@ -38,6 +39,7 @@ public class OrderService {
     private final RestaurantRepository restaurantRepository;
     private final OrderMapper orderMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final OrderNotificationService notificationService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public void verifyRestaurantAccess(UUID restaurantId, UUID currentUserId) {
@@ -218,7 +220,12 @@ public class OrderService {
         cart.setCoupon(null);
         cartRepository.save(cart);
 
-        return orderMapper.toDto(savedOrder);
+        OrderDto orderDto = orderMapper.toDto(savedOrder);
+
+        // Notify restaurant owner of new order
+        notificationService.notifyNewOrder(orderDto);
+
+        return orderDto;
     }
 
     public OrderDto updateOrderStatus(UUID orderId, String newStatus, String changedBy, String note) {
@@ -244,16 +251,11 @@ public class OrderService {
             .build();
         orderStatusHistoryRepository.save(history);
 
-        try {
-            messagingTemplate.convertAndSend("/topic/orders/" + orderId, Map.of(
-                "orderId", orderId.toString(),
-                "status", newStatus,
-                "note", note != null ? note : ""
-            ));
-        } catch (Exception e) {
-            // Silence socket failures
-        }
+        OrderDto updatedOrder = orderMapper.toDto(saved);
 
-        return orderMapper.toDto(saved);
+        // Notify restaurant owner of status change
+        notificationService.notifyOrderStatusChange(updatedOrder, oldStatus);
+
+        return updatedOrder;
     }
 }
