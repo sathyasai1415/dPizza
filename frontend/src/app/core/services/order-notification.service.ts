@@ -1,7 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { RxStomp } from '@stomp/rx-stomp';
+import { take } from 'rxjs';
 
 export interface OrderNotification {
   event: string;
@@ -23,73 +23,58 @@ export interface OrderNotification {
   providedIn: 'root'
 })
 export class OrderNotificationService {
-  private client: Client | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 3000;
+  private rxStomp = new RxStomp();
+  private isConnected = false;
 
   notifications = signal<OrderNotification[]>([]);
 
   connect(restaurantId: string): void {
-    if (this.client?.connected) {
+    if (this.isConnected) {
+      console.log('[WebSocket] Already connected');
       return;
     }
 
-    const backendUrl = environment.apiUrl.replace('/api/v1', '');
+    const wsUrl = `ws://${window.location.hostname}:8080/ws`;
 
-    this.client = new Client({
-      webSocketFactory: () => new SockJS(`${backendUrl}/ws`),
-      debug: (str) => console.log('[WebSocket]', str),
-      reconnectDelay: this.reconnectDelay,
+    this.rxStomp.configure({
+      brokerURL: wsUrl,
+      connectHeaders: {},
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      onConnect: () => {
-        console.log('[WebSocket] Connected');
-        this.reconnectAttempts = 0;
-        this.subscribe(restaurantId);
-      },
-      onStompError: (frame) => {
-        console.error('[WebSocket] STOMP error:', frame);
-        this.handleReconnect();
-      },
-      onDisconnect: () => {
-        console.log('[WebSocket] Disconnected');
-      }
+      reconnectDelay: 3000,
+      debug: (msg: string) => console.log('[WebSocket Debug]', msg)
     });
 
-    this.client.activate();
+    this.rxStomp.activate();
+
+    this.rxStomp.connected$.pipe(take(1)).subscribe((connected) => {
+      if (connected) {
+        console.log('[WebSocket] Connected');
+        this.isConnected = true;
+        this.subscribe(restaurantId);
+      }
+    });
   }
 
   private subscribe(restaurantId: string): void {
-    if (!this.client?.connected) {
-      console.warn('[WebSocket] Not connected, cannot subscribe');
-      return;
-    }
-
     const destination = `/topic/restaurant/${restaurantId}/orders`;
-    this.client.subscribe(destination, (message) => {
-      try {
-        const notification = JSON.parse(message.body) as OrderNotification;
-        this.notifications.update(notifs => [...notifs, notification]);
-        console.log('[WebSocket] Received notification:', notification);
-      } catch (e) {
-        console.error('[WebSocket] Failed to parse notification:', e);
+
+    this.rxStomp.watch(destination).subscribe({
+      next: (message) => {
+        try {
+          const notification = JSON.parse(message.body) as OrderNotification;
+          this.notifications.update(notifs => [...notifs, notification]);
+          console.log('[WebSocket] Received notification:', notification);
+        } catch (e) {
+          console.error('[WebSocket] Failed to parse notification:', e);
+        }
+      },
+      error: (err) => {
+        console.error('[WebSocket] Subscription error:', err);
       }
     });
 
     console.log('[WebSocket] Subscribed to', destination);
-  }
-
-  private handleReconnect(): void {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      console.log(`[WebSocket] Attempting reconnect ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
-      setTimeout(() => {
-        // Reconnect logic handled by client's reconnectDelay
-      }, this.reconnectDelay);
-    } else {
-      console.error('[WebSocket] Max reconnect attempts reached');
-    }
   }
 
   clearNotifications(): void {
@@ -97,8 +82,9 @@ export class OrderNotificationService {
   }
 
   disconnect(): void {
-    if (this.client?.connected) {
-      this.client.deactivate();
+    if (this.isConnected) {
+      this.rxStomp.deactivate();
+      this.isConnected = false;
     }
   }
 }
