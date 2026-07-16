@@ -20,7 +20,7 @@ interface Modification {
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="space-y-6 max-w-6xl mx-auto py-6 px-4">
+    <div class="space-y-6 max-w-6xl mx-auto py-6 px-4 text-[#F8F8F8]">
       
       <!-- SUCCESS / ERROR BANNERS -->
       @if (successMsg()) {
@@ -35,27 +35,27 @@ interface Modification {
       }
 
       <!-- TOP SUMMARY -->
-      <div class="clay rounded-[2rem] p-6 border border-brand-black flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-brand-white shadow-xl">
+      <div class="clay rounded-[22px] p-6 border border-[#2B2B31] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#18181B] shadow-xl">
         <div class="flex items-start gap-4">
           <div class="text-4xl filter drop-shadow-[0_4px_10px_rgba(255,100,30,0.4)]">🍕</div>
           <div>
-            <h2 class="text-xl font-black text-brand-black tracking-tight">Your Pizza</h2>
-            <p class="text-sm font-bold text-brand-black mt-1">
+            <h2 class="text-xl font-bold text-[#FFFFFF] tracking-tight">Your Pizza</h2>
+            <p class="text-sm font-semibold text-[#B8B8B8] mt-1">
               {{ buildConfig()?.size || 'Large' }} • {{ buildConfig()?.crust || 'Hand Tossed' }}
             </p>
-            <p class="text-[11px] text-brand-black mt-1 max-w-xl leading-relaxed font-semibold">
+            <p class="text-[11px] text-[#B8B8B8] mt-1 max-w-xl leading-relaxed font-semibold">
               {{ summaryText() }}
             </p>
           </div>
         </div>
-        <button (click)="editPizza()" class="px-5 py-2.5 rounded-xl border border-brand-black text-brand-black hover:bg-brand-black hover:text-brand-white text-xs font-bold transition shadow-sm shrink-0 uppercase tracking-wider">
+        <button (click)="editPizza()" class="px-5 py-2.5 rounded-xl border border-[#2B2B31] text-[#D4AF37] hover:text-[#E2BF53] bg-[#1E1E22] text-xs font-bold transition shadow-sm shrink-0 uppercase tracking-wider">
           ✏️ Edit Pizza
         </button>
       </div>
 
       <!-- LOADING STATE -->
       <div *ngIf="loading()" class="flex justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-brand-red"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-[#E53935]"></div>
       </div>
 
       <!-- SPLIT VIEW CONTENT -->
@@ -64,38 +64,38 @@ interface Modification {
         <!-- LEFT COLUMN: QUOTES LIST -->
         <div class="space-y-6">
           <div class="flex items-center justify-between px-2">
-            <h3 class="text-lg font-black text-brand-black tracking-wider">Compare Quotes</h3>
+            <h3 class="text-[28px] font-bold text-[#FFFFFF]">Compare Quotes</h3>
             <!-- Optional Top filters -->
           </div>
 
           <!-- Toggles Section -->
-          <div class="flex flex-wrap gap-4 px-2 bg-brand-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+          <div class="flex flex-wrap gap-4 px-2 bg-[#18181B] border border-[#2B2B31] rounded-[22px] p-4 shadow-sm">
             <label class="flex items-center gap-3 cursor-pointer group">
-              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">Free Delivery</span>
+              <span class="text-[15px] font-semibold text-[#E5E5E5] transition">Free Delivery</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" [(ngModel)]="filterFreeDelivery" (change)="applyFilters()" />
-                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+                <div class="w-10 h-5 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
             </label>
             <label class="flex items-center gap-3 cursor-pointer group">
-              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">4+ Stars</span>
+              <span class="text-[15px] font-semibold text-[#E5E5E5] transition">4+ Stars</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" [(ngModel)]="filterHighRating" (change)="applyFilters()" />
-                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+                <div class="w-10 h-5 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
             </label>
             <label class="flex items-center gap-3 cursor-pointer group">
-              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">Favourites</span>
+              <span class="text-[15px] font-semibold text-[#E5E5E5] transition">Favourites</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" [(ngModel)]="filterFavs" (change)="applyFilters()" />
-                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+                <div class="w-10 h-5 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
             </label>
             <label class="flex items-center gap-3 cursor-pointer group">
-              <span class="text-xs font-bold text-brand-black group-hover:text-brand-orange transition">Open Now</span>
+              <span class="text-[15px] font-semibold text-[#E5E5E5] transition">Open Now</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" [(ngModel)]="filterOpenNow" (change)="applyFilters()" />
-                <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
+                <div class="w-10 h-5 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-green peer-focus:outline-none"></div>
               </div>
             </label>
           </div>
@@ -107,31 +107,31 @@ interface Modification {
               [class]="'electric-border transition-all duration-300 ' + (selectedQuote()?.chainName === quote.chainName ? 'scale-[1.02]' : '')">
               
               <!-- Glow layers for the card -->
-              <div class="eb-layers">
+              <div class="eb-layers" *ngIf="i === 0 || selectedQuote()?.chainName === quote.chainName">
                 <div class="eb-glow-1"></div>
                 <div class="eb-glow-2"></div>
                 <div class="eb-background-glow"></div>
               </div>
 
               <!-- Main Card Content Container -->
-              <div class="eb-content clay rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer transition border border-brand-black bg-brand-white shadow-md hover:shadow-lg gap-4"
-                [class.border-brand-red]="selectedQuote()?.chainName === quote.chainName">
+              <div class="eb-content clay rounded-[22px] p-[28px] flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer transition border border-[#2B2B31] bg-[#18181B] shadow-md hover:shadow-lg gap-4"
+                [class.border-[#D4AF37]]="selectedQuote()?.chainName === quote.chainName">
                 
                 <div class="flex flex-col justify-center gap-1.5">
                   <div class="flex items-center gap-2">
-                    <h4 class="text-lg font-black text-brand-black">{{ quote.chainName }}</h4>
-                    <span *ngIf="i === 0" class="text-[9px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 shrink-0 bg-brand-orange text-brand-white animate-pulse-scale">Best Deal</span>
+                    <h4 class="text-[22px] font-bold text-[#FFFFFF]">{{ quote.chainName }}</h4>
+                    <span *ngIf="i === 0" class="text-[9px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 shrink-0 bg-[#FF8A00] text-white animate-pulse-scale">Best Deal</span>
                   </div>
-                  <div class="flex flex-wrap items-center gap-3 text-[11px] text-brand-black font-semibold">
-                    <span class="text-brand-orange">★ {{ quote.rating | number:'1.1-1' }}</span>
+                  <div class="flex flex-wrap items-center gap-3 text-[14px] text-[#B8B8B8] font-semibold">
+                    <span class="text-[#D4AF37]">★ {{ quote.rating | number:'1.1-1' }}</span>
                     <span>📍 {{ quote.distance }} away</span>
                     <span>{{ quote.reviews.length }} ratings</span>
                   </div>
                 </div>
                 
                 <div class="sm:text-right shrink-0">
-                  <p class="text-3xl font-black text-brand-black tracking-tight">{{ quote.basePrice + quote.toppingsCost | currency }}</p>
-                  <p class="text-[10px] font-bold text-brand-black uppercase tracking-wider mt-0.5">Base Quote</p>
+                  <p class="text-3xl font-extrabold text-[#FFFFFF] tracking-tight">{{ quote.basePrice + quote.toppingsCost | currency }}</p>
+                  <p class="text-[12px] font-semibold text-[#D4AF37] uppercase tracking-wider mt-0.5">Base Quote</p>
                 </div>
               </div>
             </div>
@@ -139,23 +139,23 @@ interface Modification {
         </div>
 
         <!-- RIGHT COLUMN: CHECKOUT & MODIFICATIONS -->
-        <div *ngIf="selectedQuote()" class="clay rounded-[2rem] p-6 border border-brand-black bg-brand-white shadow-2xl sticky top-6 animate-fade-in">
+        <div *ngIf="selectedQuote()" class="clay rounded-[22px] p-6 border border-[#2B2B31] bg-[#18181B] shadow-2xl sticky top-6 animate-fade-in">
           
-          <div class="border-b border-brand-black pb-4 mb-4">
-            <h3 class="text-2xl font-black text-brand-black">{{ selectedQuote()!.chainName }}</h3>
-            <p class="text-[11px] font-bold text-brand-black mt-1 uppercase tracking-wider">Ready for Checkout</p>
+          <div class="border-b border-[#2B2B31] pb-4 mb-4">
+            <h3 class="text-2xl font-bold text-[#FFFFFF]">{{ selectedQuote()!.chainName }}</h3>
+            <p class="text-[11px] font-semibold text-[#B8B8B8] mt-1 uppercase tracking-wider">Ready for Checkout</p>
           </div>
 
           <!-- Restaurant-Specific Modifications -->
           <div class="mb-6">
-            <h4 class="text-xs font-black uppercase tracking-wider text-brand-black mb-3">Customize this order</h4>
+            <h4 class="text-xs font-bold uppercase tracking-widest text-[#D4AF37] mb-3">CUSTOMIZE THIS ORDER</h4>
             <div class="space-y-2">
-              <label *ngFor="let mod of activeModifications()" class="flex items-center justify-between p-3.5 rounded-xl border border-brand-black cursor-pointer hover:bg-brand-white transition bg-brand-white group">
+              <label *ngFor="let mod of activeModifications()" class="flex items-center justify-between p-3.5 rounded-xl border border-[#2B2B31] cursor-pointer hover:bg-[#1E1E22] transition bg-[#1E1E22] group">
                 <div class="flex items-center gap-3">
-                  <input type="checkbox" [(ngModel)]="mod.selected" class="w-4 h-4 accent-red-600 rounded cursor-pointer" />
-                  <span class="text-[13px] font-bold text-brand-black group-hover:text-brand-black transition">{{ mod.label }}</span>
+                  <input type="checkbox" [(ngModel)]="mod.selected" class="w-4 h-4 accent-red-600 rounded cursor-pointer bg-[#1E1E22] border-[#2B2B31]" />
+                  <span class="text-[16px] font-semibold text-[#FFFFFF] transition">{{ mod.label }}</span>
                 </div>
-                <span class="text-xs font-black" [class.text-brand-black]="mod.priceDelta >= 0" [class.text-brand-green]="mod.priceDelta < 0">
+                <span class="text-[15px] font-bold text-[#D4AF37]">
                   {{ mod.priceDelta > 0 ? '+' : '' }}{{ mod.priceDelta | currency }}
                 </span>
               </label>
@@ -163,43 +163,43 @@ interface Modification {
           </div>
 
           <!-- Price Math Breakdown -->
-          <div class="bg-brand-white border border-brand-black rounded-xl p-4 mb-6 space-y-2.5 text-xs">
-            <div class="flex justify-between font-bold text-brand-black">
+          <div class="bg-[#1E1E22] border border-[#2B2B31] rounded-xl p-4 mb-6 space-y-2.5 text-xs">
+            <div class="flex justify-between font-semibold text-[#FFFFFF]">
               <span>Original Price</span>
               <span>{{ baseQuotePrice() | currency }}</span>
             </div>
             
             <ng-container *ngFor="let mod of activeModifications()">
-              <div *ngIf="mod.selected" class="flex justify-between font-bold text-brand-black animate-fade-in text-[11px]">
+              <div *ngIf="mod.selected" class="flex justify-between font-semibold text-[#FFFFFF] animate-fade-in text-[11px]">
                 <span>{{ mod.label }}</span>
-                <span [class.text-brand-green]="mod.priceDelta < 0">{{ mod.priceDelta > 0 ? '+' : '' }}{{ mod.priceDelta | currency }}</span>
+                <span class="text-[#D4AF37]">{{ mod.priceDelta > 0 ? '+' : '' }}{{ mod.priceDelta | currency }}</span>
               </div>
             </ng-container>
 
-            <div class="border-t border-brand-black pt-3 mt-3 flex justify-between items-end">
-              <span class="font-black uppercase tracking-wider text-brand-black text-[13px]">New Total</span>
-              <span class="text-3xl font-black text-brand-black leading-none">{{ newTotal() | currency }}</span>
+            <div class="border-t border-[#2B2B31] pt-3 mt-3 flex justify-between items-end">
+              <span class="font-bold uppercase tracking-widest text-[#D4AF37] text-[13px]">NEW TOTAL</span>
+              <span class="text-3xl font-extrabold text-[#FFFFFF] leading-none">{{ newTotal() | currency }}</span>
             </div>
           </div>
 
           <!-- Delivery Providers -->
           <div class="space-y-3">
-            <h4 class="text-[10px] font-black uppercase tracking-wider text-brand-black border-b border-brand-black pb-1 mb-2">Select Delivery Method</h4>
-            <div *ngFor="let opt of selectedQuote()!.deliveryOptions" class="bg-brand-white border border-brand-black rounded-2xl p-4 hover:border-brand-red transition-colors group">
+            <h4 class="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] border-b border-[#2B2B31] pb-1 mb-2">Select Delivery Method</h4>
+            <div *ngFor="let opt of selectedQuote()!.deliveryOptions" class="bg-[#1E1E22] border border-[#2B2B31] rounded-2xl p-4 hover:border-[#D4AF37]/50 transition-colors group">
               <div class="flex justify-between items-center mb-1">
                 <div>
-                  <span class="font-black text-sm text-brand-black">{{ opt.providerName }}</span>
-                  <p class="text-[10px] font-bold text-brand-black mt-0.5">⏱️ {{ opt.estimatedTimeMin }}-{{ opt.estimatedTimeMax }} mins</p>
+                  <span class="font-bold text-sm text-[#FFFFFF]">{{ opt.providerName }}</span>
+                  <p class="text-[10px] font-semibold text-[#B8B8B8] mt-0.5">⏱️ {{ opt.estimatedTimeMin }}-{{ opt.estimatedTimeMax }} mins</p>
                 </div>
                 <div class="text-right">
-                  <span class="font-black text-brand-green text-lg">
+                  <span class="font-bold text-[#22C55E] text-lg">
                     {{ (newTotal() + opt.priceBreakdown.deliveryFee + opt.priceBreakdown.serviceFee) | currency }}
                   </span>
-                  <p class="text-[9px] font-bold text-brand-black uppercase">w/ Fees</p>
+                  <p class="text-[9px] font-semibold text-[#B8B8B8] uppercase">w/ Fees</p>
                 </div>
               </div>
               <button (click)="placeOrder(selectedQuote()!, opt)" [disabled]="submitting()"
-                class="w-full mt-3 py-3 rounded-xl bg-brand-black text-brand-white group-hover:bg-brand-red font-black text-xs tracking-wider transition uppercase disabled:opacity-50">
+                class="w-full mt-3 py-3 rounded-xl bg-[#E53935] text-white hover:bg-[#E53935]/90 font-bold text-xs tracking-wider transition uppercase disabled:opacity-50">
                 {{ submitting() ? 'Placing Order...' : 'Order via ' + opt.providerName }}
               </button>
             </div>
@@ -208,15 +208,15 @@ interface Modification {
         </div>
 
         <!-- Placeholder when nothing is selected -->
-        <div *ngIf="!selectedQuote()" class="clay rounded-[2rem] p-10 border border-brand-black text-center sticky top-6 opacity-60 bg-brand-white shadow-md">
+        <div *ngIf="!selectedQuote()" class="clay rounded-[22px] p-10 border border-[#2B2B31] text-center sticky top-6 opacity-60 bg-[#18181B] shadow-md">
           <p class="text-5xl mb-4">👈</p>
-          <p class="font-black text-brand-black text-lg">Select a Restaurant</p>
-          <p class="text-xs font-bold text-brand-black mt-2 leading-relaxed">Choose a quote from the left to view checkout options and make minor edits.</p>
+          <p class="font-bold text-[#FFFFFF] text-lg">Select a Restaurant</p>
+          <p class="text-xs font-semibold text-[#B8B8B8] mt-2 leading-relaxed">Choose a quote from the left to view checkout options and make minor edits.</p>
         </div>
 
       </div>
 
-      <div *ngIf="!loading() && quotes().length === 0" class="text-center py-12 text-brand-black font-bold">
+      <div *ngIf="!loading() && quotes().length === 0" class="text-center py-12 text-[#B8B8B8] font-bold">
         <p>No chains match the selected configuration. Try editing your pizza.</p>
       </div>
 
