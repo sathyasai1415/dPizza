@@ -234,7 +234,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
           <div class="h-16 flex items-center gap-3 px-4 sm:px-6 lg:px-8 backdrop-blur-md border border-[#D4AF37]/25 bg-[#0A0A0A] rounded-full shadow-[0_2px_16px_rgba(17,24,39,0.06)]">
 
             <!-- Mini Logo for Mobile/Tablet -->
-            <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" routerLink="/home" class="lg:hidden flex items-center gap-1.5 shrink-0 mr-1.5">
+            <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" routerLink="/home" class="hidden sm:flex items-center gap-1.5 shrink-0 mr-1.5">
               <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-inner" style="background: var(--gradient-mislice);">🍕</span>
               <span class="font-black text-sm tracking-tight"><span style="color: #FF8A00">MI</span><span style="color: #D4AF37">Slice</span></span>
             </a>
@@ -387,7 +387,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
             <!-- Favourites: icon-only small button on mobile, full pill from sm+ -->
             <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
                routerLink="/favourites" routerLinkActive="active-tab-top" title="Favourites"
-               class="pill-fx pill-fx-red flex items-center justify-center gap-1.5 bg-[#0A0A0A] border border-[#D4AF37]/40 rounded-full w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-nav text-[#D4AF37] transition-all shrink-0">
+               class="pill-fx pill-fx-red flex items-center justify-center gap-1.5 bg-[#0E0E10] border border-[#2B2B31] rounded-full w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-nav text-[#D4AF37] transition-all shrink-0">
               <span class="pill-fx-fill" aria-hidden="true"></span>
               <span class="pill-fx-content relative z-10 flex items-center gap-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -397,10 +397,23 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               </span>
             </a>
 
-            <!-- Notifications bell -->
+            <!-- Orders: icon-only small button on mobile, full pill from sm+ -->
+            <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
+               routerLink="/orders" routerLinkActive="active-tab-top" title="Orders"
+               class="pill-fx pill-fx-solid flex items-center justify-center gap-1.5 bg-[#0E0E10] border border-[#2B2B31] rounded-full w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-nav text-[#D4AF37] transition-all shrink-0">
+              <span class="pill-fx-fill" aria-hidden="true"></span>
+              <span class="pill-fx-content relative z-10 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span class="hidden sm:inline">Orders</span>
+              </span>
+            </a>
+
+            <!-- Notifications bell (hidden on mobile, shown on sm+) -->
             <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
               routerLink="/notifications" title="Notifications"
-              class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
+              class="hidden sm:flex icon-fx relative w-9 h-9 items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
               <span class="icon-fx-fill" aria-hidden="true"></span>
               <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />

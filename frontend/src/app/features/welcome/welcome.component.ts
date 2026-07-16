@@ -6,13 +6,15 @@ import { AuthService } from '../../core/services/auth.service';
 import { OnboardingService } from '../../core/services/onboarding.service';
 import { LocationService } from '../../core/services/location.service';
 import { UserProfile, AuthResponse } from '../../shared/models';
+import { LocationPromptModalComponent } from '../../shared/components/location-prompt-modal.component';
+import { WelcomePosterComponent } from '../../shared/components/welcome-poster.component';
 
 type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
 
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LocationPromptModalComponent, WelcomePosterComponent],
   template: `
     <div class="relative min-h-screen w-full flex flex-col justify-between overflow-x-hidden bg-black text-white bg-cover bg-center select-none" 
       style="background-image: url('/pizza_hero_bg.png');">
@@ -404,6 +406,19 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
         </div>
       </div>
 
+      <!-- Location Modal (shown after login) -->
+      <app-location-prompt-modal
+        *ngIf="showLocationModal()"
+        (locationSelected)="onLocationSelected($event)"
+        (skipped)="onLocationSkipped()">
+      </app-location-prompt-modal>
+
+      <!-- Welcome Poster (shown after location) -->
+      <app-welcome-poster
+        *ngIf="showWelcomePoster()"
+        (closed)="onPosterClosed()">
+      </app-welcome-poster>
+
     </div>
   `,
   styles: [`
@@ -423,6 +438,9 @@ export class WelcomeComponent {
 
   // traditional modal toggle
   loginModalOpen = signal(false);
+  showLocationModal = signal(false);
+  showWelcomePoster = signal(false);
+  pendingUser = signal<UserProfile | null>(null);
 
   mode = signal<Mode>('login');
   loginType = signal<'customer' | 'owner'>('customer');
@@ -695,6 +713,43 @@ export class WelcomeComponent {
   }
 
   private redirectUser(user: UserProfile) {
+    // For customers, show location modal → poster → redirect to home
+    // For owners/admins, skip location and redirect directly
+    const roles = user.roles ?? [];
+
+    if (roles.includes('RESTAURANT_OWNER') || roles.includes('RESTAURANT_STAFF') || roles.includes('ADMIN')) {
+      // Skip location flow for owners/admins
+      this.performFinalRedirect(user);
+    } else {
+      // Show location modal for customers
+      this.pendingUser.set(user);
+      this.showLocationModal.set(true);
+    }
+  }
+
+  onLocationSelected(location: { city: string; state?: string; phone?: string }) {
+    // Save location to localStorage or service
+    localStorage.setItem('user_location', JSON.stringify(location));
+    this.showLocationModal.set(false);
+    this.showWelcomePoster.set(true);
+  }
+
+  onLocationSkipped() {
+    // Skip location, go straight to poster
+    this.showLocationModal.set(false);
+    this.showWelcomePoster.set(true);
+  }
+
+  onPosterClosed() {
+    // After seeing poster, redirect to home
+    this.showWelcomePoster.set(false);
+    const user = this.pendingUser();
+    if (user) {
+      this.performFinalRedirect(user);
+    }
+  }
+
+  private performFinalRedirect(user: UserProfile) {
     const roles = user.roles ?? [];
     if (roles.includes('ADMIN')) {
       this.router.navigate(['/admin']);
