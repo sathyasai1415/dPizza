@@ -23,13 +23,14 @@ public class OrderNotificationService {
         notification.put("event", "NEW_ORDER");
         notification.put("orderNumber", order.orderNumber());
         notification.put("orderId", order.id());
-        notification.put("customerName", order.userName());
-        notification.put("items", order.items());
+        notification.put("userId", order.userId());
+        notification.put("itemCount", order.items() != null ? order.items().size() : 0);
         notification.put("total", order.total());
         notification.put("placedAt", order.placedAt());
         notification.put("estimatedEtaMin", order.estimatedEtaMin());
         notification.put("estimatedEtaMax", order.estimatedEtaMax());
         notification.put("status", order.status());
+        notification.put("deliveryType", order.deliveryType());
 
         try {
             messagingTemplate.convertAndSend(destination, notification);

@@ -1,5 +1,6 @@
-import { Component, inject, signal, computed, effect, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, OnDestroy } from '@angular/core';
 import { MerchantAlertsService, MerchantAlert } from '../../core/services/merchant-alerts.service';
+import { OrderNotificationService } from '../../core/services/order-notification.service';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -933,7 +934,7 @@ interface PayoutRecord {
     }
   `]
 })
-export class OwnerDashboardComponent implements OnInit {
+export class OwnerDashboardComponent implements OnInit, OnDestroy {
   private readonly restaurantService = inject(RestaurantService);
   private readonly orderService = inject(OrderService);
   private readonly menuService = inject(MenuService);
@@ -942,6 +943,7 @@ export class OwnerDashboardComponent implements OnInit {
   private readonly alertsService = inject(MerchantAlertsService);
   private readonly alerts = inject(MerchantAlertsService);
   private readonly route = inject(ActivatedRoute);
+  private readonly notificationService = inject(OrderNotificationService);
 
   shops = signal<Store[]>([]);
   shopsLoaded = signal(false);
@@ -1078,6 +1080,18 @@ export class OwnerDashboardComponent implements OnInit {
       },
       error: () => this.shopsLoaded.set(true)
     });
+
+    // Connect to WebSocket for order notifications when restaurant is selected
+    effect(() => {
+      const shop = this.selectedShop();
+      if (shop?.id) {
+        this.notificationService.connect(shop.id);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.notificationService.disconnect();
   }
 
   selectShop(shop: Store) {

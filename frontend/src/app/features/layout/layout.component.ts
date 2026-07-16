@@ -28,7 +28,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
   ],
   template: `
     <app-video-intro *ngIf="showIntro()" (done)="dismissIntro()"></app-video-intro>
-    <app-welcome-showcase *ngIf="onboarding.showWelcome()" (done)="onboarding.dismissWelcome()"></app-welcome-showcase>
+    <app-welcome-showcase *ngIf="onboarding.showWelcome()" (done)="onboarding.dismissWelcome(); openAddressModalAfterWelcome()"></app-welcome-showcase>
     <div class="min-h-screen flex text-brand-black bg-transparent relative">
 
       <!-- SIDEBAR NAVIGATION — desktop only; mobile uses the bottom tab bar instead -->
@@ -496,6 +496,15 @@ import { OnboardingService } from '../../core/services/onboarding.service';
         </div>
       </nav>
 
+      <!-- Floating Build Your Pizza Action Button (Customer only) -->
+      <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && currentRoute() !== '/builder'"
+        class="fixed bottom-6 right-6 z-[99] hidden lg:block">
+        <button routerLink="/builder"
+          class="flex items-center gap-2 px-5 py-3.5 rounded-full font-black text-xs bg-[#E53935] hover:bg-[#E53935]/90 text-white border border-[#D4AF37]/50 shadow-[0_4px_24px_rgba(229,57,53,0.4)] hover:shadow-[0_4px_24px_rgba(229,57,53,0.6)] hover:scale-105 transition-all duration-300 uppercase tracking-widest">
+          <span>🍕</span> Build your pizza
+        </button>
+      </div>
+
     </div>
   `,
   styles: [`
@@ -741,5 +750,11 @@ export class LayoutComponent implements OnInit {
         }
       }, 100);
     });
+  }
+
+  openAddressModalAfterWelcome() {
+    if (!localStorage.getItem('mislice_customer_location')) {
+      setTimeout(() => this.addressModalOpen.set(true), 300);
+    }
   }
 }

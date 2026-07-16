@@ -20,48 +20,30 @@ interface Feature {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-brand-white overflow-y-auto">
-      <div class="w-full max-w-3xl py-8">
-
-        <!-- Brand header -->
-        <div class="flex flex-col items-center text-center mb-8">
-          <div class="w-16 h-16 rounded-[22px] flex items-center justify-center mb-4 bg-brand-red text-brand-white shadow-lg">
-            <span class="text-3xl">🍕</span>
-          </div>
-          <h1 class="text-3xl sm:text-4xl font-black text-brand-black tracking-tight">Welcome to MiSlice!</h1>
-          <p class="text-sm mt-2 font-medium text-brand-black opacity-70 max-w-md">
-            Here's everything you can do — compare prices, build your dream pizza, and grab the best local deals.
-          </p>
+    <div class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0E0E10] overflow-y-auto p-4 sm:p-6">
+      <div class="w-full max-w-4xl bg-[#18181B] border border-[#2B2B31] rounded-[28px] overflow-hidden flex flex-col shadow-2xl animate-fadeIn">
+        
+        <!-- The Poster Image -->
+        <div class="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-[#0E0E10] flex items-center justify-center border-b border-[#2B2B31]">
+          <img src="assets/poster.png" alt="MiSlice Poster" class="w-full h-full object-contain" />
         </div>
 
-        <!-- Feature cards -->
-        <div class="grid sm:grid-cols-2 gap-4 mb-8">
-          @for (f of features; track f.title) {
-            <div class="clay rounded-2xl p-5 border border-brand-black bg-brand-white shadow-sm space-y-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" [style.background]="f.accent">
-                  {{ f.icon }}
-                </div>
-                <h3 class="font-black text-brand-black text-base leading-tight">{{ f.title }}</h3>
-              </div>
-              <p class="text-xs text-brand-black opacity-70 leading-relaxed">{{ f.desc }}</p>
-              <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border border-brand-black bg-brand-white text-brand-black">
-                {{ f.chip }}
-              </span>
+        <!-- Footer / Location Prompt Trigger -->
+        <div class="p-6 bg-[#18181B] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl select-none">📍</span>
+            <div class="text-left">
+              <p class="text-sm font-bold text-white">Location Access</p>
+              <p class="text-xs text-[#B8B8B8] font-semibold">We'll ask for your location to show nearby deals &amp; delivery options.</p>
             </div>
-          }
+          </div>
+
+          <button (click)="dismiss()"
+            class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-xs bg-[#E53935] hover:bg-[#E53935]/90 text-white transition uppercase tracking-wider shadow-md">
+            Let's Find Your Perfect Slice →
+          </button>
         </div>
 
-        <!-- Location teaser (leads naturally into the location prompt) -->
-        <div class="rounded-2xl p-4 border border-brand-black bg-brand-white flex items-center gap-3 mb-8">
-          <span class="text-xl">📍</span>
-          <p class="text-xs font-semibold text-brand-black">Next, we'll ask for your location so we can show real-time delivery costs and nearby deals.</p>
-        </div>
-
-        <button (click)="dismiss()"
-          class="w-full py-4 rounded-full font-black text-brand-white text-sm shadow-lg bg-brand-red hover:opacity-90 transition">
-          Get Started →
-        </button>
       </div>
     </div>
   `,
