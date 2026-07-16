@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { LocationService } from '../../core/services/location.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 interface SpecialPizza {
   name: string;
@@ -179,6 +180,40 @@ interface SpecialPizza {
 })
 export class HomeComponent implements OnInit {
   private readonly router = inject(Router);
+  protected readonly themeService = inject(ThemeService);
+
+  // Theme-aware computed styles
+  protected readonly bgPrimary = computed(() =>
+    this.themeService.theme() === 'dark' ? 'bg-[#0E0E10]' : 'bg-white'
+  );
+  protected readonly bgSecondary = computed(() =>
+    this.themeService.theme() === 'dark' ? 'bg-[#18181B]' : 'bg-slate-50'
+  );
+  protected readonly bgTertiary = computed(() =>
+    this.themeService.theme() === 'dark' ? 'bg-[#0A0A0A]' : 'bg-slate-100'
+  );
+  protected readonly textPrimary = computed(() =>
+    this.themeService.theme() === 'dark' ? 'text-white' : 'text-slate-900'
+  );
+  protected readonly textSecondary = computed(() =>
+    this.themeService.theme() === 'dark' ? 'text-[#B8B8B8]' : 'text-slate-600'
+  );
+  protected readonly textMuted = computed(() =>
+    this.themeService.theme() === 'dark' ? 'text-[#A9A9A9]' : 'text-slate-500'
+  );
+  protected readonly borderPrimary = computed(() =>
+    this.themeService.theme() === 'dark' ? 'border-[#2B2B31]' : 'border-slate-200'
+  );
+  protected readonly borderGradient = computed(() =>
+    this.themeService.theme() === 'dark'
+      ? 'from-[#18181B] to-[#1E1E22]'
+      : 'from-slate-100 to-slate-50'
+  );
+  protected readonly bgGradient = computed(() =>
+    this.themeService.theme() === 'dark'
+      ? 'bg-gradient-to-r from-[#18181B] to-[#1E1E22]'
+      : 'bg-gradient-to-r from-slate-50 to-white'
+  );
 
   recommendedPizzas: SpecialPizza[] = [
     {

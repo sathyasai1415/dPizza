@@ -1,2 +1,4 @@
-<app-text-cursor />
-<router-outlet />
+<div [attr.data-theme]="themeService.theme()">
+  <app-text-cursor />
+  <router-outlet />
+</div>

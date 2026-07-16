@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TextCursorComponent } from './shared/text-cursor/text-cursor.component';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,5 @@ import { TextCursorComponent } from './shared/text-cursor/text-cursor.component'
 })
 export class App {
   protected readonly title = signal('frontend');
+  protected readonly themeService = inject(ThemeService);
 }

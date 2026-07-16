@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-location-prompt-modal',
@@ -59,7 +60,7 @@ import { FormsModule } from '@angular/forms';
           </button>
           <button
             (click)="submit()"
-            [disabled]="!city()"
+            [disabled]="!city().trim()"
             class="flex-1 py-3 rounded-xl font-black text-sm bg-[#D4AF37] text-black disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition">
             Find Pizza
           </button>
@@ -82,10 +83,10 @@ export class LocationPromptModalComponent {
   phone = signal('');
 
   submit() {
-    const cityValue = this.city().trim();
-    if (cityValue) {
+    const cityValue = this.city();
+    if (cityValue && cityValue.trim()) {
       this.locationSelected.emit({
-        city: cityValue,
+        city: cityValue.trim(),
         state: this.state().trim() || undefined,
         phone: this.phone().trim() || undefined
       });
