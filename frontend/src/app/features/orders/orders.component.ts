@@ -10,20 +10,20 @@ import { OrderDto } from '../../shared/models';
   standalone: true,
   imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule, RouterLink],
   template: `
-    <div class="min-h-screen bg-[#FAFAFA] text-[#111827] pb-24">
+    <div class="min-h-screen bg-transparent text-white pb-24">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         <!-- HEADER & FILTERS -->
         <header class="space-y-6">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 class="text-3xl font-black tracking-tight text-[#111827]">My Orders</h1>
-              <p class="text-[#6B7280] text-sm mt-1 font-medium">Track active orders, view receipts, reorder your favorites, and manage purchases.</p>
+              <h1 class="text-3xl font-black tracking-tight text-[#D4AF37]">My Orders</h1>
+              <p class="text-neutral-300 text-sm mt-1 font-medium">Track active orders, view receipts, reorder your favorites, and manage purchases.</p>
             </div>
             
             <div class="relative w-full md:w-72">
               <input type="text" [(ngModel)]="searchQuery" placeholder="Search orders..." 
-                class="w-full bg-white border border-[#E5E7EB] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#E53935]/20 focus:border-[#E53935] shadow-sm transition-all" />
+                class="w-full bg-[#0A0A0A] border border-[#D4AF37]/35 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] text-white placeholder-neutral-500 shadow-sm transition-all" />
               <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
             </div>
           </div>
@@ -32,8 +32,8 @@ import { OrderDto } from '../../shared/models';
           <div class="flex flex-wrap gap-2">
             <button *ngFor="let f of filters" (click)="activeFilter.set(f)"
               [class]="activeFilter() === f 
-                ? 'bg-[#E53935] text-white font-bold border-[#E53935] shadow-md shadow-red-500/20' 
-                : 'bg-white text-[#6B7280] font-semibold border-[#E5E7EB] hover:border-gray-300 hover:text-[#111827]'"
+                ? 'bg-[#D4AF37] text-black font-black border-[#D4AF37] shadow-md shadow-[#D4AF37]/20' 
+                : 'bg-[#1C0338] text-white font-bold border-[#D4AF37]/20 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10'"
               class="px-4 py-1.5 rounded-full text-xs border transition-all">
               {{ f }}
             </button>
@@ -41,7 +41,7 @@ import { OrderDto } from '../../shared/models';
         </header>
 
         <div *ngIf="loading()" class="flex justify-center py-20">
-          <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-[#E53935]"></div>
+          <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-[#D4AF37]"></div>
         </div>
 
         <div *ngIf="!loading()" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -50,26 +50,26 @@ import { OrderDto } from '../../shared/models';
           <div class="lg:col-span-2 space-y-8">
 
             <!-- ACTIVE ORDER HERO -->
-            <div *ngIf="activeOrder() as active" class="bg-white rounded-[24px] shadow-sm border border-[#E5E7EB] overflow-hidden transform transition-all animate-fadeIn">
+            <div *ngIf="activeOrder() as active" class="bg-[#1C0338] rounded-[24px] border border-[#D4AF37] overflow-hidden transform transition-all animate-fadeIn shadow-xl">
               
               <!-- Hero Header -->
-              <div class="bg-gradient-to-r from-[#E53935] to-[#FF8A00] p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="bg-gradient-to-r from-[#2D0B5A] to-[#120227] border-b border-[#D4AF37]/25 p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="bg-white/20 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider backdrop-blur-sm">Active Order</span>
-                    <span class="text-white/80 text-xs font-medium font-mono">#{{ active.orderNumber }}</span>
+                    <span class="bg-[#D4AF37] text-black px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider">Active Order</span>
+                    <span class="text-neutral-300 text-xs font-medium font-mono">#{{ active.orderNumber }}</span>
                   </div>
-                  <h2 class="text-2xl font-black">{{ active.restaurantName }}</h2>
-                  <p class="text-white/90 text-sm font-medium mt-1">{{ active.deliveryType === 'STORE_DELIVERY' ? '🚚 Delivery' : '🏪 Pickup' }}</p>
+                  <h2 class="text-2xl font-black text-[#D4AF37]">{{ active.restaurantName }}</h2>
+                  <p class="text-neutral-200 text-sm font-medium mt-1">{{ active.deliveryType === 'STORE_DELIVERY' ? '🚚 Delivery' : '🏪 Pickup' }}</p>
                 </div>
                 
-                <div class="bg-white text-[#111827] px-6 py-4 rounded-2xl shadow-lg flex flex-col items-center min-w-[140px]">
-                  <span class="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1">Estimated Arrival</span>
+                <div class="bg-[#0A0A0A] text-[#D4AF37] border border-[#D4AF37]/35 px-6 py-4 rounded-2xl shadow-lg flex flex-col items-center min-w-[140px]">
+                  <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Estimated Arrival</span>
                   <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-black text-[#E53935] animate-pulse">18</span>
-                    <span class="text-sm font-bold text-[#6B7280]">mins</span>
+                    <span class="text-3xl font-black text-[#D4AF37] animate-pulse">18</span>
+                    <span class="text-sm font-bold text-neutral-400">mins</span>
                   </div>
-                  <span class="text-[10px] font-bold text-[#111827] mt-1 bg-gray-100 px-2 py-0.5 rounded-full">ETA 6:42 PM</span>
+                  <span class="text-[10px] font-bold text-[#D4AF37] mt-1 bg-[#1C0338]/85 px-2 py-0.5 rounded-full">ETA 6:42 PM</span>
                 </div>
               </div>
 
@@ -77,106 +77,106 @@ import { OrderDto } from '../../shared/models';
                 
                 <!-- Timeline Tracker -->
                 <div>
-                  <h3 class="text-sm font-black text-[#111827] uppercase tracking-wider mb-4">Live Tracking</h3>
+                  <h3 class="text-sm font-black text-white uppercase tracking-wider mb-4">Live Tracking</h3>
                   <div class="relative">
                     <!-- Progress Line background -->
-                    <div class="absolute top-4 left-4 right-4 h-1 bg-gray-100 rounded-full z-0"></div>
+                    <div class="absolute top-4 left-4 right-4 h-1 bg-neutral-800 rounded-full z-0"></div>
                     <!-- Progress Line active -->
-                    <div class="absolute top-4 left-4 h-1 bg-[#E53935] rounded-full z-0 transition-all duration-1000 ease-in-out" 
+                    <div class="absolute top-4 left-4 h-1 bg-[#D4AF37] rounded-full z-0 transition-all duration-1000 ease-in-out" 
                       [style.width.%]="trackerProgress(active.status)"></div>
                     
                     <div class="relative z-10 flex justify-between">
                       <!-- Placed -->
                       <div class="flex flex-col items-center gap-2 w-16">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors" [class]="active.status ? 'bg-[#E53935] text-white shadow-md shadow-red-500/30' : 'bg-gray-200 text-gray-400'">✓</div>
-                        <span class="text-[10px] font-bold text-center" [class]="active.status ? 'text-[#111827]' : 'text-gray-400'">Placed</span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs" [class]="active.status ? 'bg-[#D4AF37] text-black font-black shadow-md shadow-[#D4AF37]/35' : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-neutral-500'">✓</div>
+                        <span class="text-[10px] font-bold text-center" [class]="active.status ? 'text-white' : 'text-neutral-400'">Placed</span>
                       </div>
                       <!-- Confirmed -->
                       <div class="flex flex-col items-center gap-2 w-16">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors" [class]="trackerProgress(active.status) >= 25 ? 'bg-[#E53935] text-white shadow-md shadow-red-500/30' : 'bg-gray-200 text-gray-400'">✓</div>
-                        <span class="text-[10px] font-bold text-center" [class]="trackerProgress(active.status) >= 25 ? 'text-[#111827]' : 'text-gray-400'">Confirmed</span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs" [class]="trackerProgress(active.status) >= 25 ? 'bg-[#D4AF37] text-black font-black shadow-md shadow-[#D4AF37]/35' : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-neutral-500'">✓</div>
+                        <span class="text-[10px] font-bold text-center" [class]="trackerProgress(active.status) >= 25 ? 'text-white' : 'text-neutral-400'">Confirmed</span>
                       </div>
                       <!-- Preparing -->
                       <div class="flex flex-col items-center gap-2 w-16">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors" [class]="trackerProgress(active.status) >= 50 ? 'bg-[#FF8A00] text-white shadow-md shadow-orange-500/30' : 'bg-gray-200 text-gray-400'">{{ trackerProgress(active.status) >= 50 ? '🔥' : '○' }}</div>
-                        <span class="text-[10px] font-bold text-center" [class]="trackerProgress(active.status) >= 50 ? 'text-[#111827]' : 'text-gray-400'">Baking</span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs" [class]="trackerProgress(active.status) >= 50 ? 'bg-[#D4AF37] text-black font-black shadow-md shadow-[#D4AF37]/35' : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-neutral-500'">{{ trackerProgress(active.status) >= 50 ? '🔥' : '○' }}</div>
+                        <span class="text-[10px] font-bold text-center" [class]="trackerProgress(active.status) >= 50 ? 'text-white' : 'text-neutral-400'">Baking</span>
                       </div>
                       <!-- Out for Delivery -->
                       <div class="flex flex-col items-center gap-2 w-16">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors" [class]="trackerProgress(active.status) >= 75 ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30' : 'bg-gray-200 text-gray-400'">{{ trackerProgress(active.status) >= 75 ? '🚗' : '○' }}</div>
-                        <span class="text-[10px] font-bold text-center" [class]="trackerProgress(active.status) >= 75 ? 'text-[#111827]' : 'text-gray-400'">On the way</span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs" [class]="trackerProgress(active.status) >= 75 ? 'bg-[#D4AF37] text-black font-black shadow-md shadow-[#D4AF37]/35' : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-neutral-500'">{{ trackerProgress(active.status) >= 75 ? '🚗' : '○' }}</div>
+                        <span class="text-[10px] font-bold text-center" [class]="trackerProgress(active.status) >= 75 ? 'text-white' : 'text-neutral-400'">On the way</span>
                       </div>
                       <!-- Delivered -->
                       <div class="flex flex-col items-center gap-2 w-16">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-400 transition-colors">○</div>
-                        <span class="text-[10px] font-bold text-center text-gray-400">Delivered</span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-[#0A0A0A] border border-[#D4AF37]/20 text-neutral-500 text-xs transition-colors">○</div>
+                        <span class="text-[10px] font-bold text-center text-neutral-400">Delivered</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- Driver & Order Details Split -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[#D4AF37]/20">
                   
                   <!-- Left Side: Live Driver (Mocked) -->
-                  <div *ngIf="active.deliveryType === 'STORE_DELIVERY'" class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                    <h4 class="text-xs font-black text-[#6B7280] uppercase tracking-wider mb-3">Your Driver</h4>
+                  <div *ngIf="active.deliveryType === 'STORE_DELIVERY'" class="bg-[#0A0A0A] rounded-2xl p-4 border border-[#D4AF37]/20">
+                    <h4 class="text-xs font-black text-neutral-400 uppercase tracking-wider mb-3">Your Driver</h4>
                     <div class="flex items-center justify-between mb-4">
                       <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl overflow-hidden relative">
+                        <div class="w-12 h-12 rounded-full bg-[#1C0338] border border-[#D4AF37]/35 flex items-center justify-center text-xl overflow-hidden relative">
                           <span class="relative z-10">👱‍♂️</span>
-                          <div class="absolute inset-0 bg-blue-200 animate-pulse opacity-50"></div>
+                          <div class="absolute inset-0 bg-[#D4AF37]/20 animate-pulse opacity-50"></div>
                         </div>
                         <div>
-                          <p class="font-bold text-[#111827] text-sm">Alex M.</p>
-                          <p class="text-xs text-[#6B7280]">Honda Civic • 0.8 mi away</p>
+                          <p class="font-bold text-white text-sm">Alex M.</p>
+                          <p class="text-xs text-neutral-300">Honda Civic • 0.8 mi away</p>
                         </div>
                       </div>
-                      <div class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg text-xs font-bold border border-blue-100 flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping absolute"></span>
-                        <span class="w-2 h-2 rounded-full bg-blue-500 relative"></span>
+                      <div class="bg-[#1C0338] text-[#D4AF37] px-2.5 py-1 rounded-lg text-xs font-bold border border-[#D4AF37]/30 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-ping absolute"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#D4AF37] relative"></span>
                         Live
                       </div>
                     </div>
                     <div class="flex gap-2">
-                      <button class="flex-1 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-[#111827] shadow-sm hover:bg-gray-50 transition">Call</button>
-                      <button class="flex-1 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-[#111827] shadow-sm hover:bg-gray-50 transition">Message</button>
-                      <button class="flex-1 py-2 bg-[#111827] text-white rounded-xl text-xs font-bold shadow-sm hover:bg-gray-800 transition">Map</button>
+                      <button class="flex-1 py-2 bg-[#1C0338] border border-[#D4AF37]/30 rounded-xl text-xs font-bold text-white shadow-sm hover:bg-[#D4AF37]/10 transition">Call</button>
+                      <button class="flex-1 py-2 bg-[#1C0338] border border-[#D4AF37]/30 rounded-xl text-xs font-bold text-white shadow-sm hover:bg-[#D4AF37]/10 transition">Message</button>
+                      <button class="flex-1 py-2 bg-[#D4AF37] text-black rounded-xl text-xs font-bold shadow-sm hover:brightness-110 transition">Map</button>
                     </div>
                   </div>
 
                   <!-- Right Side: Order Receipt Mini -->
                   <div class="space-y-3" [class.md:col-span-2]="active.deliveryType !== 'STORE_DELIVERY'">
-                    <h4 class="text-xs font-black text-[#6B7280] uppercase tracking-wider mb-2">Order Details</h4>
+                    <h4 class="text-xs font-black text-neutral-400 uppercase tracking-wider mb-2">Order Details</h4>
                     <div *ngFor="let item of active.items" class="flex justify-between items-start text-sm">
                       <div>
-                        <span class="font-bold text-[#111827]">{{ item.quantity }}x {{ item.itemName }}</span>
-                        <p class="text-xs text-[#6B7280] mt-0.5">{{ item.size }}{{ item.crust ? ' • ' + item.crust : '' }}</p>
-                        <p *ngIf="item.toppings?.length" class="text-[10px] text-[#6B7280] mt-0.5">+ {{ item.toppings.join(', ') }}</p>
+                        <span class="font-bold text-white">{{ item.quantity }}x {{ item.itemName }}</span>
+                        <p class="text-xs text-neutral-300 mt-0.5">{{ item.size }}{{ item.crust ? ' • ' + item.crust : '' }}</p>
+                        <p *ngIf="item.toppings?.length" class="text-[10px] text-neutral-400 mt-0.5">+ {{ item.toppings.join(', ') }}</p>
                       </div>
-                      <span class="font-bold text-[#111827]">{{ item.lineTotal | currency }}</span>
+                      <span class="font-bold text-[#D4AF37]">{{ item.lineTotal | currency }}</span>
                     </div>
                     
-                    <div class="border-t border-dashed border-gray-200 pt-3 mt-3 space-y-1.5 text-xs text-[#6B7280]">
+                    <div class="border-t border-dashed border-[#D4AF37]/30 pt-3 mt-3 space-y-1.5 text-xs text-neutral-300">
                       <div class="flex justify-between"><span>Subtotal</span><span>{{ active.total * 0.85 | currency }}</span></div>
                       <div class="flex justify-between"><span>Taxes & Fees</span><span>{{ active.total * 0.15 | currency }}</span></div>
                       <div *ngIf="active.deliveryType === 'STORE_DELIVERY'" class="flex justify-between text-[#E53935] font-medium">
                         <span>MiSlice Delivery Promo</span><span>-$0.00</span>
                       </div>
                     </div>
-                    <div class="border-t border-gray-200 pt-3 flex justify-between items-center mt-3">
-                      <span class="font-black text-[#111827]">Total Paid</span>
-                      <span class="font-black text-lg text-[#111827]">{{ active.total | currency }}</span>
+                    <div class="border-t border-[#D4AF37]/20 pt-3 flex justify-between items-center mt-3">
+                      <span class="font-black text-white">Total Paid</span>
+                      <span class="font-black text-lg text-[#D4AF37]">{{ active.total | currency }}</span>
                     </div>
                   </div>
 
                 </div>
 
                 <!-- Order Actions -->
-                <div class="pt-4 border-t border-gray-100 flex flex-wrap gap-3">
-                  <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#111827] font-bold text-xs rounded-xl transition">Print Receipt</button>
-                  <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#111827] font-bold text-xs rounded-xl transition">Contact Support</button>
-                  <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#111827] font-bold text-xs rounded-xl transition">Share Tracker</button>
+                <div class="pt-4 border-t border-[#D4AF37]/20 flex flex-wrap gap-3">
+                  <button class="px-4 py-2 bg-[#1C0338] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 text-white font-bold text-xs rounded-xl transition">Print Receipt</button>
+                  <button class="px-4 py-2 bg-[#1C0338] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 text-white font-bold text-xs rounded-xl transition">Contact Support</button>
+                  <button class="px-4 py-2 bg-[#1C0338] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 text-white font-bold text-xs rounded-xl transition">Share Tracker</button>
                 </div>
               </div>
             </div>
@@ -184,38 +184,38 @@ import { OrderDto } from '../../shared/models';
             <!-- PAST ORDERS LIST -->
             <div>
               <div class="flex items-center justify-between mb-4 mt-8">
-                <h2 class="text-xl font-black text-[#111827]">Past Orders</h2>
-                <span class="text-xs font-bold text-[#6B7280] bg-gray-100 px-2.5 py-1 rounded-full">{{ pastOrders().length }} orders</span>
+                <h2 class="text-xl font-black text-[#D4AF37]">Past Orders</h2>
+                <span class="text-xs font-bold text-[#D4AF37] bg-[#1C0338] border border-[#D4AF37]/20 px-2.5 py-1 rounded-full">{{ pastOrders().length }} orders</span>
               </div>
               
-              <div *ngIf="pastOrders().length === 0" class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
+              <div *ngIf="pastOrders().length === 0" class="bg-[#1C0338] rounded-2xl border border-[#D4AF37]/20 p-12 text-center shadow-sm">
                 <div class="text-6xl mb-4 opacity-50">🍕</div>
-                <h3 class="text-lg font-black text-[#111827] mb-2">No Past Orders</h3>
-                <p class="text-[#6B7280] text-sm mb-6">You don't have any completed orders yet. Start comparing to find the best pizza!</p>
-                <button routerLink="/builder" class="px-6 py-2.5 bg-[#111827] text-white font-bold text-sm rounded-xl hover:bg-gray-800 transition">
+                <h3 class="text-lg font-black text-white mb-2">No Past Orders</h3>
+                <p class="text-neutral-300 text-sm mb-6">You don't have any completed orders yet. Start comparing to find the best pizza!</p>
+                <button routerLink="/builder" class="px-6 py-2.5 bg-[#D4AF37] text-black font-black text-sm rounded-xl hover:brightness-110 transition">
                   Compare Pizzas
                 </button>
               </div>
 
               <div class="space-y-4">
-                <div *ngFor="let order of pastOrders()" class="bg-white rounded-[20px] p-5 shadow-sm border border-[#E5E7EB] hover:border-gray-300 transition-all group">
+                <div *ngFor="let order of pastOrders()" class="bg-[#1C0338] rounded-[20px] p-5 shadow-sm border border-[#D4AF37]/25 hover:border-[#D4AF37] transition-all group">
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     
                     <div class="flex items-center gap-4">
                       <!-- Restaurant Avatar placeholder -->
-                      <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                      <div class="w-14 h-14 rounded-2xl bg-[#0A0A0A] border border-[#D4AF37]/30 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform text-[#D4AF37]">
                         {{ order.restaurantName?.charAt(0) || '🍕' }}
                       </div>
                       <div>
-                        <h3 class="font-black text-[#111827] text-base">{{ order.restaurantName }}</h3>
-                        <p class="text-xs font-medium text-[#6B7280] mb-1">
+                        <h3 class="font-black text-white text-base">{{ order.restaurantName }}</h3>
+                        <p class="text-xs font-medium text-neutral-300 mb-1">
                           {{ order.items[0]?.itemName || 'Custom Pizza' }}
-                          <span *ngIf="order.items.length > 1" class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">+{{ order.items.length - 1 }} more</span>
+                          <span *ngIf="order.items.length > 1" class="text-[10px] bg-[#0A0A0A] border border-[#D4AF37]/15 px-1.5 py-0.5 rounded text-neutral-200">+{{ order.items.length - 1 }} more</span>
                         </p>
-                        <div class="flex items-center gap-2 text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                           <span>{{ order.placedAt | date:'MMM d, y' }}</span>
-                          <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                          <span [class]="order.status === 'DELIVERED' ? 'text-green-600' : 'text-gray-500'">{{ order.status }}</span>
+                          <span class="w-1 h-1 rounded-full bg-neutral-600"></span>
+                          <span [class]="order.status === 'DELIVERED' ? 'text-[#D4AF37]' : 'text-neutral-400'">{{ order.status }}</span>
                         </div>
                       </div>
                     </div>

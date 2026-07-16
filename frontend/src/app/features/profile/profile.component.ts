@@ -19,108 +19,107 @@ interface ConfirmState { message: string; onConfirm: () => void; }
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="max-w-6xl mx-auto py-6 px-4 space-y-6" style="background:#FAFAFA">
+    <div class="max-w-6xl mx-auto py-6 px-4 space-y-6 text-white bg-transparent">
 
       <!-- HEADER -->
-      <div class="rounded-2xl p-6 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="rounded-2xl p-6 bg-[#1C0338] border border-[#D4AF37]/35 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 class="text-2xl font-bold" style="color:#1C1C1C">My Account</h2>
-          <p class="text-sm mt-0.5" style="color:#696969">Manage your profile, addresses, payments, and preferences.</p>
+          <h2 class="text-2xl font-black text-[#D4AF37]">My Account</h2>
+          <p class="text-sm mt-0.5 text-neutral-300">Manage your profile, addresses, payments, and preferences.</p>
         </div>
       </div>
 
       @if (loadingProfile()) {
         <!-- SKELETON -->
-        <div class="rounded-2xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] p-6 animate-pulse space-y-4">
-          <div class="h-16 w-16 rounded-full bg-neutral-200"></div>
-          <div class="h-4 w-40 rounded bg-neutral-200"></div>
-          <div class="h-4 w-64 rounded bg-neutral-200"></div>
-          <div class="h-4 w-56 rounded bg-neutral-200"></div>
+        <div class="rounded-2xl bg-[#1C0338] border border-[#D4AF37]/20 p-6 animate-pulse space-y-4">
+          <div class="h-16 w-16 rounded-full bg-neutral-800"></div>
+          <div class="h-4 w-40 rounded bg-neutral-800"></div>
+          <div class="h-4 w-64 rounded bg-neutral-800"></div>
+          <div class="h-4 w-56 rounded bg-neutral-800"></div>
         </div>
       } @else {
 
       <!-- MAIN LAYOUT -->
-      <div class="rounded-2xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden">
+      <div class="rounded-2xl bg-[#1C0338] border border-[#D4AF37]/20 overflow-hidden shadow-xl">
         <div class="grid md:grid-cols-[220px_1fr]">
 
-          <!-- LEFT SUB-NAV -->
-          <nav class="md:border-r p-3 space-y-1" style="border-color:#EFEFEF">
+          <!-- LEFT SUB-NAV (Horizontal Scroll on Mobile, Vertical Stack on Desktop) -->
+          <nav class="flex md:flex-col overflow-x-auto md:overflow-x-visible pb-3 md:pb-3 md:border-r p-3 gap-2 md:space-y-1 border-b md:border-b-0 border-[#D4AF37]/20 no-scrollbar">
             @for (s of sections; track s.id) {
               <button (click)="section.set(s.id)"
-                [class]="'w-full text-left px-4 py-2.5 rounded-xl text-[13px] font-medium transition flex items-center gap-2.5 ' +
-                  (section() === s.id ? 'font-semibold' : 'hover:bg-black/[0.03]')"
-                [style]="section() === s.id ? 'background:#FFF2F3;color:#E23744' : 'color:#1C1C1C'">
+                [class]="'shrink-0 text-left px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center gap-2.5 ' +
+                  (section() === s.id ? 'bg-[#D4AF37] text-black shadow-md' : 'bg-[#0A0A0A] border border-[#D4AF37]/15 text-white hover:bg-[#D4AF37]/10')">
                 <span>{{ s.icon }}</span> {{ s.label }}
               </button>
             }
           </nav>
 
           <!-- CONTENT -->
-          <div class="p-5 sm:p-8 min-h-[540px]">
+          <div class="p-4 sm:p-8 min-h-[540px]">
 
             <!-- ============ OVERVIEW: Rewards + Order Stats ============ -->
             @if (section() === 'overview') {
               <div class="space-y-6">
                 <div class="flex items-center gap-4">
-                  <div class="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-neutral-100 flex items-center justify-center">
+                  <div class="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-[#0A0A0A] border border-[#D4AF37]/30 flex items-center justify-center">
                     @if (avatarPreview() || user()?.avatarUrl) {
                       <img [src]="avatarPreview() || user()?.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
                     } @else {
-                      <span class="text-2xl font-bold" style="color:#BDBDBD">{{ (fullName || 'U').charAt(0).toUpperCase() }}</span>
+                      <span class="text-2xl font-bold text-white">{{ (fullName || 'U').charAt(0).toUpperCase() }}</span>
                     }
                   </div>
                   <div>
-                    <h3 class="text-lg font-semibold" style="color:#1C1C1C">{{ fullName || 'Customer' }}</h3>
-                    <p class="text-[13px]" style="color:#828282">{{ user()?.email }}</p>
+                    <h3 class="text-lg font-semibold text-white">{{ fullName || 'Customer' }}</h3>
+                    <p class="text-[13px] text-neutral-300">{{ user()?.email }}</p>
                   </div>
                 </div>
 
-                <!-- Rewards Summary -->
-                <div class="rounded-2xl p-5 text-white shadow-[0_4px_16px_rgba(0,0,0,0.12)]" style="background:linear-gradient(135deg,#E23744 0%,#F05563 100%)">
+                <!-- Rewards Summary (Purple backdrop, gold elements) -->
+                <div class="rounded-2xl p-5 text-white border border-[#D4AF37] shadow-xl bg-gradient-to-br from-[#2D0B5A] to-[#120227]">
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-[11px] font-semibold uppercase tracking-widest opacity-80">MiPoints Balance</p>
-                      <p class="text-3xl font-bold mt-1">{{ loyalty()?.points ?? 0 }}</p>
+                      <p class="text-[11px] font-semibold uppercase tracking-widest text-[#D4AF37]">MiPoints Balance</p>
+                      <p class="text-3xl font-black mt-1 text-[#D4AF37]">{{ loyalty()?.points ?? 0 }}</p>
                     </div>
-                    <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/20">{{ membershipTier() }}</span>
+                    <span class="text-[11px] font-black px-2.5 py-1 rounded-full bg-[#D4AF37] text-black shadow">{{ membershipTier() }}</span>
                   </div>
-                  <div class="flex items-center gap-6 mt-4 text-[12px] opacity-90">
-                    <span>Lifetime: <strong>{{ loyalty()?.lifetimePoints ?? 0 }}</strong> pts</span>
-                    <span>Available rewards: <strong>{{ availableRewards() }}</strong></span>
+                  <div class="flex items-center gap-6 mt-4 text-[12px] text-neutral-200">
+                    <span>Lifetime: <strong class="text-white">{{ loyalty()?.lifetimePoints ?? 0 }}</strong> pts</span>
+                    <span>Available rewards: <strong class="text-white">{{ availableRewards() }}</strong></span>
                   </div>
-                  <button routerLink="/rewards" (click)="goRewards()" class="mt-4 text-[12px] font-semibold px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 transition">View Rewards →</button>
+                  <button routerLink="/rewards" (click)="goRewards()" class="mt-4 text-[12px] font-black px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/20">View Rewards →</button>
                 </div>
 
                 <!-- Order Statistics -->
                 <div>
-                  <h4 class="text-sm font-semibold mb-3" style="color:#1C1C1C">Order Statistics</h4>
+                  <h4 class="text-sm font-black mb-3 text-[#D4AF37]">Order Statistics</h4>
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div class="rounded-xl p-4" style="background:#F8F8F8">
-                      <p class="text-xl font-bold" style="color:#1C1C1C">{{ orderStats().totalOrders }}</p>
-                      <p class="text-[11px] mt-0.5" style="color:#828282">Total Orders</p>
+                    <div class="rounded-xl p-4 bg-[#0A0A0A] border border-[#D4AF37]/20">
+                      <p class="text-xl font-bold text-white">{{ orderStats().totalOrders }}</p>
+                      <p class="text-[11px] mt-0.5 text-neutral-400">Total Orders</p>
                     </div>
-                    <div class="rounded-xl p-4" style="background:#F8F8F8">
-                      <p class="text-xl font-bold" style="color:#1C1C1C">{{ orderStats().totalSaved | currency }}</p>
-                      <p class="text-[11px] mt-0.5" style="color:#828282">Total Saved</p>
+                    <div class="rounded-xl p-4 bg-[#0A0A0A] border border-[#D4AF37]/20">
+                      <p class="text-xl font-bold text-white">{{ orderStats().totalSaved | currency }}</p>
+                      <p class="text-[11px] mt-0.5 text-neutral-400">Total Saved</p>
                     </div>
-                    <div class="rounded-xl p-4" style="background:#F8F8F8">
-                      <p class="text-xl font-bold" style="color:#1C1C1C">{{ orderStats().avgOrderValue | currency }}</p>
-                      <p class="text-[11px] mt-0.5" style="color:#828282">Avg Order Value</p>
+                    <div class="rounded-xl p-4 bg-[#0A0A0A] border border-[#D4AF37]/20">
+                      <p class="text-xl font-bold text-white">{{ orderStats().avgOrderValue | currency }}</p>
+                      <p class="text-[11px] mt-0.5 text-neutral-400">Avg Order Value</p>
                     </div>
-                    <div class="rounded-xl p-4" style="background:#F8F8F8">
-                      <p class="text-sm font-bold truncate" style="color:#1C1C1C">{{ orderStats().favoritePizza || '—' }}</p>
-                      <p class="text-[11px] mt-0.5" style="color:#828282">Favorite Pizza</p>
+                    <div class="rounded-xl p-4 bg-[#0A0A0A] border border-[#D4AF37]/20">
+                      <p class="text-sm font-bold truncate text-white">{{ orderStats().favoritePizza || '—' }}</p>
+                      <p class="text-[11px] mt-0.5 text-neutral-400">Favorite Pizza</p>
                     </div>
-                    <div class="rounded-xl p-4" style="background:#F8F8F8">
-                      <p class="text-sm font-bold truncate" style="color:#1C1C1C">{{ orderStats().favoriteRestaurant || '—' }}</p>
-                      <p class="text-[11px] mt-0.5" style="color:#828282">Favorite Restaurant</p>
+                    <div class="rounded-xl p-4 bg-[#0A0A0A] border border-[#D4AF37]/20">
+                      <p class="text-sm font-bold truncate text-white">{{ orderStats().favoriteRestaurant || '—' }}</p>
+                      <p class="text-[11px] mt-0.5 text-neutral-400">Favorite Restaurant</p>
                     </div>
-                    <div class="rounded-xl p-4" style="background:#F8F8F8">
-                      <p class="text-sm font-bold" style="color:#1C1C1C">{{ orderStats().lastOrderDate || '—' }}</p>
-                      <p class="text-[11px] mt-0.5" style="color:#828282">Last Order</p>
+                    <div class="rounded-xl p-4 bg-[#0A0A0A] border border-[#D4AF37]/20">
+                      <p class="text-sm font-bold text-white">{{ orderStats().lastOrderDate || '—' }}</p>
+                      <p class="text-[11px] mt-0.5 text-neutral-400">Last Order</p>
                     </div>
                   </div>
-                  <p class="text-[11px] mt-2" style="color:#BDBDBD">Member since {{ memberSince() }}</p>
+                  <p class="text-[11px] mt-2 text-neutral-400">Member since {{ memberSince() }}</p>
                 </div>
               </div>
             }

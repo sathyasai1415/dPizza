@@ -88,7 +88,7 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
 
       <!-- TRADITIONAL LOGIN OVERLAY MODAL -->
       <div *ngIf="loginModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/75 backdrop-blur-sm">
-        <div class="relative w-full max-w-lg rounded-[32px] p-6 sm:p-8 border border-[#D4AF37]/25 shadow-2xl bg-[#0A0A0A] text-white overflow-y-auto max-h-[90vh] scrollbar-none">
+        <div class="relative w-full max-w-lg rounded-[32px] p-6 sm:p-8 border border-[#D4AF37] shadow-2xl bg-gradient-to-br from-[#2D0B5A] via-[#1E053D] to-[#0E011E] text-white overflow-y-auto max-h-[90vh] scrollbar-none">
           
           <!-- Close button -->
           <button (click)="loginModalOpen.set(false)" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition text-sm">✕</button>
