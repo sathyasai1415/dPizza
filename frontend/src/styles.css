@@ -1,53 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
-  /* Core palette — 40% gold, 40% white, 10% black, 10% purple */
-  --color-brand-red: #D4AF37;
-  --color-brand-green: #D4AF37;
-  --color-brand-black: #D4AF37;
-  --color-brand-orange: #D4AF37;
-  --color-brand-white: #060606;
-  --color-brand-blue: #D4AF37;
-  --color-brand-navy: #1C0338;
-  --color-brand-scarlet: #D4AF37;
-  --color-hero-bg: #060606;
-  --color-hero-text: #D4AF37;
-
-  --color-surface-bg: #060606;
-  --color-surface-card: #1C0338;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: rgba(255, 255, 255, 0.7);
-  --color-border: rgba(212, 175, 55, 0.25);
-  --color-success: #D4AF37;
-  --color-accent-orange: #D4AF37;
+  /* Core palette */
+  --color-brand-red: #E53935;
+  --color-brand-green: #22C55E;
+  --color-brand-black: #0E0E10;
+  --color-brand-orange: #FF8A00;
+  --color-brand-white: #F8F8F8;
+  
+  --color-surface-bg: #0E0E10;
+  --color-surface-card: #18181B;
+  --color-text-primary: #F8F8F8;
+  --color-text-secondary: #B8B8B8;
+  --color-border: #2B2B31;
+  --color-success: #22C55E;
 
   /* MiSlice Gold */
-  --color-gold-bg: #060606;
-  --color-gold-surface: #1C0338;
-  --color-gold-card: #20043E;
-  --color-gold-border: rgba(212, 175, 55, 0.25);
-  --color-gold-1: #FFF4D0;
-  --color-gold-2: #FFE7A0;
-  --color-gold-3: #F2D57A;
   --color-gold-4: #D4AF37;
-  --color-gold-5: #C89A34;
-  --color-gold-6: #B8861A;
-  --color-gold-7: #8B6110;
-  --color-text-soft-white: #FFFFFF;
-  --color-text-on-dark-secondary: rgba(255, 255, 255, 0.7);
+  --color-gold-premium: #C8A84A;
+  --color-gold-light: #E6C96F;
+  --color-gold-dark: #9B7A1A;
+  --color-text-soft-white: #F8F8F8;
 }
 
 body {
-  background-color: #060606 !important;
-  color: #FFFFFF !important;
+  background-color: #0E0E10 !important;
+  color: #F8F8F8 !important;
 }
 
 body:has(app-home) {
-  background-color: #060606 !important;
+  background-color: #0E0E10 !important;
 }
 
 /* MiSlice logo gradient — kept for the logo mark and Gold/Rewards accents only. */
@@ -55,13 +41,13 @@ body:has(app-home) {
   --gradient-mislice: linear-gradient(135deg, #FFE7A0 0%, #D4AF37 100%);
   --gradient-gold-metallic: linear-gradient(
     90deg,
-    #8B6110 0%,
-    #B8861A 20%,
+    #9B7A1A 0%,
+    #C8A84A 20%,
     #D4AF37 45%,
-    #FFE7A0 50%,
+    #E6C96F 50%,
     #D4AF37 60%,
-    #B8861A 80%,
-    #8B6110 100%
+    #C8A84A 80%,
+    #9B7A1A 100%
   );
 }
 
@@ -81,7 +67,7 @@ body {
   .text-restaurant-name  { font-size: 20px; font-weight: 700; line-height: 1.3; }
   .text-pizza-name       { font-size: 18px; font-weight: 600; line-height: 1.3; }
   .text-menu-item        { font-size: 17px; font-weight: 500; line-height: 1.4; }
-  .text-price            { font-size: 18px; font-weight: 700; line-height: 1.3; color: #D4AF37 !important; }
+  .text-price            { font-size: 18px; font-weight: 700; line-height: 1.3; color: #F8F8F8 !important; }
   .text-body             { font-size: 16px; font-weight: 400; line-height: 1.5; }
   .text-secondary        { font-size: 14px; font-weight: 400; line-height: 1.5; }
   .text-label            { font-size: 13px; font-weight: 500; line-height: 1.4; }
@@ -104,32 +90,32 @@ body {
 /* ── Claymorphism overrides for strict aesthetic ──────────────────────────── */
 
 .clay-page {
-  background: var(--color-brand-white);
+  background: #0E0E10;
 }
 
 .clay {
-  background: #1C0338;
-  border-radius: 24px;
-  border: 1px solid #D4AF37;
+  background: #18181B;
+  border-radius: 22px;
+  border: 1px solid #2B2B31;
 }
 
 .clay-soft {
-  background: #1C0338;
+  background: #18181B;
   border-radius: 18px;
-  border: 1px solid #D4AF37;
+  border: 1px solid #2B2B31;
 }
 
 .clay-inset {
-  background: #0E011C;
+  background: #0E0E10;
   border-radius: 12px;
-  border: 1px solid #D4AF37;
+  border: 1px solid #2B2B31;
 }
 
 .clay-btn {
   border-radius: 14px;
-  background: #1C0338;
-  color: #D4AF37;
-  border: 1px solid #D4AF37;
+  background: #18181B;
+  color: #F8F8F8;
+  border: 1px solid #2B2B31;
   transition: transform 0.15s ease;
 }
 .clay-btn:hover { transform: translateY(-1px); background: #D4AF37; color: #1C0338; }
@@ -248,40 +234,40 @@ body {
 .bg-\[\#FAFAFA\], 
 .bg-white,
 .clay-page {
-  background-color: #060606 !important;
+  background-color: #0E0E10 !important;
 }
 
-/* Force rich purple inside cards that used bg-white */
+/* Force rich dark surface inside cards that used bg-white */
 app-orders .bg-white,
 app-profile .bg-white,
 app-rewards .bg-white,
 .clay,
 .clay-soft {
-  background: #1C0338 !important;
-  background-color: #1C0338 !important;
-  border-color: #D4AF37 !important;
+  background: #18181B !important;
+  background-color: #18181B !important;
+  border-color: #2B2B31 !important;
 }
 
-/* Force white text on elements that used bright text classes */
+/* Force premium white text on elements that used bright text classes */
 .text-\[\#111827\], 
 .text-brand-black,
 .text-\[\#1c1c1c\],
 .text-gray-900,
 .text-neutral-900 {
-  color: #FFFFFF !important;
+  color: #F8F8F8 !important;
 }
 
 .text-\[\#6B7280\],
 .text-gray-500,
 .text-neutral-500 {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: #B8B8B8 !important;
 }
 
-/* Force gold borders and card frames */
+/* Force dark borders and card frames */
 .border-gray-200, 
 .border-neutral-200,
 .border-\[\#E5E7EB\],
 .border-\[\#EFEFEF\] {
-  border-color: rgba(212, 175, 55, 0.25) !important;
+  border-color: #2B2B31 !important;
 }
 

@@ -56,9 +56,9 @@ interface BuildConfig {
         <div class="space-y-4">
 
           <!-- SIZE -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('size')" [class]="secHead()">
-              <span class="flex items-center gap-2">📏 Size <span class="text-neutral-400 font-normal text-[11px]">· {{ config.size }}</span></span>
+              <span class="flex items-center gap-2">📏 Size <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.size }}</span></span>
               <span [class]="caret('size')">▾</span>
             </button>
             @if (isOpen('size')) {
@@ -74,9 +74,9 @@ interface BuildConfig {
           </section>
 
           <!-- CRUST -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('crust')" [class]="secHead()">
-              <span class="flex items-center gap-2">🥖 Crust <span class="text-neutral-400 font-normal text-[11px]">· {{ config.crust }}</span></span>
+              <span class="flex items-center gap-2">🥖 Crust <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.crust }}</span></span>
               <span [class]="caret('crust')">▾</span>
             </button>
             @if (isOpen('crust')) {
@@ -91,9 +91,9 @@ interface BuildConfig {
           </section>
 
           <!-- SAUCE (multi) -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('sauce')" [class]="secHead()">
-              <span class="flex items-center gap-2">🥫 Sauce <span class="text-neutral-400 font-normal text-[11px]">· {{ config.sauces.length || 'none' }}</span></span>
+              <span class="flex items-center gap-2">🥫 Sauce <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.sauces.length || 'none' }}</span></span>
               <span [class]="caret('sauce')">▾</span>
             </button>
             @if (isOpen('sauce')) {
@@ -106,9 +106,9 @@ interface BuildConfig {
           </section>
 
           <!-- CHEESE (multi) -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('cheese')" [class]="secHead()">
-              <span class="flex items-center gap-2">🧀 Cheese <span class="text-neutral-400 font-normal text-[11px]">· {{ config.cheeses.length || 'none' }}</span></span>
+              <span class="flex items-center gap-2">🧀 Cheese <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.cheeses.length || 'none' }}</span></span>
               <span [class]="caret('cheese')">▾</span>
             </button>
             @if (isOpen('cheese')) {
@@ -123,25 +123,25 @@ interface BuildConfig {
           </section>
 
           <!-- TOPPING SEARCH + FILTER -->
-          <section class="clay rounded-3xl p-4 space-y-3 bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
-            <div class="flex items-center gap-2 bg-[#0A0A0A] border border-[#D4AF37]/30 rounded-2xl px-3 py-2">
+          <section class="clay rounded-[22px] p-4 space-y-3">
+            <div class="flex items-center gap-2 bg-[#1E1E22] border border-[#2B2B31] rounded-2xl px-3 py-2">
               <span class="text-neutral-400 text-sm">🔍</span>
               <input [(ngModel)]="searchTerm" (ngModelChange)="search.set($event)" placeholder="Search toppings…"
-                class="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-neutral-500" />
+                class="flex-1 bg-transparent text-[#FFFFFF] text-sm outline-none placeholder:text-neutral-500 font-semibold" />
               @if (search()) { <button (click)="clearSearch()" class="text-neutral-400 text-xs hover:text-white">✕</button> }
             </div>
             <div class="flex gap-1.5">
               @for (f of ['all','meats','veggies']; track f) {
-                <button (click)="filter.set(f)" [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize transition ' + (filter() === f ? 'bg-[#D4AF37] text-black shadow-md' : 'bg-[#0A0A0A] border border-[#D4AF37]/25 text-white hover:bg-[#D4AF37]/10')">{{ f }}</button>
+                <button (click)="filter.set(f)" [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize transition ' + (filter() === f ? 'bg-[#D4AF37] text-black shadow-md' : 'bg-[#1E1E22] border border-[#2B2B31] text-[#F8F8F8] hover:bg-[#D4AF37]/10')">{{ f }}</button>
               }
             </div>
           </section>
 
           <!-- MEATS -->
           @if (filter() !== 'veggies') {
-            <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+            <section class="clay rounded-[22px] overflow-hidden">
               <button (click)="toggle('meats')" [class]="secHead()">
-                <span class="flex items-center gap-2">🥓 Meats <span class="text-neutral-400 font-normal text-[11px]">· {{ config.meats.length }}</span></span>
+                <span class="flex items-center gap-2">🥓 Meats <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.meats.length }}</span></span>
                 <span [class]="caret('meats')">▾</span>
               </button>
               @if (isOpen('meats')) {
@@ -151,7 +151,7 @@ interface BuildConfig {
                       {{ m.emoji }} {{ m.label }}
                     </button>
                   }
-                  @if (filtered(meats).length === 0) { <p class="text-neutral-400 text-xs py-2">No meats match "{{ search() }}".</p> }
+                  @if (filtered(meats).length === 0) { <p class="text-[#B8B8B8] text-xs py-2">No meats match "{{ search() }}".</p> }
                 </div>
               }
             </section>
@@ -159,9 +159,9 @@ interface BuildConfig {
 
           <!-- VEGGIES -->
           @if (filter() !== 'meats') {
-            <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+            <section class="clay rounded-[22px] overflow-hidden">
               <button (click)="toggle('veggies')" [class]="secHead()">
-                <span class="flex items-center gap-2">🥬 Vegetables <span class="text-neutral-400 font-normal text-[11px]">· {{ config.veggies.length }}</span></span>
+                <span class="flex items-center gap-2">🥬 Vegetables <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.veggies.length }}</span></span>
                 <span [class]="caret('veggies')">▾</span>
               </button>
               @if (isOpen('veggies')) {
@@ -169,16 +169,16 @@ interface BuildConfig {
                   @for (v of filtered(veggies); track v.label) {
                     <button (click)="toggle2(config.veggies, v.label)" [class]="pill(config.veggies.includes(v.label))">{{ v.emoji }} {{ v.label }}</button>
                   }
-                  @if (filtered(veggies).length === 0) { <p class="text-neutral-400 text-xs py-2">No veggies match "{{ search() }}".</p> }
+                  @if (filtered(veggies).length === 0) { <p class="text-[#B8B8B8] text-xs py-2">No veggies match "{{ search() }}".</p> }
                 </div>
               }
             </section>
           }
 
           <!-- SEASONINGS -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('seasonings')" [class]="secHead()">
-              <span class="flex items-center gap-2">🧂 Seasonings <span class="text-neutral-400 font-normal text-[11px]">· {{ config.seasonings.length }}</span></span>
+              <span class="flex items-center gap-2">🧂 Seasonings <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.seasonings.length }}</span></span>
               <span [class]="caret('seasonings')">▾</span>
             </button>
             @if (isOpen('seasonings')) {
@@ -191,9 +191,9 @@ interface BuildConfig {
           </section>
 
           <!-- DIPS -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('dips')" [class]="secHead()">
-              <span class="flex items-center gap-2">🫗 Extra Dips <span class="text-neutral-400 font-normal text-[11px]">· {{ config.dips.length }}</span></span>
+              <span class="flex items-center gap-2">🫗 Extra Dips <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.dips.length }}</span></span>
               <span [class]="caret('dips')">▾</span>
             </button>
             @if (isOpen('dips')) {
@@ -207,9 +207,9 @@ interface BuildConfig {
 
 
           <!-- INSTRUCTIONS -->
-          <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <section class="clay rounded-[22px] overflow-hidden">
             <button (click)="toggle('instructions')" [class]="secHead()">
-              <span class="flex items-center gap-2">📝 Bake & Cut <span class="text-neutral-400 font-normal text-[11px]">· {{ config.instructions.length }}</span></span>
+              <span class="flex items-center gap-2">📝 Bake & Cut <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ config.instructions.length }}</span></span>
               <span [class]="caret('instructions')">▾</span>
             </button>
             @if (isOpen('instructions')) {
@@ -223,15 +223,15 @@ interface BuildConfig {
 
           <!-- PLACEMENT & QUANTITY (only for selected proteins/veggies) -->
           @if (customizable().length > 0) {
-            <section class="clay rounded-3xl overflow-hidden bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+            <section class="clay rounded-[22px] overflow-hidden">
               <button (click)="toggle('custom')" [class]="secHead()">
-                <span class="flex items-center gap-2">🎯 Placement & Amount <span class="text-neutral-400 font-normal text-[11px]">· {{ customizable().length }} toppings</span></span>
+                <span class="flex items-center gap-2">🎯 Placement & Amount <span class="text-[#B8B8B8] font-normal text-[11px]">· {{ customizable().length }} toppings</span></span>
                 <span [class]="caret('custom')">▾</span>
               </button>
               @if (isOpen('custom')) {
                 <div class="p-4 pt-0 space-y-2.5">
                   @for (t of customizable(); track t) {
-                    <div class="bg-[#0A0A0A] border border-[#D4AF37]/15 rounded-2xl px-3 py-2.5 space-y-2">
+                    <div class="bg-[#1E1E22] border border-[#2B2B31] rounded-2xl px-3 py-2.5 space-y-2">
                       <span class="text-xs font-bold text-white">{{ emojiFor(t) }} {{ t }}</span>
                       <div class="flex flex-wrap items-center gap-1.5">
                         @for (p of placements; track p.val) {
@@ -252,33 +252,33 @@ interface BuildConfig {
 
         <!-- RIGHT: live preview + price + actions -->
         <div class="lg:sticky lg:top-6 space-y-4">
-          <div class="clay rounded-[28px] p-6 flex flex-col items-center bg-[#0A0A0A]/50 border border-[#D4AF37]/20">
+          <div class="clay rounded-[22px] p-6 flex flex-col items-center bg-[#1E1E22] border border-[#2B2B31]">
             <!-- Preview placeholder (visual preview coming soon) -->
-            <div class="w-full aspect-square max-w-[260px] rounded-3xl border-2 border-dashed border-[#D4AF37]/35 bg-white/[0.03] flex flex-col items-center justify-center text-center gap-2 mb-4">
+            <div class="w-full aspect-square max-w-[260px] rounded-3xl border border-dashed border-[#2B2B31] bg-white/[0.01] flex flex-col items-center justify-center text-center gap-2 mb-4">
               <span class="text-4xl opacity-30">🍕</span>
               <p class="text-white font-bold text-sm">Pizza Preview Coming Soon</p>
-              <p class="text-neutral-400 text-[11px] px-6">A visual preview of your pizza will appear here.</p>
+              <p class="text-[#B8B8B8] text-[11px] px-6">A visual preview of your pizza will appear here.</p>
             </div>
-            <p class="text-white font-black text-lg text-center">{{ config.size }} · {{ config.crust }}</p>
-            <p class="text-neutral-300 text-xs mb-0.5 text-center">{{ config.sauces.length ? config.sauces.join(', ') : 'No sauce' }}</p>
-            <p class="text-neutral-400 text-[11px]">{{ toppingCount() }} topping{{ toppingCount() !== 1 ? 's' : '' }}</p>
+            <p class="text-white font-bold text-lg text-center">{{ config.size }} · {{ config.crust }}</p>
+            <p class="text-[#B8B8B8] text-xs mb-0.5 text-center">{{ config.sauces.length ? config.sauces.join(', ') : 'No sauce' }}</p>
+            <p class="text-[#B8B8B8] text-[11px]">{{ toppingCount() }} topping{{ toppingCount() !== 1 ? 's' : '' }}</p>
 
-            <div class="w-full mt-5 pt-4 border-t border-[#D4AF37]/20 text-center text-xs text-white space-y-2">
-              <p class="font-bold">✨ Universal Comparison Build</p>
-              <p class="text-[11px] opacity-80 text-neutral-400">MiSlice compares real-time prices across all stores for this customized selection.</p>
+            <div class="w-full mt-5 pt-4 border-t border-[#2B2B31] text-center text-xs text-white space-y-2">
+              <p class="font-bold text-[#D4AF37]">✨ Universal Comparison Build</p>
+              <p class="text-[11px] text-[#B8B8B8]">MiSlice compares real-time prices across all stores for this customized selection.</p>
             </div>
           </div>
 
           <button (click)="findRestaurants()"
-            class="w-full py-4 rounded-2xl font-black bg-[#D4AF37] hover:brightness-110 text-black shadow-lg shadow-[#D4AF37]/20 transition flex items-center justify-center gap-2">
+            class="w-full py-4 rounded-2xl font-bold bg-[#E53935] hover:bg-[#E53935]/90 text-white shadow-lg transition flex items-center justify-center gap-2 text-[18px]">
             🔎 Find Restaurants That Can Make This
           </button>
 
           <div class="grid grid-cols-2 gap-3">
-            <button (click)="saveFavorite()" class="py-3 rounded-2xl font-bold text-white bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">💾 Save</button>
-            <button (click)="duplicatePrevious()" [disabled]="!hasPrevious()" class="py-3 rounded-2xl font-bold text-white bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition disabled:opacity-40 disabled:cursor-not-allowed">⧉ Duplicate Last</button>
+            <button (click)="saveFavorite()" class="py-3 rounded-2xl font-semibold text-[16px] text-[#D4AF37] bg-[#1E1E22] border border-[#2B2B31] hover:text-[#E2BF53] transition">💾 Save</button>
+            <button (click)="duplicatePrevious()" [disabled]="!hasPrevious()" class="py-3 rounded-2xl font-semibold text-[16px] text-[#D4AF37] bg-[#1E1E22] border border-[#2B2B31] hover:text-[#E2BF53] transition disabled:opacity-40 disabled:cursor-not-allowed">⧉ Duplicate Last</button>
           </div>
-          <button (click)="reset()" class="w-full py-3 rounded-2xl font-bold text-neutral-400 bg-transparent border border-neutral-800 hover:border-neutral-600 hover:text-white transition">↺ Reset Pizza</button>
+          <button (click)="reset()" class="w-full py-3 rounded-2xl font-semibold text-[#B8B8B8] bg-transparent border border-[#2B2B31] hover:border-[#D4AF37]/50 hover:text-white transition">↺ Reset Pizza</button>
         </div>
       </div>
     </div>
@@ -517,21 +517,21 @@ export class BuilderComponent {
 
   // ---- Class helpers ----
   secHead(): string {
-    return 'w-full flex items-center justify-between px-5 py-4 text-sm font-black text-white';
+    return 'w-full flex items-center justify-between px-5 py-4 text-sm font-bold text-white';
   }
   chip(active: boolean): string {
     return `text-center rounded-2xl py-3 transition ${active
-      ? 'bg-[#D4AF37] text-white border border-[#D4AF37]'
-      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-white hover:text-[#D4AF37]'}`;
+      ? 'bg-[#D4AF37] text-black border border-[#D4AF37] font-bold'
+      : 'bg-[#1E1E22] border border-[#2B2B31] text-[#F8F8F8] hover:border-[#D4AF37]/50'}`;
   }
   pill(active: boolean): string {
     return `px-3.5 py-2 rounded-xl text-xs font-bold transition ${active
-      ? 'bg-[#D4AF37] text-white'
-      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-white hover:text-[#D4AF37]'}`;
+      ? 'bg-[#D4AF37] text-black'
+      : 'bg-[#1E1E22] border border-[#2B2B31] text-[#F8F8F8] hover:border-[#D4AF37]/50'}`;
   }
   miniChip(active: boolean): string {
     return `px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${active
-      ? 'bg-[#D4AF37] text-white'
-      : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-white hover:text-[#D4AF37]'}`;
+      ? 'bg-[#D4AF37] text-black'
+      : 'bg-[#1E1E22] border border-[#2B2B31] text-[#F8F8F8] hover:border-[#D4AF37]/50'}`;
   }
 }

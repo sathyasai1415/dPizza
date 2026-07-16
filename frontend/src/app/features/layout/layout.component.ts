@@ -33,7 +33,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
 
       <!-- SIDEBAR NAVIGATION — desktop only; mobile uses the bottom tab bar instead -->
       <aside [class.lg:w-20]="navCollapsed()" [class.lg:w-64]="!navCollapsed()"
-        class="hidden lg:flex lg:fixed lg:top-0 lg:bottom-0 lg:left-0 z-40 flex-col transition-all duration-300 border-r border-[#D4AF37]/25 text-[#D4AF37] overflow-visible bg-[#0A0A0A]">
+        class="hidden lg:flex lg:fixed lg:top-0 lg:bottom-0 lg:left-0 z-40 flex-col transition-all duration-300 border-r border-[#2B2B31] text-[#D4AF37] overflow-visible bg-[#0E0E10]">
 
         <div class="relative z-10 flex flex-col h-full">
 
@@ -78,11 +78,11 @@ import { OnboardingService } from '../../core/services/onboarding.service';
           <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
             <!-- Section 1: Core Marketplace -->
             <div class="space-y-1">
-              <p [class.lg:hidden]="navCollapsed()" class="text-caption text-[#D4AF37]/70 uppercase tracking-widest px-3 mb-2">Marketplace</p>
+              <p [class.lg:hidden]="navCollapsed()" class="text-[12px] font-bold tracking-[0.15em] uppercase text-[#B28D2C] px-3 mb-2">Marketplace</p>
               <a routerLink="/home" routerLinkActive="active-tab" title="Order Food"
                 [attr.data-tooltip]="navCollapsed() ? 'Order Food' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">🛍️</span> <span [class.lg:hidden]="navCollapsed()">Order Food</span>
                 </span>
@@ -90,7 +90,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               <a routerLink="/compare" routerLinkActive="active-tab" title="Compare Prices"
                 [attr.data-tooltip]="navCollapsed() ? 'Compare Prices' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">⚖️</span> <span [class.lg:hidden]="navCollapsed()">Compare Prices</span>
                 </span>
@@ -98,7 +98,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               <a routerLink="/deals" routerLinkActive="active-tab" title="Deals & Offers"
                 [attr.data-tooltip]="navCollapsed() ? 'Deals & Offers' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">🏷️</span> <span [class.lg:hidden]="navCollapsed()">Deals &amp; Offers</span>
                 </span>
@@ -106,12 +106,12 @@ import { OnboardingService } from '../../core/services/onboarding.service';
             </div>
 
             <!-- Section 2: Personal Account -->
-            <div class="space-y-1 pt-2 border-t border-[#D4AF37]/25">
-              <p [class.lg:hidden]="navCollapsed()" class="text-caption text-[#D4AF37]/70 uppercase tracking-widest px-3 mb-2">My Account</p>
+            <div class="space-y-1 pt-2 border-t border-[#2B2B31]/40">
+              <p [class.lg:hidden]="navCollapsed()" class="text-[12px] font-bold tracking-[0.15em] uppercase text-[#B28D2C] px-3 mb-2">My Account</p>
               <a routerLink="/orders" routerLinkActive="active-tab" title="Order History"
                 [attr.data-tooltip]="navCollapsed() ? 'Order History' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">📦</span> <span [class.lg:hidden]="navCollapsed()">Order History</span>
                 </span>
@@ -119,7 +119,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               <a routerLink="/rewards" routerLinkActive="active-tab" title="Rewards Hub"
                 [attr.data-tooltip]="navCollapsed() ? 'Rewards Hub' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">🎁</span> <span [class.lg:hidden]="navCollapsed()">Rewards Hub</span>
                 </span>
@@ -127,12 +127,12 @@ import { OnboardingService } from '../../core/services/onboarding.service';
             </div>
 
             <!-- Section 3: Help & Info -->
-            <div class="space-y-1 pt-2 border-t border-[#D4AF37]/25">
-              <p [class.lg:hidden]="navCollapsed()" class="text-caption text-[#D4AF37]/70 uppercase tracking-widest px-3 mb-2">Support</p>
+            <div class="space-y-1 pt-2 border-t border-[#2B2B31]/40">
+              <p [class.lg:hidden]="navCollapsed()" class="text-[12px] font-bold tracking-[0.15em] uppercase text-[#B28D2C] px-3 mb-2">Support</p>
               <a routerLink="/how-it-works" routerLinkActive="active-tab" title="How It Works"
                 [attr.data-tooltip]="navCollapsed() ? 'How It Works' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">❓</span> <span [class.lg:hidden]="navCollapsed()">How It Works</span>
                 </span>
@@ -140,7 +140,7 @@ import { OnboardingService } from '../../core/services/onboarding.service';
               <a routerLink="/contact" routerLinkActive="active-tab" title="Contact Support"
                 [attr.data-tooltip]="navCollapsed() ? 'Contact Support' : null"
                 [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
+                class="glare-hover flex items-center gap-2.5 px-3 py-2 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
                   <span class="shrink-0">✉️</span> <span [class.lg:hidden]="navCollapsed()">Contact Support</span>
                 </span>
@@ -525,15 +525,15 @@ import { OnboardingService } from '../../core/services/onboarding.service';
     }
 
     .active-tab {
-      background: #0A0A0A !important;
-      color: #D4AF37 !important;
+      background: #18181B !important;
+      color: #EDEDED !important;
       border: 1px solid #D4AF37 !important;
-      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.25);
+      box-shadow: none;
     }
 
     .active-tab-top {
-      background: #0A0A0A !important;
-      color: #D4AF37 !important;
+      background: #18181B !important;
+      color: #EDEDED !important;
       border: 1px solid #D4AF37 !important;
     }
 

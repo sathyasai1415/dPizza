@@ -1309,9 +1309,23 @@ export class OwnerDashboardComponent implements OnInit {
     const shop = this.selectedShop();
     if (!shop) return;
     this.savingItem.set(true);
-    this.menuService.saveMenuItem(shop.id, item).subscribe({
-      next: () => this.savingItem.set(false),
-      error: () => this.savingItem.set(false)
+    const updateObs = item.id
+      ? this.menuService.updatePrice(shop.id, item.id, item.basePrice)
+      : this.menuService.saveMenuItem(shop.id, item);
+    updateObs.subscribe({
+      next: (updated) => {
+        this.successMsg.set('✅ Price updated successfully');
+        setTimeout(() => this.successMsg.set(''), 3000);
+        this.savingItem.set(false);
+        if (item.id) {
+          this.menuItems.update(list => list.map(i => i.id === updated.id ? updated : i));
+        }
+      },
+      error: (err) => {
+        this.successMsg.set('❌ Failed to update price');
+        setTimeout(() => this.successMsg.set(''), 3000);
+        this.savingItem.set(false);
+      }
     });
   }
 

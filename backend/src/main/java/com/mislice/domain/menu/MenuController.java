@@ -74,6 +74,16 @@ public class MenuController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Update menu item base price")
+    @PatchMapping("/menu-items/{itemId}/price")
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
+    public ResponseEntity<MenuItemDto> updatePrice(
+            @PathVariable("restaurantId") UUID restaurantId,
+            @PathVariable("itemId") UUID itemId,
+            @RequestParam("price") java.math.BigDecimal newPrice) {
+        return ResponseEntity.ok(menuService.updatePrice(restaurantId, itemId, newPrice));
+    }
+
     @Operation(summary = "Process menu image via Google Cloud Vision OCR and return item suggestions")
     @PostMapping(value = "/menu/import-ocr", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")

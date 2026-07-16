@@ -45,11 +45,11 @@ interface MapPin {
           <div class="flex items-center gap-3">
             <div class="relative flex-1 min-w-0">
               <input type="text" [(ngModel)]="searchQuery" (focus)="showSearchSuggestions.set(true)" (keyup.enter)="executeGlobalSearch()" placeholder="Search pizzas, restaurants, or deals..."
-                class="w-full bg-[#0A0A0A] border border-[#D4AF37]/35 focus:border-[#D4AF37] rounded-full py-3.5 pl-12 pr-6 text-[#F4EFE6] text-base placeholder-[#D4AF37]/40 shadow-inner transition outline-none" />
+                class="w-full bg-[#18181B] border border-[#2B2B31] focus:border-[#D4AF37] rounded-full py-3.5 pl-12 pr-6 text-[#FFFFFF] text-[16px] font-semibold placeholder:text-[#8A8A8A] placeholder:font-medium transition outline-none" />
               <span class="absolute left-4.5 top-1/2 -translate-y-1/2 text-lg">🔍</span>
             </div>
             <button (click)="scrollToMap()" title="Near Me"
-              class="shrink-0 w-12 h-12 rounded-full bg-[#0A0A0A] border border-[#D4AF37]/35 hover:border-[#D4AF37] hover:bg-[#D4AF37]/15 flex items-center justify-center shadow-md text-xl active:scale-95 transition-all duration-200">
+              class="shrink-0 w-12 h-12 rounded-full bg-[#18181B] border border-[#2B2B31] hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 flex items-center justify-center shadow-md text-xl active:scale-95 transition-all duration-200">
               🗺️
             </button>
           </div>
@@ -380,30 +380,30 @@ interface MapPin {
 
       <!-- MARKETPLACE STORES SECTION -->
       <section class="space-y-6">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-brand-black pb-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#2B2B31] pb-5">
           <div>
-            <h2 class="text-2xl font-black text-[color:var(--color-hero-text)]">Marketplace Pizzerias</h2>
-            <p class="text-sm text-neutral-600 font-semibold">Order directly from top rated local stores and national chains</p>
+            <h2 class="text-[28px] font-bold text-[#FFFFFF]">Marketplace Pizzerias</h2>
+            <p class="text-[16px] text-[#A9A9A9]">Order directly from top rated local stores and national chains</p>
           </div>
 
           <!-- City Filters -->
           <div class="flex flex-wrap gap-2">
             <button *ngFor="let city of cities()" (click)="selectCity(city)"
               [class]="locationService.selectedCity() === city
-                ? 'bg-[#0A0A0A] border border-[#D4AF37] text-[#D4AF37] font-bold px-4 py-2 rounded-xl text-xs shadow-sm'
-                : 'bg-brand-white border border-brand-black text-brand-black hover:bg-black/5 px-4 py-2 rounded-xl text-xs transition'">
+                ? 'bg-[#1E1E22] border border-[#D4AF37] text-[#D4AF37] font-bold px-4 py-2 rounded-xl text-xs shadow-sm'
+                : 'bg-[#18181B] border border-[#2B2B31] text-[#B8B8B8] hover:bg-white/5 px-4 py-2 rounded-xl text-xs transition'">
               {{ city === 'All' ? 'All Cities' : city }}
             </button>
           </div>
         </div>
 
         <!-- FILTER BAR -->
-        <div class="bg-brand-white border border-brand-black rounded-2xl p-4 flex flex-wrap items-center gap-4 text-xs shadow-sm">
+        <div class="bg-[#18181B] border border-[#2B2B31] rounded-[22px] p-4 flex flex-wrap items-center gap-4 text-xs shadow-sm">
           <!-- Distance -->
           <div class="flex items-center gap-2">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Distance:</span>
+            <span class="text-[#B8B8B8] font-semibold text-[15px]">Distance:</span>
             <select [(ngModel)]="filterDistance"
-              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
+              class="bg-[#1E1E22] border border-[#2B2B31] rounded-xl px-3 py-2 text-[#E5E5E5] text-[15px] font-semibold outline-none">
               <option [value]="0">Any distance</option>
               <option [value]="5">Within 5 miles</option>
               <option [value]="10">Within 10 miles</option>
@@ -413,9 +413,9 @@ interface MapPin {
 
           <!-- Rating -->
           <div class="flex items-center gap-2">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Rating:</span>
+            <span class="text-[#B8B8B8] font-semibold text-[15px]">Rating:</span>
             <select [(ngModel)]="filterRating"
-              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
+              class="bg-[#1E1E22] border border-[#2B2B31] rounded-xl px-3 py-2 text-[#E5E5E5] text-[15px] font-semibold outline-none">
               <option [value]="0">Any rating</option>
               <option [value]="4">4.0+ ★</option>
               <option [value]="4.5">4.5+ ★</option>
@@ -424,9 +424,9 @@ interface MapPin {
 
           <!-- Dietary -->
           <div class="flex items-center gap-2">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Dietary:</span>
+            <span class="text-[#B8B8B8] font-semibold text-[15px]">Dietary:</span>
             <select [(ngModel)]="filterDiet"
-              class="bg-brand-white border border-brand-black rounded-xl px-3 py-2 text-brand-black outline-none focus:border-[color:var(--color-brand-blue)]">
+              class="bg-[#1E1E22] border border-[#2B2B31] rounded-xl px-3 py-2 text-[#E5E5E5] text-[15px] font-semibold outline-none">
               <option value="All">Any diet</option>
               <option value="Vegetarian">🥗 Vegetarian</option>
               <option value="Vegan">🌱 Vegan</option>
@@ -436,9 +436,9 @@ interface MapPin {
 
           <!-- Open Now Toggle Switch -->
           <label class="flex items-center gap-3 cursor-pointer ml-auto">
-            <span class="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Open Now Only:</span>
+            <span class="text-[#B8B8B8] font-semibold text-[15px]">Open Now Only:</span>
             <button (click)="filterOpen.set(!filterOpen())" type="button"
-              [class]="'w-10 h-6 rounded-full relative transition-colors duration-200 ' + (filterOpen() ? 'bg-[color:var(--color-brand-blue)]' : 'bg-neutral-300')">
+              [class]="'w-10 h-6 rounded-full relative transition-colors duration-200 ' + (filterOpen() ? 'bg-[#E53935]' : 'bg-neutral-800')">
               <span class="absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-200" [style.left]="filterOpen() ? '20px' : '4px'"></span>
             </button>
           </label>
@@ -457,44 +457,44 @@ interface MapPin {
             <p class="text-xs text-[#D4AF37]/60 mt-1">Try adjusting distance or dietary filters in {{ locationService.selectedCity() === 'All' ? 'all cities' : locationService.selectedCity() }}.</p>
           </div>
         } @else {
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]">
             <div *ngFor="let store of filteredStores()" (click)="viewStore(store.slug)"
-              class="group rounded-3xl bg-[#0A0A0A] border border-[#D4AF37]/25 hover:shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-sm">
+              class="group rounded-[22px] bg-[#1E1E22] border border-[#2B2B31] hover:border-[#D4AF37]/50 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-sm">
 
               <!-- Card Header -->
               <div class="h-36 relative flex items-center justify-center text-6xl"
                 [style.background]="store.brandColor ? store.brandColor : 'var(--gradient-mislice)'">
                 <span>{{ store.emoji }}</span>
-                <span *ngIf="store.featured" class="absolute top-3 right-3 text-[10px] bg-[#1E3A8A] border border-[#D4AF37]/50 text-[#D4AF37] px-2.5 py-1 rounded-full font-black uppercase tracking-wider shadow-md">
+                <span *ngIf="store.featured" class="absolute top-3 right-3 text-[10px] bg-[#C8A84A] text-black px-2.5 py-1 rounded-full font-black uppercase tracking-wider shadow-md">
                   Featured
                 </span>
               </div>
 
-              <!-- Card Content -->
-              <div class="p-6 space-y-4">
+              <!-- Card Content with 28px padding -->
+              <div class="p-[28px] space-y-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <h3 class="font-black text-xl text-[#D4AF37] group-hover:text-[#D4AF37]/80 transition-colors">{{ store.name }}</h3>
-                    <p class="text-xs text-[#D4AF37]/60 mt-0.5">{{ store.neighborhood || store.city }}</p>
+                    <h3 class="text-[22px] font-bold text-[#FFFFFF] group-hover:text-[#D4AF37] transition-colors leading-tight">{{ store.name }}</h3>
+                    <p class="text-[14px] font-medium text-[#B8B8B8] mt-1">{{ store.neighborhood || store.city }}</p>
                   </div>
-                  <div class="flex items-center gap-1 bg-[#1E3A8A] px-2.5 py-1 rounded-lg text-xs text-[#D4AF37] font-extrabold shrink-0 border border-[#D4AF37]/30">
-                    ★ {{ store.ratingAvg | number:'1.1-1' }}
+                  <div class="flex items-center gap-1 text-[14px] text-[#B8B8B8] font-medium shrink-0">
+                    <span class="text-[#D4AF37]">★</span> {{ store.ratingAvg | number:'1.1-1' }}
                   </div>
                 </div>
 
-                <p class="text-xs text-[#D4AF37]/60 line-clamp-2 leading-relaxed">
+                <p class="text-[14px] text-[#B8B8B8] font-medium line-clamp-2 leading-relaxed">
                   {{ store.tagline || store.description || 'Fresh ingredients, fast delivery, and customizable pizzas.' }}
                 </p>
 
-                <!-- Badges -->
-                <div class="pt-2 flex flex-wrap gap-2 text-[11px] font-bold">
-                  <span class="bg-[#1E3A8A] border border-[#D4AF37]/25 text-[#D4AF37] px-2.5 py-1 rounded-lg">
+                <!-- Metadata badges -->
+                <div class="pt-2 flex flex-wrap gap-2 text-[14px] font-medium text-[#B8B8B8]">
+                  <span class="bg-[#18181B] border border-[#2B2B31] px-2.5 py-1 rounded-lg">
                     🚴 {{ store.deliveryFee === 0 ? 'Free Delivery' : (store.deliveryFee | currency) }}
                   </span>
-                  <span class="bg-[#1E3A8A] border border-[#D4AF37]/25 text-[#D4AF37] px-2.5 py-1 rounded-lg">
+                  <span class="bg-[#18181B] border border-[#2B2B31] px-2.5 py-1 rounded-lg">
                     ⏱️ {{ store.averageEtaMinutes || 25 }} min
                   </span>
-                  <span *ngFor="let tag of store.tags" class="bg-[#1E3A8A] text-[#D4AF37]/90 px-2.5 py-1 rounded-lg border border-[#D4AF37]/20 capitalize">
+                  <span *ngFor="let tag of store.tags" class="bg-[#18181B] border border-[#2B2B31] px-2.5 py-1 rounded-lg capitalize">
                     {{ tag }}
                   </span>
                 </div>
@@ -514,29 +514,29 @@ interface MapPin {
     </button>
     
     <!-- LOCATION PROMPT MODAL -->
-    <div *ngIf="showLocationPrompt()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
-      <div class="bg-brand-white border border-brand-black rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl relative">
+    <div *ngIf="showLocationPrompt()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+      <div class="bg-[#18181B] border border-[#2B2B31] rounded-[22px] w-full max-w-lg overflow-hidden shadow-2xl relative">
         <div class="p-8 flex flex-col items-center text-center">
 
           <div class="relative mb-6">
             <div class="text-6xl animate-bounce">🔭</div>
           </div>
 
-          <h2 class="text-2xl font-black text-brand-black tracking-tight mb-2">Find Pizza Near You!</h2>
-          <p class="text-sm text-neutral-500 font-medium mb-6">
+          <h2 class="text-2xl font-bold text-[#FFFFFF] tracking-tight mb-2">Find Pizza Near You!</h2>
+          <p class="text-[14px] text-[#B8B8B8] font-medium mb-6">
             MiSlice uses your location to calculate real-time delivery costs and price-per-square-inch options.
           </p>
 
           <div class="flex flex-col gap-3 w-full">
-            <button (click)="detectLocation()" class="w-full bg-[color:var(--color-brand-blue)] hover:brightness-110 text-white font-extrabold py-3 px-5 rounded-2xl shadow-sm transition-all text-sm flex items-center justify-center gap-2">
+            <button (click)="detectLocation()" class="w-full bg-[#E53935] hover:bg-[#E53935]/90 text-white font-extrabold py-3 px-5 rounded-2xl shadow-sm transition-all text-sm flex items-center justify-center gap-2">
               📍 Detect My Location Automatically
             </button>
 
             <div class="relative w-full mt-2">
               <input type="text" [(ngModel)]="searchLocationQuery" (keyup.enter)="saveManualLocation()"
                 placeholder="Or enter city / zip code..."
-                class="w-full bg-brand-white border border-brand-black rounded-2xl py-3 pl-4 pr-10 text-sm focus:outline-none focus:border-[color:var(--color-brand-blue)] text-brand-black placeholder-neutral-400">
-              <button (click)="saveManualLocation()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-brand-black">
+                class="w-full bg-[#1E1E22] border border-[#2B2B31] rounded-2xl py-3 pl-4 pr-10 text-sm focus:outline-none focus:border-[#D4AF37] text-white placeholder-neutral-400">
+              <button (click)="saveManualLocation()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white">
                 🔍
               </button>
             </div>

@@ -4,9 +4,13 @@ import com.mislice.common.exception.ResourceNotFoundException;
 import com.mislice.domain.menu.dto.*;
 import com.mislice.domain.restaurant.Restaurant;
 import com.mislice.domain.restaurant.RestaurantRepository;
+import com.mislice.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.mislice.common.exception.ApiException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,5 +83,25 @@ public class MenuService {
                 .orElseThrow(() -> new ResourceNotFoundException("MenuItem", itemId));
         item.setAvailable(available);
         menuItemRepository.save(item);
+    }
+
+    @Transactional
+    public MenuItemDto updatePrice(UUID restaurantId, UUID itemId, BigDecimal newPrice) {
+        MenuItem item = menuItemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("MenuItem", itemId));
+
+        if (!item.getRestaurant().getId().equals(restaurantId)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "OWNERSHIP_VIOLATION",
+                "You can only update prices for menu items in your own restaurant");
+        }
+
+        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PRICE",
+                "Price must be a valid positive number");
+        }
+
+        item.setBasePrice(newPrice);
+        MenuItem saved = menuItemRepository.save(item);
+        return menuMapper.toDto(saved);
     }
 }

@@ -33,6 +33,11 @@ export class MenuService {
     return this.http.patch<void>(`${this.apiUrl}/restaurants/${restaurantId}/menu-items/${itemId}/availability`, null, { params });
   }
 
+  updatePrice(restaurantId: string, itemId: string, price: number): Observable<MenuItem> {
+    const params = new HttpParams().set('price', price);
+    return this.http.patch<MenuItem>(`${this.apiUrl}/restaurants/${restaurantId}/menu-items/${itemId}/price`, null, { params });
+  }
+
   importMenuOcr(restaurantId: string, file: File): Observable<any[]> {
     const formData = new FormData();
     formData.append('file', file);
