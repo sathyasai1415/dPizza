@@ -79,12 +79,12 @@ import { OnboardingService } from '../../core/services/onboarding.service';
             <!-- Section 1: Core Marketplace -->
             <div class="space-y-1">
               <p [class.lg:hidden]="navCollapsed()" class="text-caption text-[#D4AF37]/70 uppercase tracking-widest px-3 mb-2">Marketplace</p>
-              <a routerLink="/builder" routerLinkActive="active-tab" title="Build a Pizza"
-                [attr.data-tooltip]="navCollapsed() ? 'Build a Pizza' : null"
+              <a routerLink="/home" routerLinkActive="active-tab" title="Order Food"
+                [attr.data-tooltip]="navCollapsed() ? 'Order Food' : null"
                 [class.lg:justify-center]="navCollapsed()"
                 class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-nav text-[#D4AF37] bg-[#0A0A0A] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10 transition">
                 <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
-                  <span class="shrink-0">🍕</span> <span [class.lg:hidden]="navCollapsed()">Build a Pizza</span>
+                  <span class="shrink-0">🛍️</span> <span [class.lg:hidden]="navCollapsed()">Order Food</span>
                 </span>
               </a>
               <a routerLink="/compare" routerLinkActive="active-tab" title="Compare Prices"

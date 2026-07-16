@@ -40,7 +40,7 @@ interface BuildConfig {
       <div class="max-w-3xl mx-auto mb-6 px-1">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-black uppercase tracking-widest text-neutral-400">Your build</span>
-          <span class="text-[10px] font-black text-[#D4AF37]">{{ progress() }}% complete</span>
+          <span class="text-[10px] font-black text-white">{{ progress() }}% complete</span>
         </div>
         <div class="h-1.5 rounded-full bg-neutral-900 overflow-hidden">
           <div class="h-full bg-[#D4AF37] transition-all duration-500" [style.width.%]="progress()"></div>
@@ -132,7 +132,7 @@ interface BuildConfig {
             </div>
             <div class="flex gap-1.5">
               @for (f of ['all','meats','veggies']; track f) {
-                <button (click)="filter.set(f)" [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize transition ' + (filter() === f ? 'bg-[#D4AF37] text-black shadow-md' : 'bg-[#0A0A0A] border border-[#D4AF37]/25 text-[#D4AF37] hover:bg-[#D4AF37]/10')">{{ f }}</button>
+                <button (click)="filter.set(f)" [class]="'px-3 py-1 rounded-lg text-[10px] font-black capitalize transition ' + (filter() === f ? 'bg-[#D4AF37] text-black shadow-md' : 'bg-[#0A0A0A] border border-[#D4AF37]/25 text-white hover:bg-[#D4AF37]/10')">{{ f }}</button>
               }
             </div>
           </section>
@@ -408,7 +408,7 @@ export class BuilderComponent {
     this.openSet.set(next);
   }
   caret(id: string): string {
-    return `text-[#D4AF37] text-xs transition-transform duration-200 ${this.isOpen(id) ? '' : '-rotate-90'}`;
+    return `text-white text-xs transition-transform duration-200 ${this.isOpen(id) ? '' : '-rotate-90'}`;
   }
 
   // ---- Selection helpers ----
@@ -522,16 +522,16 @@ export class BuilderComponent {
   chip(active: boolean): string {
     return `text-center rounded-2xl py-3 transition ${active
       ? 'bg-[#D4AF37] text-white border border-[#D4AF37]'
-      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10'}`;
+      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-white hover:text-[#D4AF37]'}`;
   }
   pill(active: boolean): string {
     return `px-3.5 py-2 rounded-xl text-xs font-bold transition ${active
       ? 'bg-[#D4AF37] text-white'
-      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10'}`;
+      : 'bg-[#0A0A0A] border border-[#D4AF37]/30 text-white hover:text-[#D4AF37]'}`;
   }
   miniChip(active: boolean): string {
     return `px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${active
       ? 'bg-[#D4AF37] text-white'
-      : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-[#D4AF37] hover:bg-[#D4AF37]/10'}`;
+      : 'bg-[#0A0A0A] border border-[#D4AF37]/20 text-white hover:text-[#D4AF37]'}`;
   }
 }

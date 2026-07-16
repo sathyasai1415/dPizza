@@ -840,7 +840,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       list = list.filter(s => s.acceptingOrders !== false);
     }
 
-    return list;
+    // Sort by premium status (featured/PREMIUM) first, then by mock distance
+    return [...list].sort((a, b) => {
+      const aPremium = a.featured || a.category === 'PREMIUM';
+      const bPremium = b.featured || b.category === 'PREMIUM';
+      if (aPremium !== bPremium) {
+        return aPremium ? -1 : 1;
+      }
+      const distA = (a.name.charCodeAt(0) % 15) + 3;
+      const distB = (b.name.charCodeAt(0) % 15) + 3;
+      return distA - distB;
+    });
   });
 
   ngOnInit() {
