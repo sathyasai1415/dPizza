@@ -172,6 +172,29 @@ background: rgba(colors, 0.85-0.95); /* Semi-transparent */
 
 ---
 
+## 5. Deals Page (`/deals`)
+**File:** `frontend/src/app/features/deals/deals.component.ts`
+
+**Updates:**
+- ✅ Converted to glassmorphism card design with `backdrop-blur-md` and `bg-white/5`
+- ✅ Enhanced responsive grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+- ✅ Added interactive hover effects with scale transforms and shadow elevation
+- ✅ Improved mobile layout with better spacing and typography
+- ✅ Reorganized meta information into 3-column emoji-based grid
+- ✅ Added gradient buttons with smooth transitions
+- ✅ Better price section with gradient backgrounds and savings badges
+- ✅ Optimized card padding and gap spacing for mobile-first design
+
+**Visual Impact:**
+- Premium glassmorphic card layout matches app design language
+- One-column mobile view for optimal readability
+- Smooth hover animations enhance interactivity
+- Better visual hierarchy with improved typography
+- Meta information more accessible on mobile screens
+- Gradient buttons provide visual depth and appeal
+
+---
+
 ## Future Enhancements
 
 Potential improvements (not in scope for this update):
@@ -180,20 +203,27 @@ Potential improvements (not in scope for this update):
 - Custom SVG pizza assets (higher fidelity)
 - Parallax scrolling on hero images
 - Light theme variant with appropriate gradients
+- Deal card expansion animations
+- Wishlist/favorite deal indicators
 
 ---
 
 ## Commit Information
 
-**Commit:** `0daca8f`  
-**Message:** `design: enhance backgrounds and poster design using old design reference`  
+**Latest Commits:**
+1. **Commit:** `7548f9a`  
+   **Message:** `design: redesign deals page with glassmorphism cards and mobile-first layout`  
+   **Files Modified:**
+   - `frontend/src/app/features/deals/deals.component.ts`
 
-**Files Modified:**
-- `frontend/src/app/features/landing/landing.component.ts`
-- `frontend/src/app/features/auth/otp-verification.component.ts`
-- `frontend/src/app/shared/components/welcome-poster.component.ts`
-- `frontend/src/app/features/home/home-redesign.component.ts`
-- `.gstack/qa-reports/qa-report-localhost-2026-07-18.md` (added)
+2. **Commit:** `0daca8f`  
+   **Message:** `design: enhance backgrounds and poster design using old design reference`  
+   **Files Modified:**
+   - `frontend/src/app/features/landing/landing.component.ts`
+   - `frontend/src/app/features/auth/otp-verification.component.ts`
+   - `frontend/src/app/shared/components/welcome-poster.component.ts`
+   - `frontend/src/app/features/home/home-redesign.component.ts`
+   - `.gstack/qa-reports/qa-report-localhost-2026-07-18.md` (added)
 
 ---
 
