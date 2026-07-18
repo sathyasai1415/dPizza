@@ -68,10 +68,11 @@ import { Router } from '@angular/router';
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)),
-                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23D4521A" width="1200" height="800"/></svg>');
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%),
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><radialGradient id="pizza" cx="50%25" cy="50%25" r="50%25"><stop offset="0%25" style="stop-color:%23E5BF47;stop-opacity:0.3" /><stop offset="100%25" style="stop-color:%23D4521A;stop-opacity:0.1" /></radialGradient></defs><rect fill="%231a1a1a" width="1200" height="800"/><circle cx="150" cy="100" r="200" fill="url(%23pizza)" opacity="0.4"/><circle cx="1050" cy="700" r="250" fill="url(%23pizza)" opacity="0.3"/></svg>');
       background-size: cover;
       background-position: center;
+      background-attachment: fixed;
       z-index: 0;
     }
 

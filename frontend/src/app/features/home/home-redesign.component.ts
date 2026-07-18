@@ -128,7 +128,7 @@ interface Pizza {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: #0E0E10;
+      background: linear-gradient(135deg, #0E0E10 0%, #1a1a1a 50%, #0E0E10 100%);
       overflow: hidden;
     }
 
@@ -136,7 +136,8 @@ interface Pizza {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: #0E0E10;
+      background: linear-gradient(to bottom, rgba(26, 26, 26, 0.95), rgba(14, 14, 16, 0.85));
+      backdrop-filter: blur(8px);
       padding: 12px;
       border-bottom: 1px solid #2B2B31;
     }

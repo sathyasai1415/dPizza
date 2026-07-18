@@ -7,14 +7,20 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn overflow-y-auto">
-      <div class="relative w-full max-w-5xl rounded-[32px] overflow-hidden shadow-2xl bg-black border border-[#D4AF37]/30 my-8">
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn overflow-y-auto" style="background: linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(45,45,45,0.95) 50%, rgba(26,26,26,0.95) 100%);">
+      <div class="relative w-full max-w-5xl rounded-[32px] overflow-hidden shadow-2xl bg-gradient-to-br from-black via-[#1a1a1a] to-[#0a0a0a] border border-[#D4AF37]/40 my-8 backdrop-blur-xl">
         
         <!-- Close Button -->
         <button (click)="close()" class="absolute top-6 right-6 z-50 w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition text-white font-bold">✕</button>
 
         <!-- Poster Content -->
-        <div class="bg-black text-white p-6 sm:p-10 space-y-6">
+        <div class="bg-gradient-to-br from-[#0f0f0f] via-black to-[#1a1a1a] text-white p-6 sm:p-10 space-y-6 relative overflow-hidden">
+          <!-- Decorative background elements -->
+          <div class="absolute inset-0 opacity-10 pointer-events-none">
+            <div class="absolute top-0 left-0 w-96 h-96 bg-[#D4AF37] rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 bg-[#E53935] rounded-full blur-3xl"></div>
+          </div>
+          <div class="relative z-10">
           
           <!-- HERO TOP ROW: Text + Pizza/Phone Visuals -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border-b border-white/10 pb-8">
@@ -256,6 +262,7 @@ import { Router } from '@angular/router';
             <p class="text-center text-[10px] text-neutral-500 font-semibold">
               📍 We'll ask for your location to show nearby deals & delivery options.
             </p>
+          </div>
           </div>
 
         </div>
