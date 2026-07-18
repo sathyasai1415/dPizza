@@ -151,54 +151,76 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
             <p class="text-xs text-neutral-400 max-w-md mx-auto">Try a different category or clear your filters — new offers post all the time.</p>
           </div>
 
-          <!-- Deals grid -->
-          <div *ngIf="!loading() && visible().length > 0" class="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+          <!-- Deals grid with glassmorphism -->
+          <div *ngIf="!loading() && visible().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             @for (vm of visible(); track vm.deal.id) {
-              <div class="rounded-[22px] overflow-hidden flex flex-col hover:border-[#D4AF37]/50 border border-[#2B2B31] bg-[#1E1E22] transition duration-300 group shadow-sm">
+              <div class="group rounded-[20px] overflow-hidden flex flex-col backdrop-blur-md bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:bg-white/8 hover:scale-105">
                 <!-- image / banner -->
-                <div class="relative h-36 flex items-center justify-center text-5xl"
+                <div class="relative h-40 sm:h-48 flex items-center justify-center text-5xl overflow-hidden"
                   [style.background]="vm.store?.brandColor || 'linear-gradient(135deg,#7f1d1d,#c2410c)'">
-                  <img *ngIf="vm.deal.imageUrl" [src]="vm.deal.imageUrl" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-102 transition duration-500" />
-                  <span *ngIf="!vm.deal.imageUrl" class="group-hover:scale-105 transition duration-300">🍕</span>
+                  <img *ngIf="vm.deal.imageUrl" [src]="vm.deal.imageUrl" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                  <span *ngIf="!vm.deal.imageUrl" class="group-hover:scale-125 transition duration-500">🍕</span>
                   @if (vm.pct > 0) {
-                    <span class="absolute top-3 left-3 text-[11px] font-black text-black bg-[#D4AF37] px-3 py-1 rounded-full shadow-lg">SAVE {{ vm.pct }}%</span>
+                    <span class="absolute top-4 left-4 text-[12px] font-black text-black bg-gradient-to-r from-[#D4AF37] to-[#E5BF47] px-3 py-1.5 rounded-full shadow-lg">SAVE {{ vm.pct }}%</span>
                   }
-                  <span class="absolute top-3 right-3 text-[10px] font-bold text-white bg-[#0A0A0A]/85 backdrop-blur px-2.5 py-1 rounded-full shadow-sm">{{ timeLeft(vm.deal) }}</span>
+                  <span class="absolute top-4 right-4 text-[11px] font-bold text-white bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-white/10">{{ timeLeft(vm.deal) }}</span>
                 </div>
 
-                <div class="p-[28px] flex flex-col flex-1">
+                <div class="p-5 sm:p-6 flex flex-col flex-1 gap-4">
                   <!-- restaurant row -->
-                  <div class="flex items-center gap-2 mb-3 border-b border-[#2B2B31]/40 pb-3">
-                    <span class="text-xl">{{ vm.store?.emoji || '🏪' }}</span>
-                    <span class="text-sm font-bold text-white truncate flex-1">{{ vm.store?.name || 'Local Pizzeria' }}</span>
-                    <span class="text-[11px] font-bold text-[#D4AF37]">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ vm.store?.emoji || '🏪' }}</span>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-bold text-white truncate">{{ vm.store?.name || 'Local Pizzeria' }}</p>
+                      <p class="text-xs text-white/50">{{ vm.store?.city || 'Local Area' }}</p>
+                    </div>
+                    <span class="text-xs font-bold text-[#D4AF37] bg-white/10 px-2 py-1 rounded-lg shrink-0">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
                   </div>
 
-                  <p class="text-[18px] font-bold text-white leading-tight">{{ vm.deal.title }}</p>
-                  <p class="text-xs text-[#B8B8B8] mt-1 line-clamp-2 flex-1 font-semibold leading-relaxed">{{ vm.deal.description }}</p>
+                  <!-- deal info -->
+                  <div class="space-y-1.5">
+                    <p class="text-base sm:text-lg font-bold text-white leading-tight line-clamp-2">{{ vm.deal.title }}</p>
+                    <p class="text-xs text-white/60 line-clamp-2">{{ vm.deal.description }}</p>
+                  </div>
 
-                  <!-- price -->
-                  <div class="flex items-end gap-2 mt-4">
-                    <span class="text-3xl font-black text-[#E53935] leading-none">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
-                    @if (vm.deal.originalPrice && vm.deal.originalPrice > (vm.deal.discountedPrice ?? 0)) { 
-                      <span class="text-xs text-neutral-500 font-bold line-through mb-1">{{ vm.deal.originalPrice | currency }}</span> 
+                  <!-- price section -->
+                  <div class="space-y-3 py-4 border-t border-b border-white/10">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-3xl font-black text-[#E53935]">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
+                      @if (vm.deal.originalPrice && vm.deal.originalPrice > (vm.deal.discountedPrice ?? 0)) {
+                        <span class="text-sm text-white/40 line-through">{{ vm.deal.originalPrice | currency }}</span>
+                      }
+                    </div>
+                    @if (vm.savings > 0) {
+                      <p class="text-xs font-bold text-[#22C55E] bg-[#22C55E]/15 px-3 py-1.5 rounded-lg border border-[#22C55E]/30 inline-block">You save {{ vm.savings | currency }}</p>
                     }
-                    <span class="flex-1"></span>
-                    @if (vm.savings > 0) { <span class="text-[10px] font-black text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/30 px-2.5 py-1 rounded-md uppercase tracking-wider mb-0.5">Save {{ vm.savings | currency }}</span> }
                   </div>
 
-                  <!-- meta -->
-                  <div class="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-[#2B2B31]/40 text-[10px] text-[#B8B8B8] font-semibold uppercase tracking-wider">
-                    <span class="flex items-center gap-1">⏱️ {{ vm.store?.averageEtaMinutes || 25 }}m</span>
-                    <span class="flex items-center gap-1">{{ (vm.store?.deliveryFee ?? 0) > 0 ? ('🛵 ' + (vm.store?.deliveryFee | currency)) : '🛵 Free' }}</span>
-                    @if (vm.distanceMi != null) { <span class="flex items-center gap-1">📍 {{ vm.distanceMi | number:'1.1-1' }}m</span> }
-                    @else if (vm.store?.city) { <span class="flex items-center gap-1">📍 {{ vm.store?.city }}</span> }
+                  <!-- meta info grid -->
+                  <div class="grid grid-cols-3 gap-2 text-xs text-white/60">
+                    <div class="flex flex-col items-start gap-1">
+                      <span class="text-lg">⏱️</span>
+                      <span class="font-semibold text-white">{{ vm.store?.averageEtaMinutes || 25 }}m</span>
+                    </div>
+                    <div class="flex flex-col items-start gap-1">
+                      <span class="text-lg">🛵</span>
+                      <span class="font-semibold text-white text-[11px] line-clamp-1">{{ (vm.store?.deliveryFee ?? 0) > 0 ? (vm.store?.deliveryFee | currency) : 'Free' }}</span>
+                    </div>
+                    <div class="flex flex-col items-start gap-1">
+                      <span class="text-lg">📍</span>
+                      @if (vm.distanceMi != null) {
+                        <span class="font-semibold text-white">{{ vm.distanceMi | number:'1.0-1' }}m</span>
+                      }
+                      @else if (vm.store?.city) {
+                        <span class="font-semibold text-white text-[11px] line-clamp-1">{{ vm.store?.city }}</span>
+                      }
+                    </div>
                   </div>
 
                   <!-- actions -->
-                  <div class="grid grid-cols-2 gap-3 mt-5">
-                    <button (click)="viewDeal(vm)" class="py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider text-white bg-transparent border border-[#2B2B31] hover:border-[#D4AF37] hover:bg-white/5 transition shadow-sm">Details</button>
-                    <button (click)="orderNow(vm)" class="py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider text-white bg-[#E53935] hover:bg-[#E53935]/90 transition shadow-sm">Order Now</button>
+                  <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button (click)="viewDeal(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-white/10 to-white/5 border border-white/20 hover:from-white/20 hover:to-white/10 hover:border-white/30 transition-all duration-300 backdrop-blur-sm hover:shadow-md">Details</button>
+                    <button (click)="orderNow(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#E53935] to-[#D4371A] hover:from-[#F44336] hover:to-[#E53935] transition-all duration-300 shadow-lg hover:shadow-[#E53935]/50 transform hover:-translate-y-0.5">Order</button>
                   </div>
                 </div>
               </div>
