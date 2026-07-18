@@ -254,209 +254,129 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
           <div class="w-9"></div>
         </div>
 
-        <!-- TOP NAV HEADER — white / blue / red pill navigation -->
-        <header class="sticky top-0 z-30 px-2 sm:px-6 lg:px-8 pt-2 sm:pt-3">
-          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-2 sm:px-6 py-2 sm:py-0 sm:h-16 lg:px-8 backdrop-blur-md border border-[#D4AF37]/25 bg-[#0A0A0A] rounded-[20px] sm:rounded-full shadow-[0_2px_16px_rgba(17,24,39,0.06)]">
-
-            <!-- MOBILE BRAND BAR (Always visible at the top of the header on mobile) -->
-            <div class="flex sm:hidden items-center justify-between w-full border-b border-[#D4AF37]/15 pb-2 mb-1">
-              <!-- Left side: Hamburger button + Logo -->
-              <div class="flex items-center gap-2">
-                <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
-                  (click)="toggleSidebar()"
-                  class="flex items-center justify-center w-8 h-8 rounded-lg text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                
-                <a routerLink="/home" class="flex items-center gap-2 select-none cursor-pointer">
-                  <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shadow-inner animate-pulse" style="background: var(--gradient-mislice);">🍕</div>
-                  <span class="font-black text-sm tracking-tight block leading-none">
-                    <span style="color: #FF8A00">MI</span><span style="color: #D4AF37">Slice</span>
-                  </span>
-                </a>
-              </div>
-              
-              <!-- Right side: Role indicator or secondary info -->
-              <div class="flex items-center gap-1.5">
-                <span *ngIf="authService.isStoreOwner()" class="text-[9px] font-black uppercase tracking-wider bg-[#D4AF37]/10 text-[#D4AF37] px-2 py-0.5 rounded border border-[#D4AF37]/25">🏪 Merchant</span>
-                <span *ngIf="authService.isAdmin()" class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-500 px-2 py-0.5 rounded border border-red-500/25">🛡️ Admin</span>
-              </div>
-            </div>
-
-            <!-- MOBILE HAMBURGER MENU (Customer - Tablet only) -->
-            <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()">
-              <button (click)="toggleSidebar()" class="hidden sm:flex lg:hidden items-center justify-center w-8 h-8 rounded-lg text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 transition">
+        <!-- TOP NAV HEADER — Redesigned Modern Premium Navigation -->
+        <header class="sticky top-0 z-30 w-full bg-white shadow-sm">
+          <!-- Row 1: Logo (left) + Location (right) -->
+          <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between border-b border-gray-100">
+            <!-- Logo on left -->
+            <div class="flex items-center gap-3">
+              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
+                (click)="toggleSidebar()"
+                class="sm:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-700 hover:bg-gray-100 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-            </ng-container>
 
-            <!-- CUSTOMER LAYOUT -->
-            <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
-              <!-- Row 1 wrapper on mobile (Location left, Icons right), behaves as contents on desktop -->
-              <div class="flex items-center justify-between w-full sm:w-auto sm:contents order-1 sm:order-none">
+              <a routerLink="/home" class="flex items-center gap-2.5 select-none cursor-pointer">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shadow-sm" style="background: linear-gradient(135deg, #FF8A00 0%, #D4AF37 100%);">🍕</div>
+                <span class="hidden sm:block font-black text-lg tracking-tight">
+                  <span style="color: #1a1a1a">MiSlice</span>
+                </span>
+              </a>
+            </div>
 
-                <!-- Pick City / Location display (DoorDash Style) -->
-                <!-- Hidden on desktop, visible on mobile -->
-                <div class="relative shrink-0 min-w-0 max-w-[45%] sm:hidden">
-                  <button (click)="openAddressModal($event)" class="w-full pill-fx pill-fx-blue flex items-center gap-1 bg-[#0E0E10] border border-[#2B2B31] text-[#D4AF37] px-2.5 py-1 rounded-full text-xs font-bold transition hover:bg-white/5">
-                    <span class="pill-fx-fill" aria-hidden="true"></span>
-                    <span class="pill-fx-content relative z-10 flex items-center gap-1 min-w-0">
-                      <span class="shrink-0 text-sm">📍</span>
-                      <span class="truncate font-bold text-white text-xs">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 10) }}</span>
-                    </span>
-                  </button>
-                </div>
-
-                <!-- Right Side Actions Group -->
-                <div class="flex items-center gap-1 sm:gap-2 shrink-0 sm:ml-auto">
-                  
-                  <!-- Favourites Button -->
-                  <a routerLink="/favourites" routerLinkActive="active-tab-top" title="Favourites"
-                     class="pill-fx pill-fx-red flex items-center justify-center gap-1 bg-[#0E0E10] border border-[#2B2B31] rounded-full w-8 h-8 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-[#D4AF37] transition-all shrink-0 hover:text-white">
-                    <span class="pill-fx-fill" aria-hidden="true"></span>
-                    <span class="pill-fx-content relative z-10 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21s-7.5-4.873-10.09-9.05C.36 9.53 1.2 6.2 4.14 5.02c2.1-.84 4.3-.12 5.86 1.6 1.56-1.72 3.76-2.44 5.86-1.6 2.94 1.18 3.78 4.51 2.23 6.93C19.5 16.127 12 21 12 21Z"/>
-                      </svg>
-                      <span class="hidden sm:inline text-sm">Favourites</span>
-                    </span>
-                  </a>
-
-
-                  <!-- Notifications Bell (Redesigned side panel trigger) -->
-                  <button (click)="notificationBar.isOpen.set(!notificationBar.isOpen())" title="Notifications"
-                    class="flex icon-fx relative w-8 h-8 sm:w-9 sm:h-9 items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition cursor-pointer">
-                    <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                    </svg>
-                    <!-- Unread Badge -->
-                    <span *ngIf="notificationBar.unreadCount() > 0" class="absolute top-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-[#E53935] text-white rounded-full text-[7px] sm:text-[9px] font-black flex items-center justify-center z-20">
-                      {{ notificationBar.unreadCount() }}
-                    </span>
-                  </button>
-
-                  <!-- Cart with badge -->
-                  <a routerLink="/cart" title="Cart" class="icon-fx relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
-                    <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.885-4.784 2.253-7.391a1.125 1.125 0 0 0-1.12-1.226H5.25M7.5 14.25 5.106 5.272M6.75 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                    </svg>
-                    <span *ngIf="cartService.cartItemCount() > 0" class="absolute top-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#D4AF37] text-[#0A0A0A] rounded-full text-[7px] sm:text-[9px] font-black flex items-center justify-center z-20">
-                      {{ cartService.cartItemCount() }}
-                    </span>
-                  </a>
-
-                  <!-- Theme Toggle Button -->
-                  <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'" class="icon-fx relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
-                    <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                    </svg>
-                  </button>
-
-                </div>
-
-              </div>
-
-              <!-- Search Bar: Row 2 on mobile, Row 1 on desktop -->
-              <div class="flex items-center gap-2.5 w-full sm:max-w-md bg-[#18181B] border border-[#2B2B31] rounded-full px-4 py-1.5 order-2 sm:order-first">
-                <span class="text-sm text-[#B8B8B8] select-none">🔍</span>
-                <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()" placeholder="Search pizza, pizzerias..." 
-                  class="flex-1 bg-transparent text-sm text-[#FFFFFF] placeholder-[#8A8A8A] outline-none font-semibold" />
-              </div>
-            </ng-container>
-
-            <!-- STORE OWNER / ADMIN LAYOUT -->
-            <ng-container *ngIf="authService.isStoreOwner() || authService.isAdmin()">
-              <div class="flex items-center justify-between w-full sm:contents">
-                
-                <!-- Owner global search -->
-                <div *ngIf="authService.isStoreOwner()" class="hidden sm:flex items-center gap-2.5 flex-1 max-w-md bg-[#0A0A0A] border border-[#D4AF37]/25 rounded-full px-4 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-[#0A0A0A]/70 shrink-0">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                  </svg>
-                  <input [(ngModel)]="ownerSearch" placeholder="Search orders, menu, deals…" class="flex-1 bg-transparent text-sm text-[#0A0A0A] placeholder-[#0A0A0A]/60 outline-none" />
-                </div>
-                <div *ngIf="authService.isAdmin()" class="flex-1"></div>
-
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 sm:ml-auto">
-                  
-                  <!-- OWNER: notifications bell -->
-                  <div *ngIf="authService.isStoreOwner()" class="relative">
-                    <button (click)="bellOpen.set(!bellOpen()); profileOpen.set(false)" title="Notifications" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] rounded-full transition hover:text-white">
-                      <span class="icon-fx-fill" aria-hidden="true"></span>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                      </svg>
-                      <span *ngIf="alerts.unreadCount() > 0" class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-[#D4AF37] text-[#0A0A0A] rounded-full text-[9px] font-black flex items-center justify-center z-20">{{ alerts.unreadCount() }}</span>
-                    </button>
-                    <div *ngIf="bellOpen()" class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl z-50">
-                      <div class="flex items-center justify-between px-4 py-3 border-b border-[#D4AF37]/25 sticky top-0 bg-[#0A0A0A]">
-                        <span class="text-sm font-black text-[#D4AF37]">Notifications</span>
-                        <button (click)="alerts.markAllRead()" class="text-[10px] font-bold text-[#FF8A00] hover:opacity-70">Mark all read</button>
-                      </div>
-                      <div class="flex gap-1 px-3 py-2 overflow-x-auto scrollbar-none border-b border-[#D4AF37]/25">
-                        @for (f of alertFilters; track f) {
-                          <button (click)="alertFilter.set(f)" [class]="'px-2.5 py-1 rounded-full text-[10px] font-black whitespace-nowrap ' + (alertFilter() === f ? 'bg-[#D4AF37] text-[#0A0A0A]' : 'text-[#D4AF37]/70 hover:bg-[#D4AF37]/10')">{{ f }}</button>
-                        }
-                      </div>
-                      <div class="p-2 space-y-1">
-                        @for (a of filteredAlerts(); track a.id) {
-                          <div class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#D4AF37]/20">
-                            <span class="text-base">{{ a.icon }}</span>
-                            <div class="min-w-0"><p class="text-xs font-bold text-[#D4AF37]">{{ a.title }}</p><p class="text-[10px] text-[#D4AF37]/70 mt-0.5">{{ a.detail }}</p></div>
-                          </div>
-                        }
-                        @if (filteredAlerts().length === 0) { <p class="text-[11px] text-[#D4AF37]/70 text-center py-6">🎉 All caught up.</p> }
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- OWNER: help -->
-                  <a *ngIf="authService.isStoreOwner()" routerLink="/how-it-works" title="Help Center" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] rounded-full transition hover:text-white">
-                    <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 17.25h.008v.008H12v-.008Z" />
-                    </svg>
-                  </a>
-
-                  <!-- OWNER: profile menu -->
-                  <div class="relative">
-                    <button (click)="profileOpen.set(!profileOpen()); bellOpen.set(false)" class="w-9 h-9 rounded-full bg-[#D4AF37] hover:brightness-110 flex items-center justify-center text-sm font-black text-[#0A0A0A] transition">{{ (authService.currentUser()?.fullName ?? 'S').substring(0,1).toUpperCase() }}</button>
-                    <div *ngIf="profileOpen()" class="absolute right-0 mt-2 w-56 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl z-50 py-1.5">
-                      <div class="px-4 py-2 border-b border-[#D4AF37]/25"><p class="text-xs font-bold text-[#D4AF37] truncate">{{ authService.currentUser()?.fullName }}</p><p class="text-[10px] text-[#D4AF37]/70 truncate">{{ authService.currentUser()?.email }}</p></div>
-                      <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'settings' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">🏪 Restaurant Profile</a>
-                      <a routerLink="/profile" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">⚙️ Account Settings</a>
-                      <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'financials' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">💳 Billing</a>
-                      <button (click)="handleLogout()" class="w-full text-left px-4 py-2.5 text-xs font-bold text-[#FF8A00] hover:bg-[#D4AF37]/10 rounded-b-2xl">🚪 Logout</button>
-                    </div>
-                  </div>
-
-                  <!-- Theme Toggle Button -->
-                  <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
-                    <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                    </svg>
-                  </button>
-
-                </div>
-
-              </div>
-            </ng-container>
+            <!-- Location on right (visible on mobile and desktop) -->
+            <div class="flex items-center gap-2">
+              <button (click)="openAddressModal($event)" class="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition text-sm font-medium text-gray-700">
+                <span class="text-lg">📍</span>
+                <span class="hidden sm:inline">{{ locationService.selectedCity() === 'All' ? 'All Cities' : locationService.selectedCity() }}</span>
+                <span class="sm:hidden">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 8) }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </button>
+            </div>
           </div>
+
+          <!-- Row 2: Search Bar + Action Buttons (Customer only) -->
+          <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
+              <!-- Search Bar (75-80% width) -->
+              <div class="flex-1 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 hover:border-gray-300 transition">
+                <span class="text-xl select-none">🔍</span>
+                <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()"
+                  placeholder="Search pizzas, restaurants, toppings..."
+                  class="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none font-medium" />
+              </div>
+
+              <!-- Three Action Buttons (right side) -->
+              <div class="flex items-center gap-2 shrink-0">
+                <!-- Hot Deals Button -->
+                <button routerLink="/deals" title="Hot Deals"
+                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#E53935] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-lg shadow-md">
+                  🔥
+                </button>
+
+                <!-- Cart Button -->
+                <a routerLink="/cart" title="Cart"
+                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-200 hover:bg-gray-300 hover:shadow-lg hover:scale-105 transition-all text-gray-800 font-bold text-lg relative shadow-md">
+                  🛒
+                  <span *ngIf="cartService.cartItemCount() > 0" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center shadow-md">
+                    {{ cartService.cartItemCount() }}
+                  </span>
+                </a>
+
+                <!-- Favorites Button -->
+                <a routerLink="/favourites" title="Favorites"
+                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-200 hover:bg-gray-300 hover:shadow-lg hover:scale-105 transition-all text-gray-800 font-bold text-lg shadow-md">
+                  ❤️
+                </a>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Owner/Admin Navigation -->
+          <ng-container *ngIf="authService.isStoreOwner() || authService.isAdmin()">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+              <!-- Owner global search -->
+              <div *ngIf="authService.isStoreOwner()" class="flex-1 max-w-md flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 hover:border-gray-300 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-gray-500 shrink-0">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+                <input [(ngModel)]="ownerSearch" placeholder="Search orders, menu, deals…" class="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none" />
+              </div>
+              <div *ngIf="authService.isAdmin()" class="flex-1"></div>
+
+              <!-- Action buttons -->
+              <div class="flex items-center gap-3 shrink-0">
+                <button *ngIf="authService.isStoreOwner()" (click)="bellOpen.set(!bellOpen()); profileOpen.set(false)" title="Notifications"
+                  class="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  <span *ngIf="alerts.unreadCount() > 0" class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center">{{ alerts.unreadCount() }}</span>
+                </button>
+
+                <!-- Profile menu -->
+                <div class="relative">
+                  <button (click)="profileOpen.set(!profileOpen()); bellOpen.set(false)"
+                    class="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-sm font-black text-white transition shadow-md">
+                    {{ (authService.currentUser()?.fullName ?? 'U').substring(0,1).toUpperCase() }}
+                  </button>
+                  <div *ngIf="profileOpen()" class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white shadow-xl z-50 py-1.5">
+                    <div class="px-4 py-3 border-b border-gray-100"><p class="text-sm font-bold text-gray-900 truncate">{{ authService.currentUser()?.fullName }}</p><p class="text-xs text-gray-500 truncate">{{ authService.currentUser()?.email }}</p></div>
+                    <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'settings' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">🏪 Restaurant Profile</a>
+                    <a routerLink="/profile" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">⚙️ Account Settings</a>
+                    <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'financials' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">💳 Billing</a>
+                    <button (click)="handleLogout()" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-gray-50 rounded-b-xl border-t border-gray-100">🚪 Logout</button>
+                  </div>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                  class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition">
+                  <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
         </header>
 
         <!-- ROUTER OUTLET CONTAINER -->
