@@ -17,16 +17,17 @@ import { CartService } from '../../core/services/cart.service';
           <h1 class="text-3xl font-black text-brand-black tracking-tight flex items-center gap-3">
             🛒 Shopping Cart
             <span *ngIf="cartService.cartItemCount() > 0"
-              class="text-sm font-bold bg-brand-red text-brand-white px-2.5 py-1 rounded-full">
+              class="text-sm font-bold bg-[#E53935] text-white px-2.5 py-1 rounded-full">
               {{ cartService.cartItemCount() }} item{{ cartService.cartItemCount() > 1 ? 's' : '' }}
             </span>
           </h1>
           <p class="text-brand-black text-sm mt-1" *ngIf="cartService.cart()?.restaurantName">
-            📍 Ordering from <span class="text-brand-red font-bold">{{ cartService.cart()?.restaurantName }}</span>
+            📍 Ordering from <span class="text-[#E53935] dark:text-[#D4AF37] font-bold">{{ cartService.cart()?.restaurantName }}</span>
           </p>
         </div>
         <div *ngIf="cartService.items().length > 0" class="flex gap-3">
-          <button (click)="confirmClear()" class="px-4 py-2 rounded-xl text-xs font-bold text-brand-black border border-brand-black hover:border-brand-red hover:text-brand-red transition">
+          <button (click)="confirmClear()" 
+            class="px-4 py-2 rounded-xl text-xs font-bold text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 hover:border-[#E53935] hover:text-[#E53935] dark:hover:border-[#D4AF37] dark:hover:text-[#D4AF37] transition cursor-pointer">
             🗑️ Clear Cart
           </button>
         </div>
@@ -36,12 +37,14 @@ import { CartService } from '../../core/services/cart.service';
       <div *ngIf="cartService.items().length === 0" class="text-center py-20 glass rounded-3xl">
         <div class="text-7xl mb-4">🛒</div>
         <h2 class="text-2xl font-black text-brand-black mb-2">Your cart is empty</h2>
-        <p class="text-brand-black mb-8">Add pizzas from the builder or browse deals</p>
+        <p class="text-brand-black mb-8 opacity-75">Add pizzas from the builder or browse deals</p>
         <div class="flex gap-3 justify-center">
-          <a routerLink="/builder" class="px-6 py-3 rounded-xl font-bold text-brand-black hover:hover:transition">
+          <a routerLink="/builder" 
+            class="px-6 py-3 rounded-xl font-bold text-neutral-900 dark:text-[#1C0338] bg-[#D4AF37] hover:bg-[#E6C96F] transition shadow-sm">
             🍕 Build a Pizza
           </a>
-          <a routerLink="/home" class="px-6 py-3 rounded-xl font-bold bg-brand-white border border-brand-black text-brand-black hover:bg-brand-white transition">
+          <a routerLink="/home" 
+            class="px-6 py-3 rounded-xl font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition">
             Browse Stores
           </a>
         </div>
@@ -57,7 +60,7 @@ import { CartService } from '../../core/services/cart.service';
           <div class="clay rounded-3xl overflow-hidden">
             <div class="px-6 py-4 border-b border-brand-black flex items-center justify-between">
               <h2 class="text-base font-black text-brand-black">Cart Items</h2>
-              <span class="text-xs text-brand-black font-medium">{{ cartService.items().length }} row{{ cartService.items().length > 1 ? 's' : '' }} in database</span>
+              <span class="text-xs text-brand-black font-medium opacity-75">{{ cartService.items().length }} row{{ cartService.items().length > 1 ? 's' : '' }} in database</span>
             </div>
 
             <!-- Table -->
@@ -81,7 +84,7 @@ import { CartService } from '../../core/services/cart.service';
                     <!-- Item Name -->
                     <td class="px-4 py-4">
                       <div class="font-bold text-brand-black text-sm">{{ item.itemName }}</div>
-                      <div *ngIf="item.notes" class="text-[10px] text-brand-black mt-0.5 italic truncate max-w-[140px]">
+                      <div *ngIf="item.notes" class="text-[10px] text-brand-black mt-0.5 italic truncate max-w-[140px] opacity-75">
                         {{ item.notes }}
                       </div>
                     </td>
@@ -99,23 +102,23 @@ import { CartService } from '../../core/services/cart.service';
                     <td class="px-4 py-4">
                       <div class="flex flex-wrap gap-1 max-w-[160px]">
                         <span *ngFor="let t of item.toppings"
-                          class="bg-brand-red text-brand-white text-brand-red text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-brand-red">
+                          class="bg-[#E53935] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-[#E53935]">
                           {{ t.toppingName }}
                         </span>
-                        <span *ngIf="!item.toppings || item.toppings.length === 0" class="text-brand-black text-xs">—</span>
+                        <span *ngIf="!item.toppings || item.toppings.length === 0" class="text-brand-black text-xs opacity-50">—</span>
                       </div>
                     </td>
 
                     <!-- Quantity Control -->
                     <td class="px-4 py-4">
-                      <div class="flex items-center justify-center gap-1 bg-brand-white rounded-lg p-1 w-fit mx-auto">
+                      <div class="flex items-center justify-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1.5 w-fit mx-auto border border-neutral-200 dark:border-neutral-700/50">
                         <button (click)="updateQty(item.id, item.quantity - 1)"
-                          class="w-6 h-6 rounded-md bg-brand-white hover:bg-brand-red text-brand-white font-black text-xs transition flex items-center justify-center">
+                          class="w-6 h-6 rounded-md bg-neutral-200 dark:bg-neutral-700 hover:bg-[#E53935] hover:text-white dark:hover:bg-[#E53935] dark:hover:text-white text-neutral-800 dark:text-neutral-200 font-bold text-xs transition flex items-center justify-center cursor-pointer border-0">
                           −
                         </button>
-                        <span class="font-black text-brand-black text-sm w-6 text-center">{{ item.quantity }}</span>
+                        <span class="font-black text-neutral-800 dark:text-neutral-200 text-sm w-6 text-center">{{ item.quantity }}</span>
                         <button (click)="updateQty(item.id, item.quantity + 1)"
-                          class="w-6 h-6 rounded-md bg-brand-white hover:bg-green-600/40 text-brand-black font-black text-xs transition flex items-center justify-center">
+                          class="w-6 h-6 rounded-md bg-neutral-200 dark:bg-neutral-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white text-neutral-800 dark:text-neutral-200 font-bold text-xs transition flex items-center justify-center cursor-pointer border-0">
                           +
                         </button>
                       </div>
@@ -134,7 +137,7 @@ import { CartService } from '../../core/services/cart.service';
                     <!-- Remove -->
                     <td class="px-4 py-4 text-center">
                       <button (click)="removeItem(item.id)"
-                        class="p-1.5 rounded-lg hover:bg-brand-red text-brand-white hover:text-brand-red transition opacity-0 group-hover:opacity-100">
+                        class="p-1.5 rounded-lg hover:bg-[#E53935]/15 text-[#E53935] transition opacity-0 group-hover:opacity-100 cursor-pointer">
                         🗑️
                       </button>
                     </td>
@@ -149,13 +152,13 @@ import { CartService } from '../../core/services/cart.service';
                     <td></td>
                   </tr>
                   <tr>
-                    <td colspan="5" class="px-4 py-2 text-right text-xs font-bold text-brand-black uppercase tracking-widest">Tax (8.25%)</td>
-                    <td class="px-4 py-2 text-right font-semibold text-brand-black">{{ tax() | currency }}</td>
+                    <td colspan="5" class="px-4 py-2 text-right text-xs font-bold text-brand-black uppercase tracking-widest opacity-75">Tax (8.25%)</td>
+                    <td class="px-4 py-2 text-right font-semibold text-brand-black opacity-75">{{ tax() | currency }}</td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td colspan="5" class="px-4 py-2 text-right text-xs font-bold text-brand-black uppercase tracking-widest">Platform Fee</td>
-                    <td class="px-4 py-2 text-right font-semibold text-brand-black">{{ platformFee | currency }}</td>
+                    <td colspan="5" class="px-4 py-2 text-right text-xs font-bold text-brand-black uppercase tracking-widest opacity-75">Platform Fee</td>
+                    <td class="px-4 py-2 text-right font-semibold text-brand-black opacity-75">{{ platformFee | currency }}</td>
                     <td></td>
                   </tr>
                   <tr class="border-t border-brand-black">
@@ -173,10 +176,10 @@ import { CartService } from '../../core/services/cart.service';
             <div class="flex-1">
               <label class="block text-[10px] font-black text-brand-black uppercase tracking-widest mb-1">Promo Code</label>
               <input type="text" [(ngModel)]="couponCode" placeholder="Enter coupon code"
-                class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-brand-red" />
+                class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-[#E53935] dark:focus:border-[#D4AF37]" />
             </div>
             <button (click)="applyPromo()"
-              class="px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-white hover:bg-brand-white border border-brand-black text-brand-black transition">
+              class="px-5 py-2.5 rounded-xl font-bold text-sm bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 transition cursor-pointer">
               Apply
             </button>
             <p *ngIf="couponMsg()" class="text-xs font-bold" [class.text-brand-green]="couponOk()" [class.text-brand-red]="!couponOk()">
@@ -195,11 +198,11 @@ import { CartService } from '../../core/services/cart.service';
                 <span>{{ cartService.cartItemCount() }} item{{ cartService.cartItemCount() > 1 ? 's' : '' }}</span>
                 <span class="text-brand-black font-semibold">{{ subtotal() | currency }}</span>
               </div>
-              <div class="flex justify-between text-brand-black">
+              <div class="flex justify-between text-brand-black opacity-75">
                 <span>Tax (8.25%)</span>
                 <span class="text-brand-black font-semibold">{{ tax() | currency }}</span>
               </div>
-              <div class="flex justify-between text-brand-black">
+              <div class="flex justify-between text-brand-black opacity-75">
                 <span>Platform Fee</span>
                 <span class="text-brand-black font-semibold">{{ platformFee | currency }}</span>
               </div>
@@ -218,22 +221,21 @@ import { CartService } from '../../core/services/cart.service';
               <span class="text-brand-green text-sm">✅</span>
               <div>
                 <p class="text-xs font-bold text-brand-green">Saved to Database</p>
-                <p class="text-[10px] text-brand-black font-mono mt-0.5 break-all">{{ cartService.cart()?.id }}</p>
+                <p class="text-[10px] text-brand-black font-mono mt-0.5 break-all opacity-75">{{ cartService.cart()?.id }}</p>
               </div>
             </div>
 
             <button (click)="goCheckout()"
-              class="w-full py-4 rounded-2xl font-black text-brand-black hover:hover:shadow-lg shadow-red-900/30 transition transform hover:-translate-y-0.5 active:translate-y-0">
+              class="w-full py-4 clay-accent font-black hover:shadow-lg shadow-red-900/30 transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-0">
               Proceed to Checkout ➡️
             </button>
             <a routerLink="/builder"
-              class="block text-center text-sm font-bold text-brand-black hover:text-brand-black transition mt-2">
+              class="block text-center text-sm font-bold text-[#E53935] dark:text-[#D4AF37] hover:underline transition mt-2">
               + Add More Items
             </a>
           </div>
         </div>
 
-      </div>
     </div>
   `
 })

@@ -1,5 +1,9 @@
 import { Routes } from '@angular/router';
 import { WelcomeComponent } from './features/welcome/welcome.component';
+import { LandingComponent } from './features/landing/landing.component';
+import { OtpVerificationComponent } from './features/auth/otp-verification.component';
+import { WelcomePosterComponent } from './features/onboarding/welcome-poster.component';
+import { HomeRedesignComponent } from './features/home/home-redesign.component';
 import { LayoutComponent } from './features/layout/layout.component';
 import { HomeComponent } from './features/home/home.component';
 import { OrderComponent } from './features/order/order.component';
@@ -25,6 +29,10 @@ import { FavouritesComponent } from './features/favourites/favourites.component'
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  { path: 'landing', component: LandingComponent },
+  { path: 'otp', component: OtpVerificationComponent },
+  { path: 'welcome-poster', component: WelcomePosterComponent },
+  { path: 'home-new', component: HomeRedesignComponent },
   { path: 'welcome', component: WelcomeComponent },
   {
     path: '',

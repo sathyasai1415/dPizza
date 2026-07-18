@@ -256,12 +256,10 @@ export class LandingComponent {
   }
 
   signIn() {
-    // TODO: Navigate to login page
-    console.log('Sign In clicked');
+    this.router.navigate(['/otp']);
   }
 
   signUp() {
-    // TODO: Navigate to signup page
-    console.log('Sign Up clicked');
+    this.router.navigate(['/otp']);
   }
 }
