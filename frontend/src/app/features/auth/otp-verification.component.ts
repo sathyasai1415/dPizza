@@ -214,13 +214,18 @@ export class OtpVerificationComponent {
 
   onOtpInput(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
-    const value = input.value;
+    let value = input.value;
 
-    if (!/^\d*$/.test(value)) {
+    if (value.length > 1) {
+      value = value.slice(-1);
+    }
+
+    if (!/^\d?$/.test(value)) {
       input.value = '';
       return;
     }
 
+    input.value = value;
     const otp = this.otpValues();
     otp[index] = value;
     this.otpValues.set([...otp]);
