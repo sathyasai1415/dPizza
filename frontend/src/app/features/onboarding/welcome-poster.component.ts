@@ -245,7 +245,6 @@ export class WelcomePosterComponent {
   }
 
   private goToHome() {
-    // TODO: Navigate to home page
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home-new']);
   }
 }
