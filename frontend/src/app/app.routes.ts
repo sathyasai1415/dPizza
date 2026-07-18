@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { WelcomeComponent } from './features/welcome/welcome.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { OtpVerificationComponent } from './features/auth/otp-verification.component';
-import { WelcomePosterComponent } from './features/onboarding/welcome-poster.component';
+import { WelcomePosterComponent } from './shared/components/welcome-poster.component';
 import { HomeRedesignComponent } from './features/home/home-redesign.component';
 import { LayoutComponent } from './features/layout/layout.component';
 import { HomeComponent } from './features/home/home.component';

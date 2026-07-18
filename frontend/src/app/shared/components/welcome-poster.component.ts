@@ -1,5 +1,6 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-welcome-poster',
@@ -273,8 +274,12 @@ import { CommonModule } from '@angular/common';
 })
 export class WelcomePosterComponent {
   @Output() closed = new EventEmitter<void>();
+  private readonly router = inject(Router);
 
   close() {
     this.closed.emit();
+    if (this.router.url === '/welcome-poster') {
+      this.router.navigate(['/home']);
+    }
   }
 }
