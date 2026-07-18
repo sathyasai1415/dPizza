@@ -13,6 +13,7 @@ import { ElectricBorderComponent } from '../../shared/electric-border/electric-b
 import { LocationService } from '../../core/services/location.service';
 import { OnboardingService } from '../../core/services/onboarding.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { NotificationBarComponent } from '../../shared/components/notification-bar.component';
 
 @Component({
   selector: 'app-layout',
@@ -25,16 +26,17 @@ import { ThemeService } from '../../core/services/theme.service';
     RouterLinkActive,
     VideoIntroComponent,
     WelcomeShowcaseComponent,
-    ElectricBorderComponent
+    ElectricBorderComponent,
+    NotificationBarComponent
   ],
   template: `
     <app-video-intro *ngIf="showIntro()" (done)="dismissIntro()"></app-video-intro>
     <app-welcome-showcase *ngIf="onboarding.showWelcome()" (done)="onboarding.dismissWelcome(); openAddressModalAfterWelcome()"></app-welcome-showcase>
     <div class="min-h-screen flex text-brand-black bg-transparent relative">
 
-      <!-- SIDEBAR NAVIGATION — desktop only; mobile uses the bottom tab bar instead -->
-      <aside [class.lg:w-20]="navCollapsed()" [class.lg:w-64]="!navCollapsed()"
-        class="hidden lg:flex lg:fixed lg:top-0 lg:bottom-0 lg:left-0 z-40 flex-col transition-all duration-300 border-r border-[#2B2B31] text-[#D4AF37] overflow-visible bg-[#0E0E10]">
+      <!-- SIDEBAR NAVIGATION — desktop visible, mobile overlay -->
+      <aside [class.lg:w-20]="navCollapsed()" [class.lg:w-64]="!navCollapsed()" [class.translate-x-0]="sidebarOpen()" [class.-translate-x-full]="!sidebarOpen()"
+        class="fixed lg:sticky lg:top-0 lg:bottom-0 lg:left-0 top-0 left-0 z-40 w-64 h-screen flex-col transition-all duration-300 border-r border-[#2B2B31] text-[#D4AF37] overflow-y-auto overflow-x-hidden bg-[#0E0E10] lg:flex lg:translate-x-0" [class.flex]="sidebarOpen()" [class.hidden]="!sidebarOpen() && !authService.isStoreOwner() && !authService.isAdmin()">
 
         <div class="relative z-10 flex flex-col h-full">
 
@@ -224,91 +226,138 @@ import { ThemeService } from '../../core/services/theme.service';
               <span class="shrink-0">🚪</span> <span [class.lg:hidden]="navCollapsed()">Sign Out</span>
             </span>
           </button>
+          <!-- Mobile Close Button -->
+          <button *ngIf="sidebarOpen()" (click)="closeSidebar()" class="lg:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-[#D4AF37] hover:bg-[#D4AF37]/20 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
         </div><!-- /relative z-10 wrapper -->
       </aside>
 
+      <!-- MOBILE SIDEBAR OVERLAY BACKDROP -->
+      <div *ngIf="sidebarOpen()" (click)="closeSidebar()" class="fixed inset-0 lg:hidden bg-black/50 z-30 backdrop-blur-sm transition-opacity duration-300"></div>
+
       <!-- MAIN CONTENT WRAPPER -->
       <div class="flex-1 flex flex-col min-w-0 transition-all duration-300" [class.lg:pl-64]="!navCollapsed()" [class.lg:pl-20]="navCollapsed()">
+        <!-- LOCATION ICON - TOP (Mobile Only) -->
+        <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" class="flex sm:hidden items-center justify-between px-4 py-2 bg-[#0A0A0A]/50">
+          <button (click)="openAddressModal($event)" [title]="'Current location: ' + locationService.selectedCity()" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
+            <span class="icon-fx-fill" aria-hidden="true"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+            </svg>
+          </button>
+          <span class="text-xs font-bold text-[#D4AF37]">{{ locationService.selectedCity() === 'All' ? 'Select Location' : locationService.selectedCity() }}</span>
+          <div class="w-9"></div>
+        </div>
+
         <!-- TOP NAV HEADER — white / blue / red pill navigation -->
-        <!-- TOP NAV HEADER — white / blue / red pill navigation -->
-        <header class="sticky top-0 z-30 px-3 sm:px-6 lg:px-8 pt-3">
-          <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 sm:py-0 sm:h-16 sm:px-6 lg:px-8 backdrop-blur-md border border-[#D4AF37]/25 bg-[#0A0A0A] rounded-[24px] sm:rounded-full shadow-[0_2px_16px_rgba(17,24,39,0.06)]">
+        <header class="sticky top-0 z-30 px-2 sm:px-6 lg:px-8 pt-2 sm:pt-3">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-2 sm:px-6 py-2 sm:py-0 sm:h-16 lg:px-8 backdrop-blur-md border border-[#D4AF37]/25 bg-[#0A0A0A] rounded-[20px] sm:rounded-full shadow-[0_2px_16px_rgba(17,24,39,0.06)]">
+
+            <!-- MOBILE BRAND BAR (Always visible at the top of the header on mobile) -->
+            <div class="flex sm:hidden items-center justify-between w-full border-b border-[#D4AF37]/15 pb-2 mb-1">
+              <!-- Left side: Hamburger button + Logo -->
+              <div class="flex items-center gap-2">
+                <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
+                  (click)="toggleSidebar()"
+                  class="flex items-center justify-center w-8 h-8 rounded-lg text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                
+                <a routerLink="/home" class="flex items-center gap-2 select-none cursor-pointer">
+                  <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shadow-inner animate-pulse" style="background: var(--gradient-mislice);">🍕</div>
+                  <span class="font-black text-sm tracking-tight block leading-none">
+                    <span style="color: #FF8A00">MI</span><span style="color: #D4AF37">Slice</span>
+                  </span>
+                </a>
+              </div>
+              
+              <!-- Right side: Role indicator or secondary info -->
+              <div class="flex items-center gap-1.5">
+                <span *ngIf="authService.isStoreOwner()" class="text-[9px] font-black uppercase tracking-wider bg-[#D4AF37]/10 text-[#D4AF37] px-2 py-0.5 rounded border border-[#D4AF37]/25">🏪 Merchant</span>
+                <span *ngIf="authService.isAdmin()" class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-500 px-2 py-0.5 rounded border border-red-500/25">🛡️ Admin</span>
+              </div>
+            </div>
+
+            <!-- MOBILE HAMBURGER MENU (Customer - Tablet only) -->
+            <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()">
+              <button (click)="toggleSidebar()" class="hidden sm:flex lg:hidden items-center justify-center w-8 h-8 rounded-lg text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </ng-container>
 
             <!-- CUSTOMER LAYOUT -->
             <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
               <!-- Row 1 wrapper on mobile (Location left, Icons right), behaves as contents on desktop -->
               <div class="flex items-center justify-between w-full sm:w-auto sm:contents order-1 sm:order-none">
-                
+
                 <!-- Pick City / Location display (DoorDash Style) -->
                 <!-- Hidden on desktop, visible on mobile -->
-                <div class="relative shrink-0 min-w-0 max-w-[50%] sm:hidden">
-                  <button (click)="openAddressModal($event)" class="w-full pill-fx pill-fx-blue flex items-center gap-1.5 bg-[#0E0E10] border border-[#2B2B31] text-[#D4AF37] px-3.5 py-1.5 rounded-full text-nav transition hover:bg-white/5">
+                <div class="relative shrink-0 min-w-0 max-w-[45%] sm:hidden">
+                  <button (click)="openAddressModal($event)" class="w-full pill-fx pill-fx-blue flex items-center gap-1 bg-[#0E0E10] border border-[#2B2B31] text-[#D4AF37] px-2.5 py-1 rounded-full text-xs font-bold transition hover:bg-white/5">
                     <span class="pill-fx-fill" aria-hidden="true"></span>
-                    <span class="pill-fx-content relative z-10 flex items-center gap-1.5 min-w-0">
-                      <span class="shrink-0">📍</span>
-                      <span class="truncate font-bold text-white">{{ locationService.selectedCity() === 'All' ? 'Select Location' : locationService.selectedCity() }}</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 shrink-0 text-[#D4AF37]">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
+                    <span class="pill-fx-content relative z-10 flex items-center gap-1 min-w-0">
+                      <span class="shrink-0 text-sm">📍</span>
+                      <span class="truncate font-bold text-white text-xs">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 10) }}</span>
                     </span>
                   </button>
                 </div>
 
                 <!-- Right Side Actions Group -->
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 sm:ml-auto">
+                <div class="flex items-center gap-1 sm:gap-2 shrink-0 sm:ml-auto">
                   
                   <!-- Favourites Button -->
                   <a routerLink="/favourites" routerLinkActive="active-tab-top" title="Favourites"
-                     class="pill-fx pill-fx-red flex items-center justify-center gap-1.5 bg-[#0E0E10] border border-[#2B2B31] rounded-full w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-nav text-[#D4AF37] transition-all shrink-0">
+                     class="pill-fx pill-fx-red flex items-center justify-center gap-1 bg-[#0E0E10] border border-[#2B2B31] rounded-full w-8 h-8 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-[#D4AF37] transition-all shrink-0 hover:text-white">
                     <span class="pill-fx-fill" aria-hidden="true"></span>
-                    <span class="pill-fx-content relative z-10 flex items-center gap-1.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <span class="pill-fx-content relative z-10 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 21s-7.5-4.873-10.09-9.05C.36 9.53 1.2 6.2 4.14 5.02c2.1-.84 4.3-.12 5.86 1.6 1.56-1.72 3.76-2.44 5.86-1.6 2.94 1.18 3.78 4.51 2.23 6.93C19.5 16.127 12 21 12 21Z"/>
                       </svg>
-                      <span class="hidden sm:inline">Favourites</span>
+                      <span class="hidden sm:inline text-sm">Favourites</span>
                     </span>
                   </a>
 
-                  <!-- Orders Button -->
-                  <a routerLink="/orders" routerLinkActive="active-tab-top" title="Orders"
-                     class="pill-fx pill-fx-solid flex items-center justify-center gap-1.5 bg-[#0E0E10] border border-[#2B2B31] rounded-full w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-2 text-nav text-[#D4AF37] transition-all shrink-0">
-                    <span class="pill-fx-fill" aria-hidden="true"></span>
-                    <span class="pill-fx-content relative z-10 flex items-center gap-1.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      <span class="hidden sm:inline">Orders</span>
-                    </span>
-                  </a>
 
-                  <!-- Notifications Bell (hidden on mobile, shown on sm+) -->
-                  <a routerLink="/notifications" title="Notifications"
-                    class="hidden sm:flex icon-fx relative w-9 h-9 items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
+                  <!-- Notifications Bell (Redesigned side panel trigger) -->
+                  <button (click)="notificationBar.isOpen.set(!notificationBar.isOpen())" title="Notifications"
+                    class="flex icon-fx relative w-8 h-8 sm:w-9 sm:h-9 items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition cursor-pointer">
                     <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                     </svg>
-                  </a>
+                    <!-- Unread Badge -->
+                    <span *ngIf="notificationBar.unreadCount() > 0" class="absolute top-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-[#E53935] text-white rounded-full text-[7px] sm:text-[9px] font-black flex items-center justify-center z-20">
+                      {{ notificationBar.unreadCount() }}
+                    </span>
+                  </button>
 
                   <!-- Cart with badge -->
-                  <a routerLink="/cart" title="Cart" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
+                  <a routerLink="/cart" title="Cart" class="icon-fx relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
                     <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.885-4.784 2.253-7.391a1.125 1.125 0 0 0-1.12-1.226H5.25M7.5 14.25 5.106 5.272M6.75 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                     </svg>
-                    <span *ngIf="cartService.cartItemCount() > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#D4AF37] text-[#0A0A0A] rounded-full text-[9px] font-black flex items-center justify-center z-20">
+                    <span *ngIf="cartService.cartItemCount() > 0" class="absolute top-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#D4AF37] text-[#0A0A0A] rounded-full text-[7px] sm:text-[9px] font-black flex items-center justify-center z-20">
                       {{ cartService.cartItemCount() }}
                     </span>
                   </a>
 
                   <!-- Theme Toggle Button -->
-                  <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
+                  <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'" class="icon-fx relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
                     <span class="icon-fx-fill" aria-hidden="true"></span>
-                    <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                   </button>
@@ -411,72 +460,90 @@ import { ThemeService } from '../../core/services/theme.service';
         </header>
 
         <!-- ROUTER OUTLET CONTAINER -->
-        <main class="flex-1 p-6 lg:p-8 pb-24 lg:pb-8 z-10">
+        <main class="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-28 sm:pb-8 z-10">
           <router-outlet></router-outlet>
         </main>
       </div>
 
       <!-- MOBILE BOTTOM TAB BAR — replaces the sidebar below the lg breakpoint -->
       <nav *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
-        class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0A0A0A] border-t border-[#D4AF37]/25 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
-        <div class="relative flex-1">
+        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-[#0A0A0A]/95 border-t border-[#D4AF37]/25 flex items-center justify-around safe-area-bottom shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
+        <div class="relative flex-1 h-full">
           <button (click)="$event.stopPropagation(); buildMenuOpen.set(!buildMenuOpen()); accountMenuOpen.set(false); supportMenuOpen.set(false)"
-            [class]="'w-full flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption ' + ((buildMenuOpen() || currentRoute() === '/builder' || currentRoute() === '/compare') ? 'text-[#FF8A00]' : 'text-[#D4AF37]/70')">
-            <span class="text-xl leading-none">🍕</span> Build
+            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + ((buildMenuOpen() || currentRoute() === '/builder' || currentRoute() === '/compare') ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M3 12h18M12 12m-9 0a9 9 0 1 1 18 0 9 9 0 1 1-18 0" />
+            </svg>
+            <span>Build</span>
           </button>
-          <div *ngIf="buildMenuOpen()" class="absolute bottom-full left-0 mb-2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl py-1.5">
+          <div *ngIf="buildMenuOpen()" class="absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
             <a routerLink="/builder" (click)="buildMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">🍕 Build a Pizza</a>
             <a routerLink="/compare" (click)="buildMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">⚖️ Compare Prices</a>
           </div>
         </div>
 
-        <a routerLink="/deals" routerLinkActive="text-[#FF8A00]"
-          class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption text-[#D4AF37]/70">
-          <span class="text-xl leading-none">🏷️</span> Deals
+        <a routerLink="/deals" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-neutral-400 hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a2.25 2.25 0 0 0 3.181 0l5.103-5.102a2.25 2.25 0 0 0 0-3.181l-9.58-9.581A2.25 2.25 0 0 0 9.568 3Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+          </svg>
+          <span>Deals</span>
         </a>
 
-        <div class="relative flex-1">
+        <div class="relative flex-1 h-full">
           <button (click)="$event.stopPropagation(); accountMenuOpen.set(!accountMenuOpen()); buildMenuOpen.set(false); supportMenuOpen.set(false)"
-            [class]="'w-full flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption ' + ((accountMenuOpen() || currentRoute() === '/orders' || currentRoute() === '/rewards') ? 'text-[#FF8A00]' : 'text-[#D4AF37]/70')">
-            <span class="text-xl leading-none">📦</span> Account
+            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + ((accountMenuOpen() || currentRoute() === '/orders' || currentRoute() === '/rewards') ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+            </svg>
+            <span>Account</span>
           </button>
-          <div *ngIf="accountMenuOpen()" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl py-1.5">
+          <div *ngIf="accountMenuOpen()" class="absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
             <a routerLink="/orders" (click)="accountMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">📦 Order History</a>
             <a routerLink="/rewards" (click)="accountMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">🎁 Rewards Hub</a>
             <button (click)="handleLogout(); accountMenuOpen.set(false)" class="w-full text-left px-4 py-2.5 text-xs font-bold text-[#FF8A00] hover:bg-[#D4AF37]/10 rounded-b-2xl border-t border-[#D4AF37]/15">🚪 Sign Out</button>
           </div>
         </div>
 
-        <div class="relative flex-1">
+        <div class="relative flex-1 h-full">
           <button (click)="$event.stopPropagation(); supportMenuOpen.set(!supportMenuOpen()); buildMenuOpen.set(false); accountMenuOpen.set(false)"
-            [class]="'w-full flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption ' + ((supportMenuOpen() || currentRoute() === '/how-it-works' || currentRoute() === '/contact') ? 'text-[#FF8A00]' : 'text-[#D4AF37]/70')">
-            <span class="text-xl leading-none">❓</span> Support
+            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + ((supportMenuOpen() || currentRoute() === '/how-it-works' || currentRoute() === '/contact') ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+            </svg>
+            <span>Support</span>
           </button>
-          <div *ngIf="supportMenuOpen()" class="absolute bottom-full right-1/2 translate-x-1/2 mb-2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl py-1.5">
+          <div *ngIf="supportMenuOpen()" class="absolute bottom-[calc(100%+10px)] right-1/2 translate-x-1/2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
             <a routerLink="/how-it-works" (click)="supportMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">❓ How It Works</a>
             <a routerLink="/contact" (click)="supportMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">✉️ Contact Support</a>
           </div>
         </div>
 
-        <a routerLink="/profile" routerLinkActive="text-[#FF8A00]"
-          class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption text-[#D4AF37]/70">
-          <span class="text-xl leading-none">👤</span> Profile
+        <a routerLink="/profile" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-neutral-400 hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+          <span>Profile</span>
         </a>
       </nav>
 
       <!-- MOBILE BOTTOM TAB BAR — merchant (owner) -->
       <nav *ngIf="authService.isStoreOwner()"
-        class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0A0A0A] border-t border-[#D4AF37]/25 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
+        class="lg:hidden fixed bottom-5 inset-x-4 h-16 z-40 backdrop-blur-md bg-[#0A0A0A]/90 border border-[#D4AF37]/35 rounded-2xl flex items-center justify-around shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
         <a *ngFor="let t of merchantTabs.slice(0, 4)" [routerLink]="['/owner']" [queryParams]="{ tab: t.id }"
-          [class]="'flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption ' + (currentTab() === t.id ? 'text-[#FF8A00]' : 'text-[#D4AF37]/70')">
-          <span class="text-xl leading-none">{{ t.icon }}</span> {{ t.name }}
+          [class]="'flex-1 h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + (currentTab() === t.id ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
+          <span class="text-xl leading-none">{{ t.icon }}</span>
+          <span>{{ t.name }}</span>
         </a>
-        <div class="relative flex-1">
+        <div class="relative flex-1 h-full">
           <button (click)="$event.stopPropagation(); ownerMoreOpen.set(!ownerMoreOpen())"
-            class="w-full flex flex-col items-center justify-center gap-0.5 py-2.5 text-caption text-[#D4AF37]/70">
-            <span class="text-xl leading-none">⋯</span> More
+            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + (ownerMoreOpen() ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
+            <span class="text-xl leading-none">⋯</span>
+            <span>More</span>
           </button>
-          <div *ngIf="ownerMoreOpen()" class="absolute bottom-full right-0 mb-2 w-48 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-xl py-1.5">
+          <div *ngIf="ownerMoreOpen()" class="absolute bottom-[calc(100%+10px)] right-0 w-48 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
             <a *ngFor="let t of merchantTabs.slice(4)" [routerLink]="['/owner']" [queryParams]="{ tab: t.id }" (click)="ownerMoreOpen.set(false)"
               class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">{{ t.icon }} {{ t.name }}</a>
             <a routerLink="/profile" (click)="ownerMoreOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">⚙️ Account Settings</a>
@@ -492,6 +559,9 @@ import { ThemeService } from '../../core/services/theme.service';
           <span>🍕</span> Build your pizza
         </button>
       </div>
+
+      <!-- Redesigned Notification Side Panel and Trigger -->
+      <app-notification-bar #notificationBar></app-notification-bar>
 
     </div>
   `,

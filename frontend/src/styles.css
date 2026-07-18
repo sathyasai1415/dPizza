@@ -272,23 +272,22 @@ app-rewards .bg-white,
 }
 
 /* ========================================================================== */
-/* THEME SUPPORT: LIGHT MODE with Purple Accent */
+/* THEME SUPPORT: LIGHT MODE with MiSlice Brand Colors (Red, Gold, White) */
 /* ========================================================================== */
 
 [data-theme="light"] {
   --color-surface-bg: #FFFFFF;
-  --color-surface-card: #F3F0FF;
-  --color-text-primary: #2D1B4E;
-  --color-text-secondary: #5D4E7A;
-  --color-border: #D8B4F8;
-  --color-accent-purple: #7D2EC0;
-  --color-accent-purple-dark: #800080;
-  --color-accent-lavender: #E5D0FF;
+  --color-surface-card: #FAFAFA;
+  --color-text-primary: #1F1F1F;
+  --color-text-secondary: #555555;
+  --color-border: #E8E8E8;
+  --color-brand-red: #E53935;
+  --color-brand-gold: #D4AF37;
 }
 
 [data-theme="light"] body {
   background-color: #FFFFFF !important;
-  color: #2D1B4E !important;
+  color: #1F1F1F !important;
 }
 
 [data-theme="light"] body:has(app-home) {
@@ -302,61 +301,70 @@ app-rewards .bg-white,
 
 [data-theme="light"] .clay,
 [data-theme="light"] .clay-soft {
-  background: #F3F0FF;
-  border-color: #D8B4F8;
+  background: #FAFAFA;
+  border-color: #E8E8E8;
 }
 
 [data-theme="light"] .clay-inset {
   background: #FFFFFF;
-  border-color: #D8B4F8;
+  border-color: #E8E8E8;
 }
 
 [data-theme="light"] .clay-btn {
-  background: #F3F0FF;
-  color: #2D1B4E;
-  border-color: #D8B4F8;
+  background: #FAFAFA;
+  color: #1F1F1F;
+  border-color: #E8E8E8;
 }
 
 [data-theme="light"] .clay-btn:hover {
-  background: #7D2EC0;
-  color: #FFFFFF;
+  background: #D4AF37;
+  color: #1F1F1F;
+  font-weight: 600;
 }
 
 [data-theme="light"] .clay-accent {
-  background: #7D2EC0;
+  background: #E53935;
   color: #FFFFFF;
 }
 
 [data-theme="light"] .clay-accent:hover {
-  background: #800080;
+  background: #C1251C;
 }
 
-/* Light mode text overrides - PRIMARY TEXT */
+/* Light mode text overrides - PRIMARY TEXT (BLACK) */
 [data-theme="light"] .text-\[\#111827\],
 [data-theme="light"] .text-brand-black,
 [data-theme="light"] .text-\[\#1c1c1c\],
 [data-theme="light"] .text-gray-900,
 [data-theme="light"] .text-neutral-900,
 [data-theme="light"] .text-white,
-[data-theme="light"] .text-\[\#F8F8F8\] {
-  color: #2D1B4E !important;
+[data-theme="light"] .text-\[\#F8F8F8\],
+[data-theme="light"] .text-\[\#EDEDED\] {
+  color: #1F1F1F !important;
 }
 
-/* Light mode text overrides - SECONDARY TEXT */
+/* Light mode text overrides - SECONDARY TEXT (GRAY) */
 [data-theme="light"] .text-\[\#B8B8B8\],
 [data-theme="light"] .text-\[\#6B7280\],
 [data-theme="light"] .text-gray-500,
-[data-theme="light"] .text-neutral-500 {
-  color: #5D4E7A !important;
+[data-theme="light"] .text-neutral-500,
+[data-theme="light"] .text-\[\#9C9C9C\] {
+  color: #5A5A5A !important;
 }
 
 [data-theme="light"] .text-\[\#A9A9A9\] {
-  color: #7B6B94 !important;
+  color: #6F6F6F !important;
 }
 
-/* Light mode accent text - PURPLE */
-[data-theme="light"] .text-\[\#D4AF37\] {
-  color: #7D2EC0 !important;
+/* Light mode accent text - GOLD for accents, RED for highlights */
+[data-theme="light"] .text-\[\#D4AF37\],
+[data-theme="light"] .text-\[\#FF8A00\] {
+  color: #D4AF37 !important;
+}
+
+/* Light mode orange/red accents */
+[data-theme="light"] .text-\[\#FF8A00\] {
+  color: #E53935 !important;
 }
 
 /* Light mode background overrides */
@@ -365,128 +373,159 @@ app-rewards .bg-white,
 [data-theme="light"] .bg-\[\#0A0A0A\],
 [data-theme="light"] .bg-\[\#1E1E22\],
 [data-theme="light"] .bg-black {
-  background-color: #F3F0FF !important;
+  background-color: #FAFAFA !important;
 }
 
 [data-theme="light"] .bg-white {
   background-color: #FFFFFF !important;
 }
 
-/* Light mode borders - use lavender/light purple */
+/* Light mode borders */
 [data-theme="light"] .border-\[\#2B2B31\],
 [data-theme="light"] .border-\[\#D4AF37\]\/20,
 [data-theme="light"] .border-\[\#D4AF37\]\/25,
 [data-theme="light"] .border-\[\#D4AF37\],
 [data-theme="light"] .border-gray-200,
 [data-theme="light"] .border-neutral-200 {
-  border-color: #D8B4F8 !important;
+  border-color: #E8E8E8 !important;
 }
 
 /* Light mode header */
 [data-theme="light"] header {
   background-color: #FFFFFF !important;
-  border-color: #D8B4F8 !important;
+  border-color: #E8E8E8 !important;
 }
 
 /* Light mode sidebar */
 [data-theme="light"] aside {
   background-color: #FFFFFF !important;
-  border-color: #D8B4F8 !important;
-  color: #2D1B4E !important;
+  border-color: #E8E8E8 !important;
+  color: #1F1F1F !important;
 }
 
-[data-theme="light"] aside .text-\[\#D4AF37\],
+[data-theme="light"] aside .text-\[\#D4AF37\] {
+  color: #D4AF37 !important;
+}
+
 [data-theme="light"] aside .text-\[\#FF8A00\] {
-  color: #7D2EC0 !important;
+  color: #E53935 !important;
 }
 
 /* Light mode text accents */
 [data-theme="light"] aside a {
-  color: #7D2EC0 !important;
+  color: #1F1F1F !important;
+}
+
+[data-theme="light"] aside a:hover {
+  color: #D4AF37 !important;
 }
 
 [data-theme="light"] aside .text-nav {
-  color: #5D4E7A !important;
+  color: #5A5A5A !important;
 }
 
 /* Light mode buttons with dark backgrounds */
 [data-theme="light"] .bg-\[\#0E0E10\].border,
 [data-theme="light"] .bg-\[\#18181B\].border {
-  background-color: #F3F0FF !important;
-  border-color: #D8B4F8 !important;
-  color: #2D1B4E !important;
+  background-color: #FAFAFA !important;
+  border-color: #E8E8E8 !important;
+  color: #1F1F1F !important;
 }
 
 /* Light mode input fields */
 [data-theme="light"] input,
 [data-theme="light"] textarea,
 [data-theme="light"] select {
-  background-color: #F3F0FF !important;
-  color: #2D1B4E !important;
-  border-color: #D8B4F8 !important;
+  background-color: #FAFAFA !important;
+  color: #1F1F1F !important;
+  border-color: #E8E8E8 !important;
 }
 
 [data-theme="light"] input::placeholder,
 [data-theme="light"] textarea::placeholder {
-  color: #9B8BB8 !important;
+  color: #999999 !important;
 }
 
 /* Light mode form labels */
 [data-theme="light"] label {
-  color: #5D4E7A !important;
+  color: #5A5A5A !important;
 }
 
 /* Light mode hover states */
-[data-theme="light"] a:hover,
+[data-theme="light"] a:hover {
+  color: #D4AF37 !important;
+}
+
 [data-theme="light"] button:hover {
-  color: #7D2EC0 !important;
+  color: #1F1F1F !important;
 }
 
 /* Light mode active tab states */
 [data-theme="light"] .active-tab {
-  background: #E5D0FF !important;
-  color: #7D2EC0 !important;
-  border-color: #7D2EC0 !important;
+  background: #FAFAFA !important;
+  color: #D4AF37 !important;
+  border-color: #D4AF37 !important;
 }
 
 [data-theme="light"] .active-tab-top {
-  background: #E5D0FF !important;
-  color: #7D2EC0 !important;
-  border-color: #7D2EC0 !important;
+  background: #FAFAFA !important;
+  color: #D4AF37 !important;
+  border-color: #D4AF37 !important;
 }
 
 /* Light mode pill buttons */
 [data-theme="light"] .pill-fx {
-  color: #7D2EC0 !important;
+  color: #D4AF37 !important;
+  background-color: #FAFAFA !important;
 }
 
 [data-theme="light"] .pill-fx-blue .pill-fx-fill {
-  background: #7D2EC0 !important;
+  background: #D4AF37 !important;
 }
 
 [data-theme="light"] .pill-fx-red .pill-fx-fill {
-  background: #7D2EC0 !important;
+  background: #E53935 !important;
 }
 
 [data-theme="light"] .pill-fx-solid .pill-fx-fill {
-  background: rgba(125, 46, 192, 0.15) !important;
+  background: rgba(212, 175, 55, 0.15) !important;
 }
 
 [data-theme="light"] .pill-fx-blue:hover .pill-fx-content,
 [data-theme="light"] .pill-fx-red:hover .pill-fx-content {
-  color: #FFFFFF !important;
+  color: #1F1F1F !important;
 }
 
 /* Light mode icon buttons */
 [data-theme="light"] .icon-fx {
-  color: #7D2EC0 !important;
+  color: #D4AF37 !important;
 }
 
 [data-theme="light"] .icon-fx .icon-fx-fill {
-  background: #7D2EC0 !important;
+  background: #D4AF37 !important;
 }
 
 [data-theme="light"] .icon-fx:hover {
+  color: #E53935 !important;
+}
+
+/* Light mode - Red button styling */
+[data-theme="light"] .bg-\[\#E53935\] {
+  background-color: #E53935 !important;
   color: #FFFFFF !important;
+}
+
+[data-theme="light"] .bg-\[\#E53935\]:hover {
+  background-color: #C1251C !important;
+}
+
+/* Light mode glare-hover effect text */
+[data-theme="light"] .glare-hover {
+  color: #1F1F1F !important;
+}
+
+/* Light mode - Gold text and accents */
+[data-theme="light"] .text-\[\#B28D2C\] {
+  color: #D4AF37 !important;
 }
 

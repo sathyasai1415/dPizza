@@ -8,47 +8,107 @@ interface Notif { id: string; icon: string; title: string; body: string; time: s
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="w-full max-w-2xl mx-auto py-2 space-y-5">
+    <!-- Switch parent classes below between bg-neutral-950 (dark) and bg-neutral-50 (light) to see the adaptive magic -->
+    <div class="w-full max-w-2xl mx-auto py-6 px-4 space-y-5 transition-colors duration-300 bg-transparent text-slate-900 dark:text-white">
+      
+      <!-- Header Area -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-black text-brand-black">Notifications</h1>
-          <p class="text-brand-black text-sm mt-1">{{ unread() }} unread</p>
+          <h1 class="text-3xl font-black text-[#E53935] dark:text-[#D4AF37]">Notifications</h1>
+          <p class="text-sm mt-1 text-neutral-600 dark:text-neutral-400">{{ unread() }} unread</p>
         </div>
-        <button (click)="markAll()" class="text-xs font-bold text-brand-red hover:text-brand-red">Mark all read</button>
-      </div>
-
-      <!-- toggle -->
-      <div class="clay rounded-2xl p-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <span class="text-xl">🔔</span>
-          <div>
-            <p class="text-sm font-bold text-brand-black">Push Notifications</p>
-            <p class="text-[11px] text-brand-black">Order updates & deal alerts</p>
-          </div>
-        </div>
-        <button (click)="pushOn.set(!pushOn())"
-          [class]="'w-11 h-6 rounded-full relative transition ' + (pushOn() ? 'text-brand-green font-bold' : 'bg-brand-white')">
-          <span class="absolute top-0.5 w-5 h-5 rounded-full bg-brand-white transition-all" [style.left]="pushOn() ? '22px' : '2px'"></span>
+        <button (click)="markAll()" aria-label="Mark all notifications as read" class="text-xs font-bold text-[#E53935] hover:text-red-600 dark:text-[#D4AF37] dark:hover:text-[#FF8A00] transition cursor-pointer">
+          Mark all read
         </button>
       </div>
 
-      <!-- feed -->
-      <div class="space-y-2">
+      <!-- Toggle Panel -->
+      <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-xl" aria-hidden="true">🔔</span>
+          <div>
+            <p class="text-sm font-bold text-neutral-900 dark:text-white">Push Notifications</p>
+            <p class="text-[11px] text-neutral-600 dark:text-neutral-400">Order updates & deal alerts</p>
+          </div>
+        </div>
+        <button (click)="pushOn.set(!pushOn())" aria-label="Toggle push notifications" [aria-checked]="pushOn()" role="switch"
+          [class]="'w-11 h-6 rounded-full relative transition-colors duration-200 cursor-pointer ' + (pushOn() ? 'bg-green-500' : 'bg-neutral-300 dark:bg-neutral-700')">
+          <span class="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all shadow-sm" [style.left]="pushOn() ? '22px' : '2px'"></span>
+        </button>
+      </div>
+
+      <!-- Feed Container -->
+      <div class="space-y-3" role="list">
         @for (n of items(); track n.id) {
           <div (click)="markRead(n.id)"
-            [class]="'clay rounded-2xl p-4 flex gap-3 cursor-pointer transition ' + (n.read ? 'opacity-60' : 'border-brand-red')">
-            <div class="w-10 h-10 rounded-xl bg-brand-red text-brand-white flex items-center justify-center text-lg shrink-0">{{ n.icon }}</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-brand-black">{{ n.title }}</p>
-              <p class="text-xs text-brand-black mt-0.5">{{ n.body }}</p>
-              <p class="text-[10px] text-brand-black mt-1">{{ n.time }}</p>
+            tabindex="0"
+            role="listitem"
+            (keydown.enter)="markRead(n.id)"
+            (keydown.space)="markRead(n.id); $event.preventDefault()"
+            [aria-label]="'Notification: ' + n.title + '. ' + n.body"
+            [class]="'glass-card p-4 flex gap-3.5 cursor-pointer transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#D4AF37] ' + 
+              (n.read 
+                ? 'opacity-50 hover:opacity-100 border-transparent' 
+                : 'border-[#D4AF37]/45 dark:border-[#D4AF37]/30 shadow-[0_4px_16px_rgba(212,175,55,0.08)]')">
+            
+            <!-- Icon Frame -->
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4AF37]/15 to-[#FF8A00]/5 text-[#D4AF37] flex items-center justify-center text-lg shrink-0 border border-[#D4AF37]/30 shadow-inner">
+              {{ n.icon }}
             </div>
-            <span *ngIf="!n.read" class="w-2 h-2 rounded-full bg-brand-red text-brand-white shrink-0 mt-1"></span>
+
+            <!-- Context Block -->
+            <div class="flex-1 min-w-0">
+              <!-- Dynamically shifts title color: Slate-800 on white backgrounds / Pure white on dark backgrounds -->
+              <p [class]="'text-sm font-bold transition-colors ' + 
+                (n.read 
+                  ? 'text-neutral-400 dark:text-neutral-500' 
+                  : 'text-neutral-800 dark:text-white')">
+                {{ n.title }}
+              </p>
+              <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-normal">
+                {{ n.body }}
+              </p>
+              <span class="inline-block text-[10px] bg-[#D4AF37]/10 text-[#755a0f] dark:bg-[#D4AF37]/10 dark:text-[#E6C96F] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider mt-2">
+                {{ n.time }}
+              </span>
+            </div>
+
+            <!-- Unread Status Dot -->
+            @if (!n.read) {
+              <span class="w-2.5 h-2.5 rounded-full bg-[#D4AF37] shrink-0 mt-1.5 shadow-[0_0_8px_rgba(212,175,55,0.6)]" aria-label="Unread"></span>
+            }
           </div>
         }
       </div>
     </div>
   `,
+  styles: [`
+    .glass-card {
+      /* Uses adaptive variables that read whether the component is on a black or white wrapper */
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Target standard dark-mode queries seamlessly */
+    @media (prefers-color-scheme: dark) {
+      .glass-card {
+        background: rgba(30, 30, 35, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    /* Alternatively applies if a .dark utility wrapper handles your layout */
+    :host-context(.dark) .glass-card,
+    :host-context([data-theme="dark"]) .glass-card {
+      background: rgba(20, 20, 25, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+  `]
 })
 export class NotificationsComponent implements OnInit {
   pushOn = signal(true);

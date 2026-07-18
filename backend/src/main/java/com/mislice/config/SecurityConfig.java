@@ -35,7 +35,8 @@ public class SecurityConfig {
     // Only auth + health are always public
     private static final String[] PUBLIC_ENDPOINTS_ALWAYS = {
             "/api/v1/auth/**",
-            "/actuator/health/**"
+            "/actuator/health/**",
+            "/api/v1/support/contact"
     };
 
     // Swagger is only public in dev

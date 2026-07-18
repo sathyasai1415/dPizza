@@ -91,28 +91,54 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
         <!-- MAIN CONTENT -->
         <div class="flex-1 min-w-0 space-y-6">
           
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <!-- Category chips -->
-            <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none flex-1">
-              @for (c of categories; track c.id) {
-                @if (c.id === 'all' || countFor(c) > 0) {
-                  <button (click)="activeCat.set(c.id)"
-                    [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ' + (activeCat() === c.id ? 'bg-[#D4AF37] text-black font-extrabold' : 'bg-[#18181B] text-[#B8B8B8] hover:text-white border border-[#2B2B31]')">
-                    {{ c.label }}<span class="opacity-60 ml-1.5">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
-                  </button>
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <!-- Category chips -->
+              <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none flex-1">
+                @for (c of categories; track c.id) {
+                  @if (c.id === 'all' || countFor(c) > 0) {
+                    <button (click)="activeCat.set(c.id)"
+                      [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ' + (activeCat() === c.id ? 'bg-[#D4AF37] text-black font-extrabold' : 'bg-[#18181B] text-[#B8B8B8] hover:text-white border border-[#2B2B31]')">
+                      {{ c.label }}<span class="opacity-60 ml-1.5">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
+                    </button>
+                  }
                 }
-              }
+              </div>
+
+              <!-- Sort -->
+              <select [ngModel]="sort()" (ngModelChange)="sort.set($any($event))"
+                class="shrink-0 bg-[#18181B] border border-[#2B2B31] rounded-xl px-4 py-2.5 text-xs font-bold text-white outline-none focus:border-[#D4AF37] shadow-sm cursor-pointer">
+                <option value="discount">Sort: Best Discount</option>
+                <option value="expiring">Expiring Soon</option>
+                <option value="price">Price: Low → High</option>
+                <option value="distance">Nearest</option>
+                <option value="rating">Top Rated</option>
+              </select>
             </div>
 
-            <!-- Sort -->
-            <select [ngModel]="sort()" (ngModelChange)="sort.set($any($event))"
-              class="shrink-0 bg-[#18181B] border border-[#2B2B31] rounded-xl px-4 py-2.5 text-xs font-bold text-white outline-none focus:border-[#D4AF37] shadow-sm cursor-pointer">
-              <option value="discount">Sort: Best Discount</option>
-              <option value="expiring">Expiring Soon</option>
-              <option value="price">Price: Low → High</option>
-              <option value="distance">Nearest</option>
-              <option value="rating">Top Rated</option>
-            </select>
+            <!-- Mobile Filters (visible on md/sm and below, hidden on lg) -->
+            <div class="lg:hidden flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none pt-1">
+              <button (click)="toggleFilter('free_delivery')"
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('free_delivery') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                🛵 Free Delivery
+              </button>
+              <button (click)="toggleFilter('favourites')"
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('favourites') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                ❤️ Favourites
+              </button>
+              <button (click)="toggleFilter('rating')"
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('rating') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                ★ 4.5+ Stars
+              </button>
+              <button (click)="toggleFilter('open_now')"
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('open_now') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                🟢 Open Now
+              </button>
+              <button (click)="toggleFilter('under10')"
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('under10') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                💰 Under $10
+              </button>
+            </div>
           </div>
 
           <!-- Loading -->
@@ -267,12 +293,14 @@ export class DealsComponent implements OnInit, OnDestroy {
       
       // Rating logic
       if (f.includes('rating') && (vm.store?.ratingAvg ?? 0) < 4.5) return false;
+      // Open Now logic
+      if (f.includes('open_now') && vm.store && !vm.store.acceptingOrders) return false;
       
-      // Open Now logic (mocked logic - just a frontend placeholder)
-      if (f.includes('open_now') && false) return false; // In a real app we'd check store hours
-      
-      // Favourites logic (mocked logic - just a frontend placeholder)
-      if (f.includes('favourites') && false) return false; // In a real app we'd check user profile
+      // Favourites logic
+      if (f.includes('favourites')) {
+        const favIds: string[] = JSON.parse(localStorage.getItem('mislice_fav_stores') || '[]');
+        if (!vm.store || (!favIds.includes(vm.store.id) && !favIds.includes(vm.store.slug))) return false;
+      }
       
       return true;
     });
