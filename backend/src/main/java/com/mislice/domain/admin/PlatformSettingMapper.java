@@ -5,7 +5,9 @@ import com.mislice.domain.admin.dto.PlatformSettingDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+import org.mapstruct.ReportingPolicy;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PlatformSettingMapper {
     PlatformSettingDto toDto(PlatformSetting entity);
     PlatformSetting toEntity(PlatformSettingDto dto);
