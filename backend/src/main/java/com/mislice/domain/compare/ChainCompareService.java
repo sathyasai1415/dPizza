@@ -151,9 +151,15 @@ public class ChainCompareService {
     }
 
     public List<QuoteDto> calculateQuickQuotes(String intent, String deliveryType) {
-        StandardPizzaProfile profile = standardPizzaProfileRepository.findByCategoryIgnoreCase(intent)
-            .orElseThrow(() -> new IllegalArgumentException("Unknown pizza category: " + intent));
+        // First, try to find a matching profile directly
+        var profileOpt = standardPizzaProfileRepository.findByCategoryIgnoreCase(intent);
 
+        // If no direct match, fall back to using calculateSearchQuotes which is more flexible
+        if (profileOpt.isEmpty()) {
+            return calculateSearchQuotes(intent, deliveryType);
+        }
+
+        StandardPizzaProfile profile = profileOpt.get();
         List<MenuItem> items = menuItemRepository.findByStandardProfileIdAndDeletedFalse(profile.getId());
         List<QuoteDto> quotes = new ArrayList<>();
 
@@ -173,9 +179,9 @@ public class ChainCompareService {
                 BigDecimal tax = subtotal.multiply(BigDecimal.valueOf(0.0825)).setScale(2, RoundingMode.HALF_UP);
                 BigDecimal tip = subtotal.multiply(BigDecimal.valueOf(0.15)).setScale(2, RoundingMode.HALF_UP);
                 BigDecimal grandTotal = subtotal.add(deliveryFee).add(tax).add(tip);
-                
+
                 int estMin = rest.getAverageEtaMinutes() != null ? rest.getAverageEtaMinutes() : 25;
-                
+
                 options.add(new DeliveryProviderOptionDto(
                     "store", "Store Delivery",
                     new PriceBreakdownDto(subtotal, deliveryFee, BigDecimal.ZERO, tax, tip, BigDecimal.ZERO, grandTotal),
