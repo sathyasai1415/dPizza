@@ -11,10 +11,14 @@ export class ThemeService {
   theme = signal<Theme>(this.loadTheme());
 
   constructor() {
-    // Apply theme changes to DOM
+    // Apply theme changes to DOM (for Tailwind dark mode)
     effect(() => {
       const currentTheme = this.theme();
-      document.documentElement.setAttribute('data-theme', currentTheme);
+      if (currentTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
       localStorage.setItem(this.THEME_KEY, currentTheme);
     });
   }

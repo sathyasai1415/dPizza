@@ -255,14 +255,14 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         </div>
 
         <!-- TOP NAV HEADER — Redesigned Modern Premium Navigation -->
-        <header class="sticky top-0 z-30 w-full bg-white shadow-sm">
-          <!-- Row 1: Logo (left) + Location (right) -->
-          <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between border-b border-gray-100">
-            <!-- Logo on left -->
+        <header class="sticky top-0 z-30 w-full bg-white dark:bg-[#0A0A0A] border-b border-gray-100 dark:border-neutral-800 shadow-sm transition-colors duration-200">
+          <!-- Row 1: Brand Logo (Left) + Location, Notifications, Theme Toggle, Profile Menu (Right) -->
+          <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between border-b border-gray-100 dark:border-neutral-800">
+            <!-- Logo & Sidebar Trigger on left -->
             <div class="flex items-center gap-3">
               <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
                 (click)="toggleSidebar()"
-                class="sm:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                class="sm:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -270,113 +270,154 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
               <a routerLink="/home" class="flex items-center gap-2.5 select-none cursor-pointer">
                 <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shadow-sm" style="background: linear-gradient(135deg, #FF8A00 0%, #D4AF37 100%);">🍕</div>
-                <span class="hidden sm:block font-black text-lg tracking-tight">
-                  <span style="color: #1a1a1a">MiSlice</span>
+                <span class="font-black text-lg tracking-tight">
+                  <span class="text-gray-900 dark:text-white">MI<span class="text-[#D4AF37]">Slice</span></span>
                 </span>
               </a>
             </div>
 
-            <!-- Location on right (visible on mobile and desktop) -->
-            <div class="flex items-center gap-2">
-              <button (click)="openAddressModal($event)" class="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition text-sm font-medium text-gray-700">
-                <span class="text-lg">📍</span>
-                <span class="hidden sm:inline">{{ locationService.selectedCity() === 'All' ? 'All Cities' : locationService.selectedCity() }}</span>
-                <span class="sm:hidden">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 8) }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <!-- Right Controls: Location + Notifications + Theme Toggle + User Profile / Auth -->
+            <div class="flex items-center gap-2 sm:gap-3">
+              <!-- Location Button -->
+              <button (click)="openAddressModal($event)" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-gray-200 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800 transition text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer">
+                <span class="text-base sm:text-lg">📍</span>
+                <span class="hidden sm:inline font-bold">{{ locationService.selectedCity() === 'All' ? 'All Cities' : locationService.selectedCity() }}</span>
+                <span class="sm:hidden font-bold">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 8) }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </button>
+
+              <!-- Customer Notifications Bell -->
+              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
+                (click)="$event.stopPropagation(); notificationBar.isOpen.set(!notificationBar.isOpen())" title="Notifications"
+                class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full transition cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                </svg>
+                <span *ngIf="notificationBar.unreadCount() > 0" class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-black flex items-center justify-center shadow-md">
+                  {{ notificationBar.unreadCount() }}
+                </span>
+              </button>
+
+              <!-- Owner Notifications Bell -->
+              <div *ngIf="authService.isStoreOwner()" class="relative">
+                <button (click)="$event.stopPropagation(); bellOpen.set(!bellOpen()); profileOpen.set(false)" title="Notifications"
+                  class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full transition cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  <span *ngIf="alerts.unreadCount() > 0" class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-black flex items-center justify-center shadow-md">{{ alerts.unreadCount() }}</span>
+                </button>
+                <div *ngIf="bellOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 dark:border-[#D4AF37]/25 bg-white dark:bg-[#0A0A0A] shadow-xl z-50">
+                  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-[#D4AF37]/25 sticky top-0 bg-white dark:bg-[#0A0A0A]">
+                    <span class="text-sm font-black text-[#D4AF37]">Notifications</span>
+                    <button (click)="alerts.markAllRead()" class="text-[10px] font-bold text-[#FF8A00] hover:opacity-70">Mark all read</button>
+                  </div>
+                  <div class="flex gap-1 px-3 py-2 overflow-x-auto scrollbar-none border-b border-gray-100 dark:border-[#D4AF37]/25">
+                    @for (f of alertFilters; track f) {
+                      <button (click)="alertFilter.set(f)" [class]="'px-2.5 py-1 rounded-full text-[10px] font-black whitespace-nowrap ' + (alertFilter() === f ? 'bg-[#D4AF37] text-[#0A0A0A]' : 'text-[#D4AF37]/70 hover:bg-[#D4AF37]/10')">{{ f }}</button>
+                    }
+                  </div>
+                  <div class="p-2 space-y-1">
+                    @for (a of filteredAlerts(); track a.id) {
+                      <div class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#D4AF37]/20">
+                        <span class="text-base">{{ a.icon }}</span>
+                        <div class="min-w-0"><p class="text-xs font-bold text-[#D4AF37]">{{ a.title }}</p><p class="text-[10px] text-gray-500 dark:text-[#D4AF37]/70 mt-0.5">{{ a.detail }}</p></div>
+                      </div>
+                    }
+                    @if (filteredAlerts().length === 0) { <p class="text-[11px] text-gray-500 dark:text-[#D4AF37]/70 text-center py-6">🎉 All caught up.</p> }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Theme Toggle Button -->
+              <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full transition cursor-pointer">
+                <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                </svg>
+              </button>
+
+              <!-- Profile Dropdown (If Logged In) -->
+              <div *ngIf="authService.isAuthenticated()" class="relative">
+                <button (click)="$event.stopPropagation(); profileOpen.set(!profileOpen()); bellOpen.set(false)"
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E53935] hover:bg-red-600 flex items-center justify-center text-sm font-black text-white transition shadow-md cursor-pointer">
+                  {{ (authService.currentUser()?.fullName ?? 'U').substring(0,1).toUpperCase() }}
+                </button>
+                <div *ngIf="profileOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#18181B] shadow-xl z-50 py-1.5">
+                  <div class="px-4 py-3 border-b border-gray-100 dark:border-neutral-800">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ authService.currentUser()?.fullName }}</p>
+                    <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">{{ authService.currentUser()?.email }}</p>
+                  </div>
+                  <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'settings' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">🏪 Restaurant Profile</a>
+                  <a routerLink="/profile" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">⚙️ Account Settings</a>
+                  <a routerLink="/orders" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">📦 My Orders</a>
+                  <a routerLink="/favourites" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">❤️ Saved Favorites</a>
+                  <button (click)="handleLogout()" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-gray-50 dark:hover:bg-neutral-800 rounded-b-xl border-t border-gray-100 dark:border-neutral-800 cursor-pointer">🚪 Logout</button>
+                </div>
+              </div>
+
+              <!-- Sign In Link (If Not Logged In) -->
+              <a *ngIf="!authService.isAuthenticated()" routerLink="/welcome"
+                class="px-4 py-2 rounded-xl bg-[#E53935] hover:bg-red-600 text-white font-bold text-xs sm:text-sm transition shadow-sm">
+                Sign In
+              </a>
             </div>
           </div>
 
-          <!-- Row 2: Search Bar + Action Buttons (Customer only) -->
+          <!-- Row 2: Customer Navigation Bar (Search + Deals, Cart, Favorites) -->
           <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
-            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
-              <!-- Search Bar (75-80% width) -->
-              <div class="flex-1 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 hover:border-gray-300 transition">
+            <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
+              <!-- Search Bar -->
+              <div class="flex-1 flex items-center gap-3 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl px-4 py-2.5 hover:border-gray-300 dark:hover:border-neutral-700 transition">
                 <span class="text-xl select-none">🔍</span>
                 <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()"
                   placeholder="Search pizzas, restaurants, toppings..."
-                  class="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none font-medium" />
+                  class="flex-1 bg-transparent text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none font-medium" />
               </div>
 
-              <!-- Three Action Buttons (right side) -->
+              <!-- Three Action Buttons -->
               <div class="flex items-center gap-2 shrink-0">
                 <!-- Hot Deals Button -->
-                <button routerLink="/deals" title="Hot Deals"
-                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#E53935] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-lg shadow-md">
+                <a routerLink="/deals" title="Hot Deals"
+                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#E53935] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-base sm:text-lg shadow-md">
                   🔥
-                </button>
+                </a>
 
                 <!-- Cart Button -->
                 <a routerLink="/cart" title="Cart"
-                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-200 hover:bg-gray-300 hover:shadow-lg hover:scale-105 transition-all text-gray-800 font-bold text-lg relative shadow-md">
+                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:shadow-lg hover:scale-105 transition-all text-gray-800 dark:text-white font-bold text-base sm:text-lg relative shadow-md">
                   🛒
-                  <span *ngIf="cartService.cartItemCount() > 0" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center shadow-md">
+                  <span *ngIf="cartService.cartItemCount() > 0" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center shadow-md">
                     {{ cartService.cartItemCount() }}
                   </span>
                 </a>
 
                 <!-- Favorites Button -->
                 <a routerLink="/favourites" title="Favorites"
-                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-200 hover:bg-gray-300 hover:shadow-lg hover:scale-105 transition-all text-gray-800 font-bold text-lg shadow-md">
+                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:shadow-lg hover:scale-105 transition-all text-gray-800 dark:text-white font-bold text-base sm:text-lg shadow-md">
                   ❤️
                 </a>
               </div>
             </div>
           </ng-container>
 
-          <!-- Owner/Admin Navigation -->
+          <!-- Owner / Admin Row 2 -->
           <ng-container *ngIf="authService.isStoreOwner() || authService.isAdmin()">
-            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
-              <!-- Owner global search -->
-              <div *ngIf="authService.isStoreOwner()" class="flex-1 max-w-md flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 hover:border-gray-300 transition">
+            <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+              <div *ngIf="authService.isStoreOwner()" class="flex-1 max-w-md flex items-center gap-3 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-full px-4 py-2.5 hover:border-gray-300 dark:hover:border-neutral-700 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-gray-500 shrink-0">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
-                <input [(ngModel)]="ownerSearch" placeholder="Search orders, menu, deals…" class="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none" />
+                <input [(ngModel)]="ownerSearch" placeholder="Search orders, menu, deals…" class="flex-1 bg-transparent text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none" />
               </div>
               <div *ngIf="authService.isAdmin()" class="flex-1"></div>
-
-              <!-- Action buttons -->
-              <div class="flex items-center gap-3 shrink-0">
-                <button *ngIf="authService.isStoreOwner()" (click)="bellOpen.set(!bellOpen()); profileOpen.set(false)" title="Notifications"
-                  class="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                  </svg>
-                  <span *ngIf="alerts.unreadCount() > 0" class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center">{{ alerts.unreadCount() }}</span>
-                </button>
-
-                <!-- Profile menu -->
-                <div class="relative">
-                  <button (click)="profileOpen.set(!profileOpen()); bellOpen.set(false)"
-                    class="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-sm font-black text-white transition shadow-md">
-                    {{ (authService.currentUser()?.fullName ?? 'U').substring(0,1).toUpperCase() }}
-                  </button>
-                  <div *ngIf="profileOpen()" class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white shadow-xl z-50 py-1.5">
-                    <div class="px-4 py-3 border-b border-gray-100"><p class="text-sm font-bold text-gray-900 truncate">{{ authService.currentUser()?.fullName }}</p><p class="text-xs text-gray-500 truncate">{{ authService.currentUser()?.email }}</p></div>
-                    <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'settings' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">🏪 Restaurant Profile</a>
-                    <a routerLink="/profile" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">⚙️ Account Settings</a>
-                    <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'financials' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">💳 Billing</a>
-                    <button (click)="handleLogout()" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-gray-50 rounded-b-xl border-t border-gray-100">🚪 Logout</button>
-                  </div>
-                </div>
-
-                <!-- Theme Toggle -->
-                <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                  class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition">
-                  <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                  <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                  </svg>
-                </button>
-              </div>
             </div>
           </ng-container>
-
         </header>
 
         <!-- ROUTER OUTLET CONTAINER -->
@@ -385,63 +426,40 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         </main>
       </div>
 
-      <!-- MOBILE BOTTOM TAB BAR — replaces the sidebar below the lg breakpoint -->
+      <!-- MOBILE BOTTOM TAB BAR — Customer Navigation (simplified, light/dark themed) -->
       <nav *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
-        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-[#0A0A0A]/95 border-t border-[#D4AF37]/25 flex items-center justify-around safe-area-bottom shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
-        <div class="relative flex-1 h-full">
-          <button (click)="$event.stopPropagation(); buildMenuOpen.set(!buildMenuOpen()); accountMenuOpen.set(false); supportMenuOpen.set(false)"
-            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + ((buildMenuOpen() || currentRoute() === '/builder' || currentRoute() === '/compare') ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M3 12h18M12 12m-9 0a9 9 0 1 1 18 0 9 9 0 1 1-18 0" />
-            </svg>
-            <span>Build</span>
-          </button>
-          <div *ngIf="buildMenuOpen()" class="absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
-            <a routerLink="/builder" (click)="buildMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">🍕 Build a Pizza</a>
-            <a routerLink="/compare" (click)="buildMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">⚖️ Compare Prices</a>
-          </div>
-        </div>
+        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-white dark:bg-[#0A0A0A]/95 border-t border-gray-200 dark:border-neutral-800 flex items-center justify-around safe-area-bottom shadow-sm dark:shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)] transition-colors duration-200">
 
-        <a routerLink="/deals" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-neutral-400 hover:text-white">
+        <!-- Home Tab -->
+        <a routerLink="/home" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a2.25 2.25 0 0 0 3.181 0l5.103-5.102a2.25 2.25 0 0 0 0-3.181l-9.58-9.581A2.25 2.25 0 0 0 9.568 3Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
           </svg>
-          <span>Deals</span>
+          <span>Home</span>
         </a>
 
-        <div class="relative flex-1 h-full">
-          <button (click)="$event.stopPropagation(); accountMenuOpen.set(!accountMenuOpen()); buildMenuOpen.set(false); supportMenuOpen.set(false)"
-            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + ((accountMenuOpen() || currentRoute() === '/orders' || currentRoute() === '/rewards') ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-            </svg>
-            <span>Account</span>
-          </button>
-          <div *ngIf="accountMenuOpen()" class="absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
-            <a routerLink="/orders" (click)="accountMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">📦 Order History</a>
-            <a routerLink="/rewards" (click)="accountMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">🎁 Rewards Hub</a>
-            <button (click)="handleLogout(); accountMenuOpen.set(false)" class="w-full text-left px-4 py-2.5 text-xs font-bold text-[#FF8A00] hover:bg-[#D4AF37]/10 rounded-b-2xl border-t border-[#D4AF37]/15">🚪 Sign Out</button>
-          </div>
-        </div>
+        <!-- Search Tab -->
+        <a routerLink="/order" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <span>Search</span>
+        </a>
 
-        <div class="relative flex-1 h-full">
-          <button (click)="$event.stopPropagation(); supportMenuOpen.set(!supportMenuOpen()); buildMenuOpen.set(false); accountMenuOpen.set(false)"
-            [class]="'w-full h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold ' + ((supportMenuOpen() || currentRoute() === '/how-it-works' || currentRoute() === '/contact') ? 'text-[#D4AF37]' : 'text-neutral-400 hover:text-white')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-            </svg>
-            <span>Support</span>
-          </button>
-          <div *ngIf="supportMenuOpen()" class="absolute bottom-[calc(100%+10px)] right-1/2 translate-x-1/2 w-44 rounded-2xl border border-[#D4AF37]/25 bg-[#0A0A0A] shadow-2xl py-1.5 z-50">
-            <a routerLink="/how-it-works" (click)="supportMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">❓ How It Works</a>
-            <a routerLink="/contact" (click)="supportMenuOpen.set(false)" class="block px-4 py-2.5 text-xs font-bold text-[#D4AF37] hover:bg-[#D4AF37]/20">✉️ Contact Support</a>
-          </div>
-        </div>
+        <!-- Orders Tab -->
+        <a routerLink="/orders" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m6-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM3 20.25v-4.5a6 6 0 0 1 6-6h.75a.75.75 0 0 0 .75-.75V9a6 6 0 0 1 6-6h.75a.75.75 0 0 1 .75.75v.75a6 6 0 0 1-6 6h-.75a.75.75 0 0 0-.75.75v4.5a6 6 0 0 1-6 6h-.75a.75.75 0 0 1-.75-.75Z" />
+          </svg>
+          <span>Orders</span>
+        </a>
 
+        <!-- Profile Tab -->
         <a routerLink="/profile" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-neutral-400 hover:text-white">
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
           </svg>
@@ -693,6 +711,8 @@ export class LayoutComponent implements OnInit {
     this.accountMenuOpen.set(false);
     this.supportMenuOpen.set(false);
     this.ownerMoreOpen.set(false);
+    this.profileOpen.set(false);
+    this.bellOpen.set(false);
   }
 
   openAddressModal(event: Event) {
