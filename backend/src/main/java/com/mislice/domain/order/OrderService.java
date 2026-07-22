@@ -5,6 +5,8 @@ import com.mislice.common.exception.ResourceNotFoundException;
 import com.mislice.domain.cart.Cart;
 import com.mislice.domain.cart.CartRepository;
 import com.mislice.domain.coupon.Coupon;
+import com.mislice.domain.delivery.Delivery;
+import com.mislice.domain.delivery.DeliveryRepository;
 import com.mislice.domain.order.dto.OrderDto;
 import com.mislice.domain.order.dto.PlaceOrderRequest;
 import com.mislice.domain.notification.OrderNotificationService;
@@ -37,6 +39,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
+    private final DeliveryRepository deliveryRepository;
     private final OrderMapper orderMapper;
     private final SimpMessagingTemplate messagingTemplate;
     private final OrderNotificationService notificationService;
@@ -213,6 +216,17 @@ public class OrderService {
             .createdAt(Instant.now())
             .build();
         orderStatusHistoryRepository.save(history);
+
+        // Auto-create a delivery record for delivery-type orders so the
+        // merchant can assign a driver and track fulfillment immediately.
+        if (!"PICKUP".equalsIgnoreCase(req.deliveryType())) {
+            Delivery delivery = Delivery.builder()
+                .order(savedOrder)
+                .status("PENDING")
+                .etaMinutes(savedOrder.getEstimatedEtaMin())
+                .build();
+            deliveryRepository.save(delivery);
+        }
 
         // Clear cart
         cart.getItems().clear();

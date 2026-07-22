@@ -56,10 +56,8 @@ public class PaymentService {
     }
 
     public void confirmStripePayment(String paymentIntentId) {
-        // Find payment by provider reference
-        Payment payment = paymentRepository.findAll().stream()
-            .filter(p -> paymentIntentId.equals(p.getProviderRef()))
-            .findFirst()
+        // Find payment by provider reference (indexed lookup, not a full-table scan)
+        Payment payment = paymentRepository.findByProviderRef(paymentIntentId)
             .orElseThrow(() -> new ResourceNotFoundException("PaymentIntent", paymentIntentId));
 
         payment.setStatus("CAPTURED");
