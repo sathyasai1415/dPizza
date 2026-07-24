@@ -87,35 +87,11 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
                   <span class="shrink-0">🛍️</span> <span [class.lg:hidden]="navCollapsed()">Order Food</span>
                 </span>
               </a>
-              <a routerLink="/compare" routerLinkActive="active-tab" title="Compare Prices"
-                [attr.data-tooltip]="navCollapsed() ? 'Compare Prices' : null"
-                [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
-                <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
-                  <span class="shrink-0">⚖️</span> <span [class.lg:hidden]="navCollapsed()">Compare Prices</span>
-                </span>
-              </a>
-              <a routerLink="/deals" routerLinkActive="active-tab" title="Deals & Offers"
-                [attr.data-tooltip]="navCollapsed() ? 'Deals & Offers' : null"
-                [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
-                <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
-                  <span class="shrink-0">🏷️</span> <span [class.lg:hidden]="navCollapsed()">Deals &amp; Offers</span>
-                </span>
-              </a>
             </div>
 
             <!-- Section 2: Personal Account -->
             <div class="space-y-1 pt-2 border-t border-[#2B2B31]/40">
               <p [class.lg:hidden]="navCollapsed()" class="text-[12px] font-bold tracking-[0.15em] uppercase text-[#B28D2C] px-3 mb-2">My Account</p>
-              <a routerLink="/orders" routerLinkActive="active-tab" title="Order History"
-                [attr.data-tooltip]="navCollapsed() ? 'Order History' : null"
-                [class.lg:justify-center]="navCollapsed()"
-                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
-                <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
-                  <span class="shrink-0">📦</span> <span [class.lg:hidden]="navCollapsed()">Order History</span>
-                </span>
-              </a>
               <a routerLink="/rewards" routerLinkActive="active-tab" title="Rewards Hub"
                 [attr.data-tooltip]="navCollapsed() ? 'Rewards Hub' : null"
                 [class.lg:justify-center]="navCollapsed()"
@@ -252,35 +228,28 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         </div>
 
         <!-- TOP NAV HEADER — Redesigned Modern Premium Navigation -->
-        <header class="sticky top-0 z-30 w-full bg-white dark:bg-[#0A0A0A] border-b border-gray-100 dark:border-neutral-800 shadow-sm transition-colors duration-200">
+        <header class="sticky top-0 z-30 w-full bg-[#FBF4EA] border-b border-[#E7DAC4] shadow-sm transition-colors duration-200">
           <!-- Row 1: Brand Logo (Left) + Location, Notifications, Theme Toggle, Profile Menu (Right) -->
-          <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between border-b border-gray-100 dark:border-neutral-800">
+          <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between border-b border-[#E7DAC4]">
             <!-- Logo & Sidebar Trigger on left -->
             <div class="flex items-center gap-3">
               <button *ngIf="authService.isAuthenticated()"
                 (click)="toggleSidebar()"
-                class="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer">
+                class="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-[#241C15] hover:bg-[#F2E9DA] transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-
-              <a routerLink="/home" class="flex items-center gap-2.5 select-none cursor-pointer">
-                <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shadow-sm" style="background: linear-gradient(135deg, #FF8A00 0%, #D4AF37 100%);">🍕</div>
-                <span class="font-black text-lg tracking-tight">
-                  <span class="text-gray-900 dark:text-white">MI<span class="text-[#D4AF37]">Slice</span></span>
-                </span>
-              </a>
             </div>
 
             <!-- Right Controls: Location + Notifications + Theme Toggle + User Profile / Auth -->
             <div class="flex items-center gap-2 sm:gap-3">
               <!-- Location Button (Customer only) -->
-              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" (click)="openAddressModal($event)" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-gray-200 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800 transition text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer">
+              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" (click)="openAddressModal($event)" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-[#E7DAC4] bg-white hover:bg-[#F2E9DA] transition text-xs sm:text-sm font-medium text-[#241C15] cursor-pointer">
                 <span class="text-base sm:text-lg">📍</span>
                 <span class="hidden sm:inline font-bold">{{ locationService.selectedCity() === 'All' ? 'All Cities' : locationService.selectedCity() }}</span>
                 <span class="sm:hidden font-bold">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 8) }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#9B8B77]" fill="none" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </button>
@@ -293,7 +262,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
               <!-- Customer Notifications Bell -->
               <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
                 (click)="$event.stopPropagation(); notificationBar.isOpen.set(!notificationBar.isOpen())" title="Notifications"
-                class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full transition cursor-pointer">
+                class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#241C15] hover:bg-[#F2E9DA] rounded-full transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                 </svg>
@@ -335,7 +304,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
               <!-- Theme Toggle Button -->
               <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full transition cursor-pointer">
+                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#241C15] hover:bg-[#F2E9DA] rounded-full transition cursor-pointer">
                 <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
@@ -347,7 +316,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
               <!-- Profile Dropdown (If Logged In) -->
               <div *ngIf="authService.isAuthenticated()" class="relative">
                 <button (click)="$event.stopPropagation(); profileOpen.set(!profileOpen()); bellOpen.set(false)"
-                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E53935] hover:bg-red-600 flex items-center justify-center text-sm font-black text-white transition shadow-md cursor-pointer">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FF6A13] hover:bg-[#F0530A] flex items-center justify-center text-sm font-black text-white transition shadow-md cursor-pointer">
                   {{ (authService.currentUser()?.fullName ?? 'U').substring(0,1).toUpperCase() }}
                 </button>
                 <div *ngIf="profileOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#18181B] shadow-xl z-50 py-1.5">
@@ -365,7 +334,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
               <!-- Sign In Link (If Not Logged In) -->
               <a *ngIf="!authService.isAuthenticated()" routerLink="/welcome"
-                class="px-4 py-2 rounded-xl bg-[#E53935] hover:bg-red-600 text-white font-bold text-xs sm:text-sm transition shadow-sm">
+                class="px-4 py-2 rounded-xl bg-[#FF6A13] hover:bg-[#F0530A] text-white font-bold text-xs sm:text-sm transition shadow-sm">
                 Sign In
               </a>
             </div>
@@ -375,24 +344,24 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
           <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
             <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
               <!-- Search Bar -->
-              <div class="flex-1 flex items-center gap-3 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl px-4 py-2.5 hover:border-gray-300 dark:hover:border-neutral-700 transition">
+              <div class="flex-1 flex items-center gap-3 bg-white border border-[#E7DAC4] rounded-2xl px-4 py-2.5 hover:border-[#FF6A13]/50 transition">
                 <span class="text-xl select-none">🔍</span>
                 <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()"
                   placeholder="Search pizzas, restaurants, toppings..."
-                  class="flex-1 bg-transparent text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none font-medium" />
+                  class="flex-1 bg-transparent text-sm text-[#241C15] placeholder-[#C9BBA8] outline-none font-medium" />
               </div>
 
               <!-- Three Action Buttons -->
               <div class="flex items-center gap-2 shrink-0">
                 <!-- Hot Deals Button -->
                 <a routerLink="/deals" title="Hot Deals"
-                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#E53935] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-base sm:text-lg shadow-md">
+                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-b from-[#FF7A22] to-[#F0530A] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-base sm:text-lg shadow-md">
                   🔥
                 </a>
 
                 <!-- Cart Button -->
                 <a routerLink="/cart" title="Cart"
-                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:shadow-lg hover:scale-105 transition-all text-gray-800 dark:text-white font-bold text-base sm:text-lg relative shadow-md">
+                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white border border-[#E7DAC4] hover:bg-[#F2E9DA] hover:shadow-lg hover:scale-105 transition-all text-[#241C15] font-bold text-base sm:text-lg relative shadow-md">
                   🛒
                   <span *ngIf="cartService.cartItemCount() > 0" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center shadow-md">
                     {{ cartService.cartItemCount() }}
@@ -423,18 +392,19 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         </header>
 
         <!-- ROUTER OUTLET CONTAINER -->
-        <main class="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-28 sm:pb-8 z-10">
+        <main class="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-28 sm:pb-8 z-10"
+          [ngClass]="(!authService.isStoreOwner() && !authService.isAdmin()) ? 'bg-[#FBF4EA]' : ''">
           <router-outlet></router-outlet>
         </main>
       </div>
 
       <!-- MOBILE BOTTOM TAB BAR — Customer Navigation (simplified, light/dark themed) -->
       <nav *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
-        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-white dark:bg-[#0A0A0A]/95 border-t border-gray-200 dark:border-neutral-800 flex items-center justify-around safe-area-bottom shadow-sm dark:shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)] transition-colors duration-200">
+        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-[#FBF4EA]/95 border-t border-[#E7DAC4] flex items-center justify-around safe-area-bottom shadow-[0_-8px_24px_-12px_rgba(120,70,20,0.25)] pb-[env(safe-area-inset-bottom)] transition-colors duration-200">
 
         <!-- Home Tab -->
         <a routerLink="/home" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
           </svg>
@@ -443,7 +413,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
         <!-- Deals Tab -->
         <a routerLink="/deals" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V4h9Z" />
             <circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none" />
@@ -453,7 +423,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
         <!-- Compare Tab (signature, elevated center) -->
         <a routerLink="/compare" class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 -mt-8">
-          <span class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_14px_24px_-8px_rgba(240,83,10,0.7)] border-4 border-white dark:border-[#0A0A0A]"
+          <span class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_14px_24px_-8px_rgba(240,83,10,0.7)] border-4 border-[#FBF4EA]"
             style="background:linear-gradient(180deg,#FF7A22,#F0530A)">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.9" stroke="#fff" class="w-6 h-6" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 3v18M7 21h10" />
@@ -467,7 +437,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
         <!-- Orders Tab -->
         <a routerLink="/orders" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m6-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM3 20.25v-4.5a6 6 0 0 1 6-6h.75a.75.75 0 0 0 .75-.75V9a6 6 0 0 1 6-6h.75a.75.75 0 0 1 .75.75v.75a6 6 0 0 1-6 6h-.75a.75.75 0 0 0-.75.75v4.5a6 6 0 0 1-6 6h-.75a.75.75 0 0 1-.75-.75Z" />
           </svg>
@@ -476,7 +446,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
         <!-- Profile Tab -->
         <a routerLink="/profile" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
           </svg>
