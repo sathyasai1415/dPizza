@@ -9,235 +9,159 @@ import { CartService } from '../../core/services/cart.service';
   standalone: true,
   imports: [CommonModule, CurrencyPipe, FormsModule, RouterLink],
   template: `
-    <div class="max-w-6xl mx-auto py-8 space-y-8">
+    <div class="cart">
 
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-black text-brand-black tracking-tight flex items-center gap-3">
-            🛒 Shopping Cart
-            <span *ngIf="cartService.cartItemCount() > 0"
-              class="text-sm font-bold bg-[#E53935] text-white px-2.5 py-1 rounded-full">
-              {{ cartService.cartItemCount() }} item{{ cartService.cartItemCount() > 1 ? 's' : '' }}
-            </span>
-          </h1>
-          <p class="text-brand-black text-sm mt-1" *ngIf="cartService.cart()?.restaurantName">
-            📍 Ordering from <span class="text-[#E53935] dark:text-[#D4AF37] font-bold">{{ cartService.cart()?.restaurantName }}</span>
-          </p>
-        </div>
-        <div *ngIf="cartService.items().length > 0" class="flex gap-3">
-          <button (click)="confirmClear()" 
-            class="px-4 py-2 rounded-xl text-xs font-bold text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 hover:border-[#E53935] hover:text-[#E53935] dark:hover:border-[#D4AF37] dark:hover:text-[#D4AF37] transition cursor-pointer">
-            🗑️ Clear Cart
-          </button>
-        </div>
+      <div class="top">
+        <h1>My Cart</h1>
+        @if (cartService.cartItemCount() > 0) {
+          <span class="cnt">{{ cartService.cartItemCount() }} item{{ cartService.cartItemCount() > 1 ? 's' : '' }}</span>
+        }
+        @if (cartService.items().length > 0) {
+          <button class="clear" (click)="confirmClear()">Clear</button>
+        }
       </div>
+      @if (cartService.cart()?.restaurantName) {
+        <p class="from">📍 Ordering from <b>{{ cartService.cart()?.restaurantName }}</b></p>
+      }
 
-      <!-- Empty State -->
-      <div *ngIf="cartService.items().length === 0" class="text-center py-20 glass rounded-3xl">
-        <div class="text-7xl mb-4">🛒</div>
-        <h2 class="text-2xl font-black text-brand-black mb-2">Your cart is empty</h2>
-        <p class="text-brand-black mb-8 opacity-75">Add pizzas from the builder or browse deals</p>
-        <div class="flex gap-3 justify-center">
-          <a routerLink="/builder" 
-            class="px-6 py-3 rounded-xl font-bold text-neutral-900 dark:text-[#1C0338] bg-[#D4AF37] hover:bg-[#E6C96F] transition shadow-sm">
-            🍕 Build a Pizza
-          </a>
-          <a routerLink="/home" 
-            class="px-6 py-3 rounded-xl font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition">
-            Browse Stores
-          </a>
-        </div>
-      </div>
-
-      <!-- Cart Data Table + Summary -->
-      <div *ngIf="cartService.items().length > 0" class="grid lg:grid-cols-3 gap-6">
-
-        <!-- LEFT: Items Table -->
-        <div class="lg:col-span-2 space-y-4">
-
-          <!-- Cart Items Table -->
-          <div class="clay rounded-3xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-brand-black flex items-center justify-between">
-              <h2 class="text-base font-black text-brand-black">Cart Items</h2>
-              <span class="text-xs text-brand-black font-medium opacity-75">{{ cartService.items().length }} row{{ cartService.items().length > 1 ? 's' : '' }} in database</span>
-            </div>
-
-            <!-- Table -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="text-[10px] font-black uppercase tracking-widest text-brand-black border-b border-brand-black">
-                    <th class="text-left px-4 py-3">Item Name</th>
-                    <th class="text-left px-4 py-3">Configuration</th>
-                    <th class="text-left px-4 py-3">Toppings</th>
-                    <th class="text-center px-4 py-3">Qty</th>
-                    <th class="text-right px-4 py-3">Unit $</th>
-                    <th class="text-right px-4 py-3">Total</th>
-                    <th class="text-center px-4 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of cartService.items(); let i = index"
-                    class="border-b border-brand-black hover:bg-brand-white transition group">
-
-                    <!-- Item Name -->
-                    <td class="px-4 py-4">
-                      <div class="font-bold text-brand-black text-sm">{{ item.itemName }}</div>
-                      <div *ngIf="item.notes" class="text-[10px] text-brand-black mt-0.5 italic truncate max-w-[140px] opacity-75">
-                        {{ item.notes }}
-                      </div>
-                    </td>
-
-                    <!-- Config (size / crust / sauce) -->
-                    <td class="px-4 py-4">
-                      <div class="space-y-0.5">
-                        <span *ngIf="item.size" class="block text-xs text-brand-black">📏 {{ item.size }}</span>
-                        <span *ngIf="item.crust" class="block text-xs text-brand-black">🥐 {{ item.crust }}</span>
-                        <span *ngIf="item.sauce" class="block text-xs text-brand-black">🍅 {{ item.sauce }}</span>
-                      </div>
-                    </td>
-
-                    <!-- Toppings -->
-                    <td class="px-4 py-4">
-                      <div class="flex flex-wrap gap-1 max-w-[160px]">
-                        <span *ngFor="let t of item.toppings"
-                          class="bg-[#E53935] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-[#E53935]">
-                          {{ t.toppingName }}
-                        </span>
-                        <span *ngIf="!item.toppings || item.toppings.length === 0" class="text-brand-black text-xs opacity-50">—</span>
-                      </div>
-                    </td>
-
-                    <!-- Quantity Control -->
-                    <td class="px-4 py-4">
-                      <div class="flex items-center justify-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1.5 w-fit mx-auto border border-neutral-200 dark:border-neutral-700/50">
-                        <button (click)="updateQty(item.id, item.quantity - 1)"
-                          class="w-6 h-6 rounded-md bg-neutral-200 dark:bg-neutral-700 hover:bg-[#E53935] hover:text-white dark:hover:bg-[#E53935] dark:hover:text-white text-neutral-800 dark:text-neutral-200 font-bold text-xs transition flex items-center justify-center cursor-pointer border-0">
-                          −
-                        </button>
-                        <span class="font-black text-neutral-800 dark:text-neutral-200 text-sm w-6 text-center">{{ item.quantity }}</span>
-                        <button (click)="updateQty(item.id, item.quantity + 1)"
-                          class="w-6 h-6 rounded-md bg-neutral-200 dark:bg-neutral-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white text-neutral-800 dark:text-neutral-200 font-bold text-xs transition flex items-center justify-center cursor-pointer border-0">
-                          +
-                        </button>
-                      </div>
-                    </td>
-
-                    <!-- Unit Price -->
-                    <td class="px-4 py-4 text-right">
-                      <span class="text-brand-black font-medium text-sm">{{ item.unitPrice | currency }}</span>
-                    </td>
-
-                    <!-- Line Total -->
-                    <td class="px-4 py-4 text-right">
-                      <span class="text-brand-black font-black text-sm">{{ (item.unitPrice * item.quantity) | currency }}</span>
-                    </td>
-
-                    <!-- Remove -->
-                    <td class="px-4 py-4 text-center">
-                      <button (click)="removeItem(item.id)"
-                        class="p-1.5 rounded-lg hover:bg-[#E53935]/15 text-[#E53935] transition opacity-0 group-hover:opacity-100 cursor-pointer">
-                        🗑️
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- Table Totals Footer -->
-                <tfoot class="bg-brand-white border-t border-brand-black">
-                  <tr>
-                    <td colspan="5" class="px-4 py-3 text-right text-xs font-bold text-brand-black uppercase tracking-widest">Subtotal</td>
-                    <td class="px-4 py-3 text-right font-black text-brand-black">{{ subtotal() | currency }}</td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td colspan="5" class="px-4 py-2 text-right text-xs font-bold text-brand-black uppercase tracking-widest opacity-75">Tax (8.25%)</td>
-                    <td class="px-4 py-2 text-right font-semibold text-brand-black opacity-75">{{ tax() | currency }}</td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td colspan="5" class="px-4 py-2 text-right text-xs font-bold text-brand-black uppercase tracking-widest opacity-75">Platform Fee</td>
-                    <td class="px-4 py-2 text-right font-semibold text-brand-black opacity-75">{{ platformFee | currency }}</td>
-                    <td></td>
-                  </tr>
-                  <tr class="border-t border-brand-black">
-                    <td colspan="5" class="px-4 py-4 text-right text-sm font-black text-brand-black uppercase tracking-widest">Grand Total</td>
-                    <td class="px-4 py-4 text-right font-black text-brand-green text-lg">{{ grandTotal() | currency }}</td>
-                    <td></td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-
-          <!-- Coupon Row -->
-          <div class="clay rounded-2xl p-4 flex gap-3 items-end">
-            <div class="flex-1">
-              <label class="block text-[10px] font-black text-brand-black uppercase tracking-widest mb-1">Promo Code</label>
-              <input type="text" [(ngModel)]="couponCode" placeholder="Enter coupon code"
-                class="w-full bg-brand-white border border-brand-black rounded-xl px-4 py-2.5 text-brand-black text-sm focus:outline-none focus:border-[#E53935] dark:focus:border-[#D4AF37]" />
-            </div>
-            <button (click)="applyPromo()"
-              class="px-5 py-2.5 rounded-xl font-bold text-sm bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 transition cursor-pointer">
-              Apply
-            </button>
-            <p *ngIf="couponMsg()" class="text-xs font-bold" [class.text-brand-green]="couponOk()" [class.text-brand-red]="!couponOk()">
-              {{ couponMsg() }}
-            </p>
+      <!-- Empty -->
+      @if (cartService.items().length === 0) {
+        <div class="empty">
+          <p class="ico">🛒</p>
+          <p class="t">Your cart is empty</p>
+          <p class="s">Add pizzas from the builder or compare prices near you.</p>
+          <div class="ebtns">
+            <a routerLink="/builder" class="pri">🍕 Build a Pizza</a>
+            <a routerLink="/compare" class="sec">Compare prices</a>
           </div>
         </div>
+      } @else {
 
-        <!-- RIGHT: Order Summary + Checkout -->
-        <div class="space-y-4">
-          <div class="clay rounded-3xl p-6 sticky top-20 space-y-5">
-            <h3 class="text-lg font-black text-brand-black border-b border-brand-black pb-4">Order Summary</h3>
-
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between text-brand-black">
-                <span>{{ cartService.cartItemCount() }} item{{ cartService.cartItemCount() > 1 ? 's' : '' }}</span>
-                <span class="text-brand-black font-semibold">{{ subtotal() | currency }}</span>
+        <!-- Items -->
+        <div class="items">
+          @for (item of cartService.items(); track item.id) {
+            <div class="item">
+              <div class="th">🍕</div>
+              <div class="m">
+                <h5>{{ item.itemName }}</h5>
+                <p>{{ item.size }}@if (item.crust) { · {{ item.crust }}}</p>
+                <div class="ip">{{ (item.unitPrice * item.quantity) | currency }}</div>
               </div>
-              <div class="flex justify-between text-brand-black opacity-75">
-                <span>Tax (8.25%)</span>
-                <span class="text-brand-black font-semibold">{{ tax() | currency }}</span>
-              </div>
-              <div class="flex justify-between text-brand-black opacity-75">
-                <span>Platform Fee</span>
-                <span class="text-brand-black font-semibold">{{ platformFee | currency }}</span>
-              </div>
-              <div *ngIf="cartService.cart()?.couponCode" class="flex justify-between text-brand-green font-bold">
-                <span>Coupon Applied 🎉</span>
-                <span>{{ cartService.cart()?.couponCode }}</span>
-              </div>
-              <div class="flex justify-between border-t border-brand-black pt-3 mt-2">
-                <span class="font-black text-brand-black text-base">Total</span>
-                <span class="font-black text-brand-green text-lg">{{ grandTotal() | currency }}</span>
+              <div class="step">
+                <button class="qbtn plus" (click)="updateQty(item.id, item.quantity + 1)" aria-label="Add one">
+                  <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <span class="q">{{ item.quantity }}</span>
+                <button class="qbtn" (click)="updateQty(item.id, item.quantity - 1)" aria-label="Remove one">
+                  <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+                </button>
               </div>
             </div>
-
-            <!-- Database info badge -->
-            <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex gap-2">
-              <span class="text-brand-green text-sm">✅</span>
-              <div>
-                <p class="text-xs font-bold text-brand-green">Saved to Database</p>
-                <p class="text-[10px] text-brand-black font-mono mt-0.5 break-all opacity-75">{{ cartService.cart()?.id }}</p>
-              </div>
-            </div>
-
-            <button (click)="goCheckout()"
-              class="w-full py-4 clay-accent font-black hover:shadow-lg shadow-red-900/30 transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-0">
-              Proceed to Checkout ➡️
-            </button>
-            <a routerLink="/builder"
-              class="block text-center text-sm font-bold text-[#E53935] dark:text-[#D4AF37] hover:underline transition mt-2">
-              + Add More Items
-            </a>
-          </div>
+          }
         </div>
 
+        <!-- Coupon -->
+        <div class="coupon">
+          <input type="text" [(ngModel)]="couponCode" placeholder="Promo code" />
+          <button (click)="applyPromo()">Apply</button>
+        </div>
+        @if (couponMsg()) {
+          <p class="cmsg" [class.ok]="couponOk()">{{ couponMsg() }}</p>
+        }
+
+        <!-- Summary -->
+        <div class="summary">
+          <div class="srow">Subtotal <b>{{ subtotal() | currency }}</b></div>
+          <div class="srow">Platform fee <b>{{ platformFee | currency }}</b></div>
+          <div class="srow">Tax (8.25%) <b>{{ tax() | currency }}</b></div>
+          @if (cartService.cart()?.couponCode) {
+            <div class="srow save">Coupon {{ cartService.cart()?.couponCode }} <b>applied 🎉</b></div>
+          }
+          <div class="sdiv"></div>
+          <div class="srow total">Total <span class="big">{{ grandTotal() | currency }}</span></div>
+        </div>
+
+        <button class="checkout" (click)="goCheckout()">
+          <span class="go">🧾 Checkout</span>
+          <span class="amt">{{ grandTotal() | currency }}</span>
+        </button>
+        <a routerLink="/builder" class="addmore">+ Add more items</a>
+      }
     </div>
-  `
+  `,
+  styles: [`
+    :host{
+      --o:#FF6A13; --o2:#F0530A; --o-soft:#FFE7D3;
+      --cream:#FBF4EA; --surface:#FFFFFF; --warm:#F2E9DA;
+      --ink:#241C15; --muted:#9B8B77; --faint:#C9BBA8;
+      --espresso:#20140C; --tomato:#E5462F; --basil:#4E9B5A;
+      --line:rgba(36,28,21,.10);
+      display:block; min-height:100%; background:var(--cream); color:var(--ink);
+      font-family:"Plus Jakarta Sans", ui-rounded, system-ui, sans-serif;
+    }
+    .cart{max-width:640px; margin:0 auto; padding:18px 18px 40px; display:flex; flex-direction:column; gap:14px;}
+    .top{display:flex; align-items:center; gap:12px;}
+    .top h1{font-weight:800; font-size:22px; letter-spacing:-.02em;}
+    .cnt{font-size:12px; font-weight:700; color:var(--o); background:var(--o-soft); padding:6px 11px; border-radius:999px;}
+    .top .clear{margin-left:auto; background:none; border:1px solid var(--line); color:var(--muted); font-weight:700;
+      font-size:12px; padding:8px 14px; border-radius:11px; cursor:pointer; font-family:inherit;}
+    .top .clear:hover{border-color:var(--tomato); color:var(--tomato);}
+    .from{font-size:12.5px; color:var(--muted); font-weight:600; margin-top:-4px;}
+    .from b{color:var(--ink);}
+
+    .empty{text-align:center; padding:48px 20px; background:var(--surface); border:1px solid var(--line); border-radius:22px;}
+    .empty .ico{font-size:50px;}
+    .empty .t{font-weight:800; font-size:19px; margin-top:10px;}
+    .empty .s{font-size:13.5px; color:var(--muted); margin-top:6px;}
+    .ebtns{display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap;}
+    .ebtns .pri{background:linear-gradient(180deg,#FF7A22,#F0530A); color:#fff; padding:12px 20px; border-radius:13px; font-weight:800; text-decoration:none;}
+    .ebtns .sec{background:var(--warm); color:var(--ink); padding:12px 20px; border-radius:13px; font-weight:800; text-decoration:none;}
+
+    .items{display:flex; flex-direction:column; gap:12px;}
+    .item{display:flex; align-items:center; gap:13px; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:12px;
+      box-shadow:0 6px 16px -14px rgba(120,70,20,.5);}
+    .item .th{width:60px; height:60px; border-radius:14px; background:radial-gradient(circle at 50% 42%,#FFF0DC,#FBE7CE);
+      display:grid; place-items:center; font-size:28px; flex:none;}
+    .item .m{flex:1; min-width:0;}
+    .item .m h5{font-weight:800; font-size:14.5px; letter-spacing:-.01em;}
+    .item .m p{font-size:11.5px; color:var(--muted); font-weight:600; margin:2px 0 6px; text-transform:capitalize;}
+    .item .m .ip{font-weight:800; font-size:15px; color:var(--o);}
+    .step{display:flex; flex-direction:column; align-items:center; gap:6px; flex:none;}
+    .qbtn{width:30px; height:30px; border-radius:10px; border:1px solid var(--line); background:var(--cream);
+      display:grid; place-items:center; cursor:pointer; color:var(--ink);}
+    .qbtn svg{width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.6; stroke-linecap:round;}
+    .qbtn.plus{background:linear-gradient(180deg,#FF7A22,#F0530A); border-color:transparent;}
+    .qbtn.plus svg{stroke:#fff;}
+    .step .q{font-weight:800; font-size:15px;}
+
+    .coupon{display:flex; gap:10px;}
+    .coupon input{flex:1; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:0 15px; height:48px;
+      font-size:14px; font-weight:600; color:var(--ink); outline:none; font-family:inherit;}
+    .coupon input::placeholder{color:var(--faint);}
+    .coupon input:focus{border-color:var(--o);}
+    .coupon button{background:var(--warm); border:none; border-radius:14px; padding:0 20px; font-weight:800; font-size:14px; color:var(--ink); cursor:pointer; font-family:inherit;}
+    .cmsg{font-size:12px; font-weight:700; color:var(--tomato); margin-top:-6px;}
+    .cmsg.ok{color:#2f7d43;}
+
+    .summary{background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:18px;
+      box-shadow:0 10px 26px -18px rgba(120,70,20,.5);}
+    .srow{display:flex; justify-content:space-between; align-items:center; font-size:13.5px; font-weight:600; color:var(--muted); margin-bottom:12px;}
+    .srow b{color:var(--ink); font-weight:700;}
+    .srow.save{color:var(--basil);} .srow.save b{color:var(--basil);}
+    .sdiv{height:1px; background:var(--line); margin:4px 0 14px;}
+    .srow.total{margin-bottom:0; font-size:15px; color:var(--ink); font-weight:700;}
+    .srow.total .big{font-weight:800; font-size:22px; color:var(--o);}
+
+    .checkout{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; padding:17px 22px; border-radius:16px;
+      background:linear-gradient(180deg,#FF7A22,#F0530A); color:#fff; border:none; cursor:pointer; font-weight:800; font-size:16px;
+      box-shadow:0 16px 28px -12px rgba(240,83,10,.6); font-family:inherit;}
+    .checkout:hover{opacity:.95;}
+    .checkout .go{display:flex; align-items:center; gap:8px;}
+    .addmore{text-align:center; font-size:13.5px; font-weight:800; color:var(--o); text-decoration:none; padding:4px;}
+    .addmore:hover{text-decoration:underline;}
+
+    button:focus-visible, a:focus-visible{outline:2px solid var(--o); outline-offset:2px;}
+  `]
 })
 export class CartComponent implements OnInit {
   readonly cartService = inject(CartService);

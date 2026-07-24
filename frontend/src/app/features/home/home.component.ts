@@ -1,10 +1,7 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RestaurantService } from '../../core/services/restaurant.service';
-import { LocationService } from '../../core/services/location.service';
-import { ThemeService } from '../../core/services/theme.service';
 
 interface SpecialPizza {
   name: string;
@@ -23,197 +20,196 @@ interface SpecialPizza {
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 rounded-[32px] bg-[#0E0E10]">
+    <div class="home">
 
-      <!-- LIVE DEALS TICKER -->
-      <div class="w-full py-3 bg-[#0A0A0A] rounded-2xl border border-[#D4AF37]/20 overflow-hidden relative group shadow-sm">
-        <div class="flex whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused] text-xs font-medium text-[#D4AF37]/80 gap-16">
-          <span class="inline-flex items-center gap-1.5">🍕 <strong class="text-[#F4EFE6]">Shamz Pizza:</strong> Large Pepperoni now $11.99</span>
-          <span class="inline-flex items-center gap-1.5">🏷️ <strong class="text-[#F4EFE6]">Marco's:</strong> Buy One Get One Free</span>
-          <span class="inline-flex items-center gap-1.5">⚡ <strong class="text-[#F4EFE6]">Pizza Hut:</strong> Free delivery on orders over $20</span>
-          <span class="inline-flex items-center gap-1.5">🔥 <strong class="text-[#F4EFE6]">Jet's Pizza:</strong> 30% off all deep dish orders</span>
-          <span class="inline-flex items-center gap-1.5">💰 <strong class="text-[#F4EFE6]">Bunty's Pizza:</strong> $5 off any extra-large pizza</span>
+      <!-- Deals ticker -->
+      <div class="ticker">
+        <div class="track">
+          <span>🍕 <b>Shamz Pizza:</b> Large Pepperoni now $11.99</span>
+          <span>🏷️ <b>Marco's:</b> Buy One Get One Free</span>
+          <span>⚡ <b>Pizza Hut:</b> Free delivery over $20</span>
+          <span>🔥 <b>Jet's Pizza:</b> 30% off all deep dish</span>
+          <span>💰 <b>Bunty's Pizza:</b> $5 off any XL pizza</span>
+          <span aria-hidden="true">🍕 <b>Shamz Pizza:</b> Large Pepperoni now $11.99</span>
+          <span aria-hidden="true">🏷️ <b>Marco's:</b> Buy One Get One Free</span>
+          <span aria-hidden="true">⚡ <b>Pizza Hut:</b> Free delivery over $20</span>
         </div>
       </div>
 
-      <!-- HERO SHOWCASE BANNER -->
-      <div class="rounded-[22px] border border-[#2B2B31] bg-gradient-to-r from-[#18181B] to-[#1E1E22] p-8 md:p-12 relative overflow-hidden flex flex-col justify-center items-start shadow-xl">
-        <div class="absolute right-10 bottom-0 top-0 opacity-20 pointer-events-none text-9xl hidden md:flex items-center justify-center select-none animate-pulse">
-          🍕🍳🔥
+      <!-- Promo hero -->
+      <div class="promo">
+        <div class="pt">
+          <span class="badge">Featured Specials</span>
+          <h1>Craving the <b>perfect slice?</b></h1>
+          <p>Compare live prices from local pizzerias, or build your own masterpiece from scratch.</p>
+          <div class="cta">
+            <button class="pri" (click)="navigateToBuilder()">🍕 Build Your Pizza</button>
+            <button class="sec" (click)="navigateToOrder()">Compare prices</button>
+          </div>
         </div>
-        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] bg-[#D4AF37]/10 px-3 py-1 rounded-full border border-[#D4AF37]/35 mb-4">
-          Featured Specials
-        </span>
-        <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-none mb-4">
-          Craving the Perfect Slice?
-        </h1>
-        <p class="text-[16px] text-[#B8B8B8] max-w-xl mb-8 font-medium leading-relaxed">
-          Compare local pizzeria menus, find the absolute cheapest or fastest delivery options near you, or customize your own masterpiece from scratch.
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <button (click)="navigateToBuilder()"
-            class="px-6 py-3.5 rounded-xl text-xs font-bold bg-[#E53935] hover:bg-[#E53935]/90 text-white transition-all uppercase tracking-wider shadow-md">
-            🍕 Build Your Pizza
-          </button>
-          <button (click)="navigateToOrder()"
-            class="px-6 py-3.5 rounded-xl text-xs font-bold border border-[#2B2B31] hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 text-white transition-all uppercase tracking-wider">
-            🗺️ Explore Pizzerias Map
-          </button>
-        </div>
+        <div class="pie">🍕</div>
       </div>
 
-      <!-- RECOMMENDATIONS & SPECIALS PIZZAS -->
-      <section class="space-y-6">
-        <div class="border-b border-[#2B2B31] pb-3 flex items-center justify-between">
-          <div>
-            <h2 class="text-[28px] font-bold text-white">Specials &amp; Recommendations</h2>
-            <p class="text-[16px] text-[#A9A9A9]">Handpicked premium deals and custom specials near you</p>
-          </div>
-        </div>
+      <!-- Categories -->
+      <div class="sechd"><h2>Categories</h2></div>
+      <div class="cats">
+        @for (c of categories; track c.label) {
+          <button class="cat" (click)="quickCompare(c.label)">
+            <span class="b">{{ c.emoji }}</span>
+            <span>{{ c.label }}</span>
+          </button>
+        }
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]">
-          <div *ngFor="let item of recommendedPizzas"
-            class="group rounded-[22px] bg-[#18181B] border border-[#2B2B31] hover:border-[#D4AF37]/50 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-sm">
-            
-            <div>
-              <!-- Header Image/Emoji Surface -->
-              <div class="h-44 relative bg-[#1E1E22] flex items-center justify-center text-7xl select-none group-hover:scale-102 transition duration-300">
-                <span>{{ item.emoji }}</span>
-                <span class="absolute top-3 left-3 text-[9px] bg-[#E53935] text-white px-2.5 py-1 rounded-full font-black uppercase tracking-wider shadow-md">
-                  {{ item.tags[0] }}
-                </span>
-                <span *ngIf="item.discountPrice" class="absolute top-3 right-3 text-[10px] bg-[#22C55E] text-black px-2 py-0.5 rounded-md font-bold">
-                  Save {{ (item.price - item.discountPrice) | currency }}
-                </span>
+      <!-- Specials -->
+      <div class="sechd"><h2>Specials &amp; Recommendations</h2><span class="sub">Handpicked deals near you</span></div>
+      <div class="grid">
+        @for (item of recommendedPizzas; track item.name) {
+          <div class="food">
+            <div class="thumb">
+              <span class="tag">{{ item.tags[0] }}</span>
+              @if (item.discountPrice) { <span class="save">Save {{ (item.price - item.discountPrice) | currency }}</span> }
+              <span class="emoji">{{ item.emoji }}</span>
+            </div>
+            <div class="body">
+              <div class="row1">
+                <h3>{{ item.name }}</h3>
+                <span class="rate">★ {{ item.rating }}</span>
               </div>
-
-              <!-- Content Container -->
-              <div class="p-[28px] space-y-3.5">
-                <div class="flex items-start justify-between gap-2">
-                  <h3 class="text-xl font-bold text-white leading-tight group-hover:text-[#D4AF37] transition-colors">
-                    {{ item.name }}
-                  </h3>
-                  <div class="flex items-center shrink-0 text-xs font-semibold text-neutral-400">
-                    <span class="text-[#D4AF37] mr-1">★</span> {{ item.rating }}
-                  </div>
+              <p class="desc">{{ item.description }}</p>
+              <p class="by">🍕 {{ item.restaurant }}</p>
+              <div class="foot">
+                <div class="price">
+                  @if (item.discountPrice) {
+                    <span class="was">{{ item.price | currency }}</span>
+                    <span class="now">{{ item.discountPrice | currency }}</span>
+                  } @else {
+                    <span class="now">{{ item.price | currency }}</span>
+                  }
                 </div>
-
-                <p class="text-[14px] text-[#B8B8B8] font-medium leading-relaxed line-clamp-3">
-                  {{ item.description }}
-                </p>
-
-                <p class="text-[11px] font-bold text-neutral-500 uppercase tracking-widest">
-                  🍕 By {{ item.restaurant }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Footer / Purchase Card -->
-            <div class="px-[28px] pb-[28px] pt-2 border-t border-[#2B2B31]/40 flex items-center justify-between gap-4">
-              <div>
-                <span class="text-[10px] text-neutral-500 block font-bold uppercase">Price</span>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-lg font-black text-white" [class.line-through]="item.discountPrice" [class.text-neutral-500]="item.discountPrice">
-                    {{ item.price | currency }}
-                  </span>
-                  <span *ngIf="item.discountPrice" class="text-lg font-black text-[#D4AF37]">
-                    {{ item.discountPrice | currency }}
-                  </span>
-                </div>
-              </div>
-              <button (click)="quickCompare(item.name)"
-                class="px-4 py-2.5 rounded-xl font-bold text-xs bg-[#E53935] hover:bg-[#E53935]/90 text-white transition uppercase tracking-wider">
-                Order Now
-              </button>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- TOP MENU PIZZAS -->
-      <section class="space-y-6">
-        <div class="border-b border-[#2B2B31] pb-3">
-          <h2 class="text-[28px] font-bold text-white">Top Menu Pizzas</h2>
-          <p class="text-[16px] text-[#A9A9A9]">The most popular local pizza recipes in Michigan</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div *ngFor="let item of topMenuPizzas"
-            class="rounded-[22px] bg-[#18181B] border border-[#2B2B31] hover:border-[#D4AF37]/30 p-[28px] flex items-start gap-4 shadow-sm transition-all duration-300">
-            <span class="text-5xl select-none">{{ item.emoji }}</span>
-            <div class="flex-1 space-y-2">
-              <div class="flex justify-between items-start gap-2">
-                <h4 class="text-[20px] font-bold text-white">{{ item.name }}</h4>
-                <span class="text-sm font-black text-[#D4AF37]">{{ item.price | currency }}</span>
-              </div>
-              <p class="text-[14px] text-[#B8B8B8] font-medium leading-relaxed">
-                {{ item.description }}
-              </p>
-              <div class="pt-2 flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-[#FF8A00]">
-                  🔥 Popular Item
-                </span>
-                <button (click)="quickCompare(item.name)"
-                  class="px-3.5 py-1.5 rounded-lg border border-neutral-700 bg-white/5 text-[11px] font-bold text-neutral-300 hover:border-[#D4AF37] hover:text-white transition">
-                  Quick Checkout
-                </button>
+                <button class="order" (click)="quickCompare(item.name)">Order</button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      </div>
+
+      <!-- Top menu -->
+      <div class="sechd"><h2>Top Menu Pizzas</h2><span class="sub">Most popular in Michigan</span></div>
+      <div class="list">
+        @for (item of topMenuPizzas; track item.name) {
+          <div class="litem">
+            <span class="lemoji">{{ item.emoji }}</span>
+            <div class="lm">
+              <div class="lrow"><h4>{{ item.name }}</h4><span class="lp">{{ item.price | currency }}</span></div>
+              <p class="ldesc">{{ item.description }}</p>
+              <div class="lfoot">
+                <span class="pop">🔥 Popular</span>
+                <button class="qc" (click)="quickCompare(item.name)">Quick checkout</button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
 
     </div>
   `,
   styles: [`
-    @keyframes marquee {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-50%); }
+    :host{
+      --o:#FF6A13; --o2:#F0530A; --o-soft:#FFE7D3;
+      --cream:#FBF4EA; --surface:#FFFFFF; --warm:#F2E9DA;
+      --ink:#241C15; --muted:#9B8B77; --faint:#C9BBA8;
+      --espresso:#20140C; --tomato:#E5462F; --gold:#F6A623; --basil:#4E9B5A;
+      --line:rgba(36,28,21,.10);
+      display:block; min-height:100%; background:var(--cream); color:var(--ink);
+      font-family:"Plus Jakarta Sans", ui-rounded, system-ui, sans-serif;
     }
-    .animate-marquee {
-      display: flex;
-      width: 200%;
-      animation: marquee 20s linear infinite;
-    }
+    .home{max-width:820px; margin:0 auto; padding:16px 18px 40px; display:flex; flex-direction:column; gap:16px;}
+
+    .ticker{background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; padding:11px 0;}
+    .track{display:flex; gap:44px; white-space:nowrap; width:max-content; animation:marquee 26s linear infinite;
+      font-size:12.5px; font-weight:600; color:var(--muted);}
+    .track b{color:var(--o2);}
+    .ticker:hover .track{animation-play-state:paused;}
+    @keyframes marquee{from{transform:translateX(0)} to{transform:translateX(-50%)}}
+
+    .promo{position:relative; overflow:hidden; border-radius:22px; padding:26px 24px; color:#fff;
+      background:radial-gradient(120% 130% at 88% 15%, #35251a 0%, var(--espresso) 62%);}
+    .promo .pt{max-width:80%;}
+    .promo .badge{font-size:10px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--gold);}
+    .promo h1{font-weight:800; font-size:28px; line-height:1.06; letter-spacing:-.025em; margin:10px 0 8px;}
+    .promo h1 b{color:var(--o);}
+    .promo p{font-size:13px; color:rgba(255,255,255,.66); font-weight:500; line-height:1.5; max-width:44ch;}
+    .promo .cta{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;}
+    .promo .pri{background:linear-gradient(180deg,#FF7A22,#F0530A); color:#fff; border:none; padding:12px 18px; border-radius:12px;
+      font-weight:800; font-size:13.5px; cursor:pointer; font-family:inherit; box-shadow:0 12px 22px -12px rgba(240,83,10,.7);}
+    .promo .sec{background:rgba(255,255,255,.12); color:#fff; border:none; padding:12px 18px; border-radius:12px; font-weight:800; font-size:13.5px; cursor:pointer; font-family:inherit;}
+    .promo .pie{position:absolute; right:-20px; top:50%; transform:translateY(-50%); font-size:130px; opacity:.16; pointer-events:none;}
+
+    .sechd{display:flex; align-items:baseline; gap:10px; margin-top:6px;}
+    .sechd h2{font-weight:800; font-size:18px; letter-spacing:-.01em;}
+    .sechd .sub{font-size:12px; color:var(--muted); font-weight:600;}
+
+    .cats{display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none;}
+    .cats::-webkit-scrollbar{display:none;}
+    .cat{flex:none; display:flex; flex-direction:column; align-items:center; gap:7px; background:none; border:none; cursor:pointer; font-family:inherit;}
+    .cat .b{width:60px; height:60px; border-radius:19px; background:var(--surface); border:1px solid var(--line);
+      display:grid; place-items:center; font-size:26px; transition:.16s; box-shadow:0 6px 14px -10px rgba(120,70,20,.5);}
+    .cat span:last-child{font-size:11.5px; font-weight:700; color:var(--muted);}
+    .cat:hover .b{transform:translateY(-2px); border-color:var(--o); box-shadow:0 12px 20px -10px rgba(240,83,10,.5);}
+
+    .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px;}
+    .food{background:var(--surface); border:1px solid var(--line); border-radius:20px; overflow:hidden; display:flex; flex-direction:column;
+      box-shadow:0 8px 20px -16px rgba(120,70,20,.5); transition:transform .16s, box-shadow .16s;}
+    .food:hover{transform:translateY(-3px); box-shadow:0 16px 28px -16px rgba(120,70,20,.55);}
+    .food .thumb{height:120px; position:relative; background:radial-gradient(circle at 50% 40%,#FFF0DC,#FBE7CE); display:grid; place-items:center;}
+    .food .thumb .emoji{font-size:58px;}
+    .food .thumb .tag{position:absolute; top:10px; left:10px; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+      background:var(--tomato); color:#fff; padding:5px 9px; border-radius:999px;}
+    .food .thumb .save{position:absolute; top:10px; right:10px; font-size:10px; font-weight:800; background:var(--basil); color:#fff; padding:4px 8px; border-radius:8px;}
+    .food .body{padding:14px; display:flex; flex-direction:column; gap:7px; flex:1;}
+    .food .row1{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+    .food h3{font-weight:800; font-size:14.5px; letter-spacing:-.01em; line-height:1.2;}
+    .food .rate{font-size:12px; font-weight:800; color:var(--gold); flex:none;}
+    .food .desc{font-size:11.5px; color:var(--muted); font-weight:500; line-height:1.5;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+    .food .by{font-size:10.5px; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:.04em;}
+    .food .foot{display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:8px;}
+    .food .price{display:flex; align-items:baseline; gap:6px;}
+    .food .was{font-size:12px; color:var(--faint); font-weight:700; text-decoration:line-through;}
+    .food .now{font-weight:800; font-size:16px; color:var(--ink);}
+    .food .order{background:linear-gradient(180deg,#FF7A22,#F0530A); color:#fff; border:none; padding:9px 15px; border-radius:11px;
+      font-weight:800; font-size:12.5px; cursor:pointer; font-family:inherit; box-shadow:0 8px 14px -8px rgba(240,83,10,.7);}
+
+    .list{display:flex; flex-direction:column; gap:12px;}
+    .litem{display:flex; gap:13px; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:15px;
+      box-shadow:0 6px 16px -14px rgba(120,70,20,.5);}
+    .lemoji{font-size:38px; flex:none;}
+    .lm{flex:1; min-width:0;}
+    .lrow{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+    .lm h4{font-weight:800; font-size:15px; letter-spacing:-.01em;}
+    .lp{font-weight:800; font-size:14.5px; color:var(--o); flex:none;}
+    .ldesc{font-size:12px; color:var(--muted); font-weight:500; line-height:1.5; margin:5px 0 9px;}
+    .lfoot{display:flex; align-items:center; justify-content:space-between;}
+    .pop{font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--o2);}
+    .qc{background:var(--warm); border:none; padding:8px 14px; border-radius:10px; font-weight:800; font-size:11.5px; color:var(--ink); cursor:pointer; font-family:inherit;}
+    .qc:hover{background:var(--o-soft);}
+
+    button:focus-visible{outline:2px solid var(--o); outline-offset:2px;}
+    @media (prefers-reduced-motion:reduce){ .track{animation:none} .food{transition:none} }
   `]
 })
 export class HomeComponent implements OnInit {
   private readonly router = inject(Router);
-  protected readonly themeService = inject(ThemeService);
 
-  // Theme-aware computed styles
-  protected readonly bgPrimary = computed(() =>
-    this.themeService.theme() === 'dark' ? 'bg-[#0E0E10]' : 'bg-white'
-  );
-  protected readonly bgSecondary = computed(() =>
-    this.themeService.theme() === 'dark' ? 'bg-[#18181B]' : 'bg-slate-50'
-  );
-  protected readonly bgTertiary = computed(() =>
-    this.themeService.theme() === 'dark' ? 'bg-[#0A0A0A]' : 'bg-slate-100'
-  );
-  protected readonly textPrimary = computed(() =>
-    this.themeService.theme() === 'dark' ? 'text-white' : 'text-slate-900'
-  );
-  protected readonly textSecondary = computed(() =>
-    this.themeService.theme() === 'dark' ? 'text-[#B8B8B8]' : 'text-slate-600'
-  );
-  protected readonly textMuted = computed(() =>
-    this.themeService.theme() === 'dark' ? 'text-[#A9A9A9]' : 'text-slate-500'
-  );
-  protected readonly borderPrimary = computed(() =>
-    this.themeService.theme() === 'dark' ? 'border-[#2B2B31]' : 'border-slate-200'
-  );
-  protected readonly borderGradient = computed(() =>
-    this.themeService.theme() === 'dark'
-      ? 'from-[#18181B] to-[#1E1E22]'
-      : 'from-slate-100 to-slate-50'
-  );
-  protected readonly bgGradient = computed(() =>
-    this.themeService.theme() === 'dark'
-      ? 'bg-gradient-to-r from-[#18181B] to-[#1E1E22]'
-      : 'bg-gradient-to-r from-slate-50 to-white'
-  );
+  categories = [
+    { label: 'Classic', emoji: '🍕' },
+    { label: 'Pepperoni', emoji: '🌶️' },
+    { label: 'Veggie', emoji: '🥦' },
+    { label: 'Meat', emoji: '🥓' },
+    { label: 'Cheese', emoji: '🧀' },
+    { label: 'BBQ', emoji: '🔥' },
+  ];
 
   recommendedPizzas: SpecialPizza[] = [
     {
@@ -251,43 +247,15 @@ export class HomeComponent implements OnInit {
   ];
 
   topMenuPizzas = [
-    {
-      name: 'Classic Detroit Deep Dish',
-      emoji: '📐',
-      price: 13.99,
-      description: 'Authentic Michigan square pizza with thick marinara stripe on top and crispy brown cheddar cheese edge.'
-    },
-    {
-      name: 'Brooklyn Style Pepperoni Feast',
-      emoji: '🗽',
-      price: 14.99,
-      description: 'Huge foldable thin crust slices packed with cup-and-char pepperoni and Italian spices.'
-    },
-    {
-      name: 'Four Cheese Garlic Thin Crust',
-      emoji: '🧀',
-      price: 11.99,
-      description: 'Mozzarella, parmesan, asiago, and romano cheeses melted over fresh crushed garlic sauce.'
-    },
-    {
-      name: 'Tavern Square Cut Supreme',
-      emoji: '✂️',
-      price: 15.49,
-      description: 'Ultra thin, cracker-like square cut pub crust loaded with spicy sausage chunks, peppers, and red onions.'
-    }
+    { name: 'Classic Detroit Deep Dish', emoji: '📐', price: 13.99, description: 'Authentic Michigan square pizza with thick marinara stripe on top and crispy brown cheddar cheese edge.' },
+    { name: 'Brooklyn Style Pepperoni Feast', emoji: '🗽', price: 14.99, description: 'Huge foldable thin crust slices packed with cup-and-char pepperoni and Italian spices.' },
+    { name: 'Four Cheese Garlic Thin Crust', emoji: '🧀', price: 11.99, description: 'Mozzarella, parmesan, asiago, and romano cheeses melted over fresh crushed garlic sauce.' },
+    { name: 'Tavern Square Cut Supreme', emoji: '✂️', price: 15.49, description: 'Ultra thin, cracker-like square cut pub crust loaded with spicy sausage chunks, peppers, and red onions.' }
   ];
 
   ngOnInit() {}
 
-  navigateToBuilder() {
-    this.router.navigate(['/builder']);
-  }
-
-  navigateToOrder() {
-    this.router.navigate(['/order']);
-  }
-
-  quickCompare(intent: string) {
-    this.router.navigate(['/quick-compare'], { queryParams: { intent } });
-  }
+  navigateToBuilder() { this.router.navigate(['/builder']); }
+  navigateToOrder() { this.router.navigate(['/order']); }
+  quickCompare(intent: string) { this.router.navigate(['/quick-compare'], { queryParams: { intent } }); }
 }
