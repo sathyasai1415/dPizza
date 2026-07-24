@@ -8,7 +8,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { MERCHANT_TABS } from '../owner/merchant-nav';
 import { CartService } from '../../core/services/cart.service';
 import { VideoIntroComponent } from '../../shared/video-intro/video-intro.component';
-import { WelcomeShowcaseComponent } from '../../shared/welcome-showcase/welcome-showcase.component';
 import { ElectricBorderComponent } from '../../shared/electric-border/electric-border.component';
 import { LocationService } from '../../core/services/location.service';
 import { OnboardingService } from '../../core/services/onboarding.service';
@@ -25,13 +24,11 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
     RouterLink,
     RouterLinkActive,
     VideoIntroComponent,
-    WelcomeShowcaseComponent,
     ElectricBorderComponent,
     NotificationBarComponent
   ],
   template: `
     <app-video-intro *ngIf="showIntro()" (done)="dismissIntro()"></app-video-intro>
-    <app-welcome-showcase *ngIf="onboarding.showWelcome()" (done)="onboarding.dismissWelcome(); openAddressModalAfterWelcome()"></app-welcome-showcase>
     <div class="min-h-screen flex text-brand-black bg-transparent relative">
 
       <!-- SIDEBAR NAVIGATION — desktop visible, mobile overlay -->
@@ -260,9 +257,9 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
           <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between border-b border-gray-100 dark:border-neutral-800">
             <!-- Logo & Sidebar Trigger on left -->
             <div class="flex items-center gap-3">
-              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
+              <button *ngIf="authService.isAuthenticated()"
                 (click)="toggleSidebar()"
-                class="sm:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
+                class="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -278,8 +275,8 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
             <!-- Right Controls: Location + Notifications + Theme Toggle + User Profile / Auth -->
             <div class="flex items-center gap-2 sm:gap-3">
-              <!-- Location Button -->
-              <button (click)="openAddressModal($event)" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-gray-200 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800 transition text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer">
+              <!-- Location Button (Customer only) -->
+              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" (click)="openAddressModal($event)" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-gray-200 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800 transition text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer">
                 <span class="text-base sm:text-lg">📍</span>
                 <span class="hidden sm:inline font-bold">{{ locationService.selectedCity() === 'All' ? 'All Cities' : locationService.selectedCity() }}</span>
                 <span class="sm:hidden font-bold">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 8) }}</span>
@@ -287,6 +284,11 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </button>
+
+              <!-- Merchant Portal Badge (Store Owner only) -->
+              <div *ngIf="authService.isStoreOwner()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-xs font-bold text-[#D4AF37]">
+                <span>🏪 Merchant Console</span>
+              </div>
 
               <!-- Customer Notifications Bell -->
               <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
@@ -431,7 +433,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-white dark:bg-[#0A0A0A]/95 border-t border-gray-200 dark:border-neutral-800 flex items-center justify-around safe-area-bottom shadow-sm dark:shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)] transition-colors duration-200">
 
         <!-- Home Tab -->
-        <a routerLink="/home" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+        <a routerLink="/home" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
           class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -439,17 +441,32 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
           <span>Home</span>
         </a>
 
-        <!-- Search Tab -->
-        <a routerLink="/order" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+        <!-- Deals Tab -->
+        <a routerLink="/deals" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
           class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V4h9Z" />
+            <circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <span>Search</span>
+          <span>Deals</span>
+        </a>
+
+        <!-- Compare Tab (signature, elevated center) -->
+        <a routerLink="/compare" class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 -mt-8">
+          <span class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_14px_24px_-8px_rgba(240,83,10,0.7)] border-4 border-white dark:border-[#0A0A0A]"
+            style="background:linear-gradient(180deg,#FF7A22,#F0530A)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.9" stroke="#fff" class="w-6 h-6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v18M7 21h10" />
+              <path d="M5 7 2.4 12.5a2.6 2.6 0 0 0 5.2 0Z" />
+              <path d="M19 7l-2.6 5.5a2.6 2.6 0 0 0 5.2 0Z" />
+              <path d="M5 7l7-2 7 2" />
+            </svg>
+          </span>
+          <span class="text-[10px] font-bold text-[#FF6A13]">Compare</span>
         </a>
 
         <!-- Orders Tab -->
-        <a routerLink="/orders" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+        <a routerLink="/orders" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
           class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m6-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM3 20.25v-4.5a6 6 0 0 1 6-6h.75a.75.75 0 0 0 .75-.75V9a6 6 0 0 1 6-6h.75a.75.75 0 0 1 .75.75v.75a6 6 0 0 1-6 6h-.75a.75.75 0 0 0-.75.75v4.5a6 6 0 0 1-6 6h-.75a.75.75 0 0 1-.75-.75Z" />
@@ -458,7 +475,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         </a>
 
         <!-- Profile Tab -->
-        <a routerLink="/profile" routerLinkActive="text-[#D4AF37]" [routerLinkActiveOptions]="{exact: true}"
+        <a routerLink="/profile" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
           class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
