@@ -53,7 +53,7 @@ export class WelcomeShowcaseComponent {
 
   features: Feature[] = [
     { icon: '🍕', title: 'Build Your Own Pizza', desc: 'Pick your size, crust, sauce, and toppings — customize every detail exactly how you like it.', chip: 'Fully Customizable', accent: '#FFE8CC' },
-    { icon: '⚖️', title: 'Compare Prices Live', desc: "See real-time prices across Domino's, Pizza Hut, Papa John's, and local favorites side by side.", chip: 'Live Price Comparison', accent: '#FFE0DC' },
+    { icon: '⚖️', title: 'Compare Prices Live', desc: "See real-time prices across Shamz Pizza, Zumbo's, Great Lakes Pies, and local Michigan favorites side by side.", chip: 'Live Price Comparison', accent: '#FFE0DC' },
     { icon: '🏷️', title: 'Deals & Offers', desc: 'BOGO offers, flash deals, and student discounts from restaurants near you, updated daily.', chip: 'Local Deals', accent: '#FFF3C4' },
     { icon: '📍', title: 'Discover Local Pizzerias', desc: 'Find top-rated local spots and national chains, ranked by price, rating, and delivery time.', chip: 'Near You', accent: '#DDF3E4' },
   ];

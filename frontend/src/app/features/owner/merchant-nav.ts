@@ -10,7 +10,5 @@ export const MERCHANT_TABS: MerchantTab[] = [
   { id: 'financials', name: 'Financials', icon: '💳' },
   { id: 'delivery', name: 'Delivery', icon: '🛵' },
   { id: 'reviews', name: 'Reviews', icon: '⭐' },
-  { id: 'users', name: 'Users', icon: '👥' },
-  { id: 'insights', name: 'AI Insights', icon: '🤖' },
   { id: 'settings', name: 'Settings', icon: '⚙️' },
 ];

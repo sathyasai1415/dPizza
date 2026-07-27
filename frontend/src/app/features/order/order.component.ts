@@ -237,6 +237,12 @@ export class OrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor() {
     effect(() => {
+      // Reload restaurants from backend when global city updates
+      const city = this.locationService.selectedCity();
+      this.loadRestaurants();
+    }, { allowSignalWrites: true });
+
+    effect(() => {
       const stores = this.stores();
       const city = this.locationService.selectedCity();
       if (this.map) {

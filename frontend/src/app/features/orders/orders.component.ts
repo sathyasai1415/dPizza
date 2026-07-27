@@ -282,7 +282,7 @@ import { OrderDto } from '../../shared/models';
                 <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <p class="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-1">Fav Store</p>
                   <p class="text-sm font-black text-[#111827] leading-tight truncate">
-                    {{ orders().length > 0 ? (orders()[0].restaurantName || 'Dominos') : '—' }}
+                    {{ orders().length > 0 ? (orders()[0].restaurantName || 'Shamz Pizza') : '—' }}
                   </p>
                 </div>
                 <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">

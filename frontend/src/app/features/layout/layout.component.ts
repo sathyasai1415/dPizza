@@ -87,11 +87,35 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
                   <span class="shrink-0">🛍️</span> <span [class.lg:hidden]="navCollapsed()">Order Food</span>
                 </span>
               </a>
+              <a routerLink="/compare" routerLinkActive="active-tab" title="Compare Prices"
+                [attr.data-tooltip]="navCollapsed() ? 'Compare Prices' : null"
+                [class.lg:justify-center]="navCollapsed()"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
+                <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
+                  <span class="shrink-0">⚖️</span> <span [class.lg:hidden]="navCollapsed()">Compare Prices</span>
+                </span>
+              </a>
+              <a routerLink="/deals" routerLinkActive="active-tab" title="Deals & Offers"
+                [attr.data-tooltip]="navCollapsed() ? 'Deals & Offers' : null"
+                [class.lg:justify-center]="navCollapsed()"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
+                <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
+                  <span class="shrink-0">🏷️</span> <span [class.lg:hidden]="navCollapsed()">Deals &amp; Offers</span>
+                </span>
+              </a>
             </div>
 
             <!-- Section 2: Personal Account -->
             <div class="space-y-1 pt-2 border-t border-[#2B2B31]/40">
               <p [class.lg:hidden]="navCollapsed()" class="text-[12px] font-bold tracking-[0.15em] uppercase text-[#B28D2C] px-3 mb-2">My Account</p>
+              <a routerLink="/orders" routerLinkActive="active-tab" title="Order History"
+                [attr.data-tooltip]="navCollapsed() ? 'Order History' : null"
+                [class.lg:justify-center]="navCollapsed()"
+                class="glare-hover flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[18px] font-semibold text-[#9C9C9C] bg-[#0E0E10] border border-[#2B2B31]/30 hover:text-[#EDEDED] transition">
+                <span class="relative z-10 flex items-center gap-2.5" [class.lg:justify-center]="navCollapsed()" [class.lg:w-full]="navCollapsed()">
+                  <span class="shrink-0">📦</span> <span [class.lg:hidden]="navCollapsed()">Order History</span>
+                </span>
+              </a>
               <a routerLink="/rewards" routerLinkActive="active-tab" title="Rewards Hub"
                 [attr.data-tooltip]="navCollapsed() ? 'Rewards Hub' : null"
                 [class.lg:justify-center]="navCollapsed()"
@@ -214,59 +238,61 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
       <!-- MAIN CONTENT WRAPPER -->
       <div class="flex-1 flex flex-col min-w-0 transition-all duration-300" [class.lg:pl-64]="!navCollapsed()" [class.lg:pl-20]="navCollapsed()">
-        <!-- LOCATION ICON - TOP (Mobile Only) -->
-        <div *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" class="flex sm:hidden items-center justify-between px-4 py-2 bg-[#0A0A0A]/50">
-          <button (click)="openAddressModal($event)" [title]="'Current location: ' + locationService.selectedCity()" class="icon-fx relative w-9 h-9 flex items-center justify-center text-[#D4AF37] hover:text-white rounded-full transition">
-            <span class="icon-fx-fill" aria-hidden="true"></span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-            </svg>
-          </button>
-          <span class="text-xs font-bold text-[#D4AF37]">{{ locationService.selectedCity() === 'All' ? 'Select Location' : locationService.selectedCity() }}</span>
-          <div class="w-9"></div>
-        </div>
 
         <!-- TOP NAV HEADER — Redesigned Modern Premium Navigation -->
-        <header class="sticky top-0 z-30 w-full bg-[#FBF4EA] border-b border-[#E7DAC4] shadow-sm transition-colors duration-200">
+        <header class="sticky top-0 z-30 w-full bg-[#0E011E]/95 backdrop-blur-md border-b border-[#D4AF37]/20 shadow-md">
           <!-- Row 1: Brand Logo (Left) + Location, Notifications, Theme Toggle, Profile Menu (Right) -->
-          <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between border-b border-[#E7DAC4]">
-            <!-- Logo & Sidebar Trigger on left -->
-            <div class="flex items-center gap-3">
+          <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between border-b border-[#D4AF37]/10">
+            <!-- Logo & Sidebar Trigger on left + Location Selector next to it -->
+            <div class="flex items-center gap-2.5 sm:gap-3">
               <button *ngIf="authService.isAuthenticated()"
                 (click)="toggleSidebar()"
-                class="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-[#241C15] hover:bg-[#F2E9DA] transition cursor-pointer">
+                class="lg:hidden flex items-center justify-center w-9 h-9 rounded-xl text-white bg-white/5 border border-white/10 hover:bg-white/15 transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
+
+              <!-- Manually edit location (Clean compact glassmorphism icon button) -->
+              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" (click)="openAddressModal($event)"
+                [title]="'Current location: ' + locationService.selectedCity()"
+                class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/20 backdrop-blur-md transition-all duration-300 shadow-md cursor-pointer select-none">
+                <span class="text-base">📍</span>
+              </button>
             </div>
 
-            <!-- Right Controls: Location + Notifications + Theme Toggle + User Profile / Auth -->
+            <!-- Right Controls: Favourites, Cart, Notifications, Theme Toggle, User Profile -->
             <div class="flex items-center gap-2 sm:gap-3">
-              <!-- Location Button (Customer only) -->
-              <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()" (click)="openAddressModal($event)" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-[#E7DAC4] bg-white hover:bg-[#F2E9DA] transition text-xs sm:text-sm font-medium text-[#241C15] cursor-pointer">
-                <span class="text-base sm:text-lg">📍</span>
-                <span class="hidden sm:inline font-bold">{{ locationService.selectedCity() === 'All' ? 'All Cities' : locationService.selectedCity() }}</span>
-                <span class="sm:hidden font-bold">{{ locationService.selectedCity() === 'All' ? 'All' : locationService.selectedCity().substring(0, 8) }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#9B8B77]" fill="none" viewBox="0 0 24 24" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              </button>
-
               <!-- Merchant Portal Badge (Store Owner only) -->
               <div *ngIf="authService.isStoreOwner()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-xs font-bold text-[#D4AF37]">
                 <span>🏪 Merchant Console</span>
               </div>
 
+              <!-- Customer Favourites Button -->
+              <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
+                routerLink="/favourites" title="Favorites"
+                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white bg-white/5 border border-white/10 hover:bg-white/15 rounded-xl transition cursor-pointer">
+                <span class="text-base sm:text-lg">❤️</span>
+              </a>
+
+              <!-- Customer Cart Button -->
+              <a *ngIf="!authService.isStoreOwner() && !authService.isAdmin() && authService.isAuthenticated()"
+                routerLink="/cart" title="Cart"
+                class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white bg-white/5 border border-white/10 hover:bg-white/15 rounded-xl transition cursor-pointer">
+                <span class="text-base sm:text-lg">🛒</span>
+                <span *ngIf="cartService.cartItemCount() > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-md">
+                  {{ cartService.cartItemCount() }}
+                </span>
+              </a>
+
               <!-- Customer Notifications Bell -->
               <button *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
                 (click)="$event.stopPropagation(); notificationBar.isOpen.set(!notificationBar.isOpen())" title="Notifications"
-                class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#241C15] hover:bg-[#F2E9DA] rounded-full transition cursor-pointer">
+                class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white bg-white/5 border border-white/10 hover:bg-white/15 rounded-xl transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                 </svg>
-                <span *ngIf="notificationBar.unreadCount() > 0" class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-black flex items-center justify-center shadow-md">
+                <span *ngIf="notificationBar.unreadCount() > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-md">
                   {{ notificationBar.unreadCount() }}
                 </span>
               </button>
@@ -274,117 +300,90 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
               <!-- Owner Notifications Bell -->
               <div *ngIf="authService.isStoreOwner()" class="relative">
                 <button (click)="$event.stopPropagation(); bellOpen.set(!bellOpen()); profileOpen.set(false)" title="Notifications"
-                  class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full transition cursor-pointer">
+                  class="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white bg-white/5 border border-white/10 hover:bg-white/15 rounded-xl transition cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                   </svg>
-                  <span *ngIf="alerts.unreadCount() > 0" class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-black flex items-center justify-center shadow-md">{{ alerts.unreadCount() }}</span>
+                  <span *ngIf="alerts.unreadCount() > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-md">{{ alerts.unreadCount() }}</span>
                 </button>
-                <div *ngIf="bellOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 dark:border-[#D4AF37]/25 bg-white dark:bg-[#0A0A0A] shadow-xl z-50">
-                  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-[#D4AF37]/25 sticky top-0 bg-white dark:bg-[#0A0A0A]">
+                <div *ngIf="bellOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0E011E]/95 backdrop-blur-xl shadow-2xl z-50">
+                  <div class="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0 bg-[#0E011E]/95 backdrop-blur-xl">
                     <span class="text-sm font-black text-[#D4AF37]">Notifications</span>
                     <button (click)="alerts.markAllRead()" class="text-[10px] font-bold text-[#FF8A00] hover:opacity-70">Mark all read</button>
                   </div>
-                  <div class="flex gap-1 px-3 py-2 overflow-x-auto scrollbar-none border-b border-gray-100 dark:border-[#D4AF37]/25">
+                  <div class="flex gap-1 px-3 py-2 overflow-x-auto scrollbar-none border-b border-white/10">
                     @for (f of alertFilters; track f) {
                       <button (click)="alertFilter.set(f)" [class]="'px-2.5 py-1 rounded-full text-[10px] font-black whitespace-nowrap ' + (alertFilter() === f ? 'bg-[#D4AF37] text-[#0A0A0A]' : 'text-[#D4AF37]/70 hover:bg-[#D4AF37]/10')">{{ f }}</button>
                     }
                   </div>
                   <div class="p-2 space-y-1">
                     @for (a of filteredAlerts(); track a.id) {
-                      <div class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#D4AF37]/20">
+                      <div class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/10">
                         <span class="text-base">{{ a.icon }}</span>
-                        <div class="min-w-0"><p class="text-xs font-bold text-[#D4AF37]">{{ a.title }}</p><p class="text-[10px] text-gray-500 dark:text-[#D4AF37]/70 mt-0.5">{{ a.detail }}</p></div>
+                        <div class="min-w-0"><p class="text-xs font-bold text-[#D4AF37]">{{ a.title }}</p><p class="text-[10px] text-[#D4AF37]/70 mt-0.5">{{ a.detail }}</p></div>
                       </div>
                     }
-                    @if (filteredAlerts().length === 0) { <p class="text-[11px] text-gray-500 dark:text-[#D4AF37]/70 text-center py-6">🎉 All caught up.</p> }
+                    @if (filteredAlerts().length === 0) { <p class="text-[11px] text-[#D4AF37]/70 text-center py-6">🎉 All caught up.</p> }
                   </div>
                 </div>
               </div>
 
-              <!-- Theme Toggle Button -->
-              <button (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#241C15] hover:bg-[#F2E9DA] rounded-full transition cursor-pointer">
-                <svg *ngIf="themeService.theme() === 'dark'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                <svg *ngIf="themeService.theme() === 'light'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                </svg>
-              </button>
+
 
               <!-- Profile Dropdown (If Logged In) -->
               <div *ngIf="authService.isAuthenticated()" class="relative">
                 <button (click)="$event.stopPropagation(); profileOpen.set(!profileOpen()); bellOpen.set(false)"
-                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FF6A13] hover:bg-[#F0530A] flex items-center justify-center text-sm font-black text-white transition shadow-md cursor-pointer">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-[#FF8A00] to-[#FF6A13] hover:brightness-110 flex items-center justify-center text-sm font-black text-white transition shadow-[0_0_12px_rgba(255,138,0,0.35)] cursor-pointer">
                   {{ (authService.currentUser()?.fullName ?? 'U').substring(0,1).toUpperCase() }}
                 </button>
-                <div *ngIf="profileOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#18181B] shadow-xl z-50 py-1.5">
-                  <div class="px-4 py-3 border-b border-gray-100 dark:border-neutral-800">
-                    <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ authService.currentUser()?.fullName }}</p>
-                    <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">{{ authService.currentUser()?.email }}</p>
+                <div *ngIf="profileOpen()" (click)="$event.stopPropagation()" class="absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-[#0E011E]/95 backdrop-blur-xl shadow-2xl z-50 py-1.5">
+                  <div class="px-4 py-3 border-b border-white/10">
+                    <p class="text-sm font-bold text-white truncate">{{ authService.currentUser()?.fullName }}</p>
+                    <p class="text-xs text-neutral-400 truncate">{{ authService.currentUser()?.email }}</p>
                   </div>
-                  <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'settings' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">🏪 Restaurant Profile</a>
-                  <a routerLink="/profile" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">⚙️ Account Settings</a>
-                  <a routerLink="/orders" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">📦 My Orders</a>
-                  <a routerLink="/favourites" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-800">❤️ Saved Favorites</a>
-                  <button (click)="handleLogout()" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-gray-50 dark:hover:bg-neutral-800 rounded-b-xl border-t border-gray-100 dark:border-neutral-800 cursor-pointer">🚪 Logout</button>
+                  <a *ngIf="authService.isStoreOwner()" [routerLink]="['/owner']" [queryParams]="{ tab: 'settings' }" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-neutral-200 hover:bg-white/10">🏪 Restaurant Profile</a>
+                  <a routerLink="/profile" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-neutral-200 hover:bg-white/10">⚙️ Account Settings</a>
+                  <a routerLink="/orders" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-neutral-200 hover:bg-white/10">📦 My Orders</a>
+                  <a routerLink="/favourites" (click)="profileOpen.set(false)" class="block px-4 py-2.5 text-sm font-medium text-neutral-200 hover:bg-white/10">❤️ Saved Favorites</a>
+                  <button (click)="handleLogout()" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-white/10 rounded-b-xl border-t border-white/10 cursor-pointer">🚪 Logout</button>
                 </div>
               </div>
 
               <!-- Sign In Link (If Not Logged In) -->
               <a *ngIf="!authService.isAuthenticated()" routerLink="/welcome"
-                class="px-4 py-2 rounded-xl bg-[#FF6A13] hover:bg-[#F0530A] text-white font-bold text-xs sm:text-sm transition shadow-sm">
+                class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF8A00] to-[#FF6A13] hover:brightness-110 text-white font-bold text-xs sm:text-sm transition shadow-md">
                 Sign In
               </a>
             </div>
           </div>
 
-          <!-- Row 2: Customer Navigation Bar (Search + Deals, Cart, Favorites) -->
+          <!-- Row 2: Customer Navigation Bar (Search + Deals) -->
           <ng-container *ngIf="!authService.isStoreOwner() && !authService.isAdmin()">
             <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
               <!-- Search Bar -->
-              <div class="flex-1 flex items-center gap-3 bg-white border border-[#E7DAC4] rounded-2xl px-4 py-2.5 hover:border-[#FF6A13]/50 transition">
+              <div class="flex-1 flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 hover:bg-white/10 hover:border-white/20 focus-within:border-[#D4AF37]/50 focus-within:shadow-[0_0_15px_rgba(212,175,55,0.15)] transition-all duration-300">
                 <span class="text-xl select-none">🔍</span>
                 <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()"
                   placeholder="Search pizzas, restaurants, toppings..."
-                  class="flex-1 bg-transparent text-sm text-[#241C15] placeholder-[#C9BBA8] outline-none font-medium" />
+                  class="flex-1 bg-transparent text-sm text-white placeholder-neutral-500 outline-none font-medium" />
               </div>
 
-              <!-- Three Action Buttons -->
-              <div class="flex items-center gap-2 shrink-0">
-                <!-- Hot Deals Button -->
-                <a routerLink="/deals" title="Hot Deals"
-                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-b from-[#FF7A22] to-[#F0530A] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-base sm:text-lg shadow-md">
-                  🔥
-                </a>
-
-                <!-- Cart Button -->
-                <a routerLink="/cart" title="Cart"
-                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white border border-[#E7DAC4] hover:bg-[#F2E9DA] hover:shadow-lg hover:scale-105 transition-all text-[#241C15] font-bold text-base sm:text-lg relative shadow-md">
-                  🛒
-                  <span *ngIf="cartService.cartItemCount() > 0" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center shadow-md">
-                    {{ cartService.cartItemCount() }}
-                  </span>
-                </a>
-
-                <!-- Favorites Button -->
-                <a routerLink="/favourites" title="Favorites"
-                  class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:shadow-lg hover:scale-105 transition-all text-gray-800 dark:text-white font-bold text-base sm:text-lg shadow-md">
-                  ❤️
-                </a>
-              </div>
+              <!-- Hot Deals Button -->
+              <a routerLink="/deals" title="Hot Deals"
+                class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-b from-[#FF7A22] to-[#F0530A] hover:shadow-lg hover:scale-105 transition-all text-white font-bold text-base sm:text-lg shadow-md shrink-0">
+                🔥
+              </a>
             </div>
           </ng-container>
 
           <!-- Owner / Admin Row 2 -->
           <ng-container *ngIf="authService.isStoreOwner() || authService.isAdmin()">
             <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-              <div *ngIf="authService.isStoreOwner()" class="flex-1 max-w-md flex items-center gap-3 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-full px-4 py-2.5 hover:border-gray-300 dark:hover:border-neutral-700 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-gray-500 shrink-0">
+              <div *ngIf="authService.isStoreOwner()" class="flex-1 max-w-md flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 hover:bg-white/10 hover:border-white/20 transition duration-150">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-neutral-400 shrink-0">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
-                <input [(ngModel)]="ownerSearch" placeholder="Search orders, menu, deals…" class="flex-1 bg-transparent text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none" />
+                <input [(ngModel)]="ownerSearch" placeholder="Search orders, menu, deals…" class="flex-1 bg-transparent text-sm text-white placeholder-neutral-500 outline-none" />
               </div>
               <div *ngIf="authService.isAdmin()" class="flex-1"></div>
             </div>
@@ -393,18 +392,18 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
         <!-- ROUTER OUTLET CONTAINER -->
         <main class="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-28 sm:pb-8 z-10"
-          [ngClass]="(!authService.isStoreOwner() && !authService.isAdmin()) ? 'bg-[#FBF4EA]' : ''">
+          [ngClass]="(!authService.isStoreOwner() && !authService.isAdmin()) ? 'bg-transparent' : ''">
           <router-outlet></router-outlet>
         </main>
       </div>
 
       <!-- MOBILE BOTTOM TAB BAR — Customer Navigation (simplified, light/dark themed) -->
       <nav *ngIf="!authService.isStoreOwner() && !authService.isAdmin()"
-        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-[#FBF4EA]/95 border-t border-[#E7DAC4] flex items-center justify-around safe-area-bottom shadow-[0_-8px_24px_-12px_rgba(120,70,20,0.25)] pb-[env(safe-area-inset-bottom)] transition-colors duration-200">
+        class="lg:hidden fixed bottom-0 inset-x-0 h-20 z-40 backdrop-blur-md bg-[#0E011E]/95 border-t border-[#D4AF37]/20 flex items-center justify-around safe-area-bottom shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)] transition-colors duration-200">
 
         <!-- Home Tab -->
-        <a routerLink="/home" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
+        <a routerLink="/home" routerLinkActive="text-[#FF8A00]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9C9C9C] hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
           </svg>
@@ -412,8 +411,8 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
         </a>
 
         <!-- Deals Tab -->
-        <a routerLink="/deals" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
+        <a routerLink="/deals" routerLinkActive="text-[#FF8A00]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9C9C9C] hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V4h9Z" />
             <circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none" />
@@ -423,7 +422,7 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
 
         <!-- Compare Tab (signature, elevated center) -->
         <a routerLink="/compare" class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 -mt-8">
-          <span class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_14px_24px_-8px_rgba(240,83,10,0.7)] border-4 border-[#FBF4EA]"
+          <span class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_14px_24px_-8px_rgba(240,83,10,0.7)] border-4 border-[#0E011E]"
             style="background:linear-gradient(180deg,#FF7A22,#F0530A)">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.9" stroke="#fff" class="w-6 h-6" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 3v18M7 21h10" />
@@ -432,12 +431,12 @@ import { NotificationBarComponent } from '../../shared/components/notification-b
               <path d="M5 7l7-2 7 2" />
             </svg>
           </span>
-          <span class="text-[10px] font-bold text-[#FF6A13]">Compare</span>
+          <span class="text-[10px] font-bold text-[#FF8A00]">Compare</span>
         </a>
 
         <!-- Orders Tab -->
-        <a routerLink="/orders" routerLinkActive="text-[#FF6A13]" [routerLinkActiveOptions]="{exact: true}"
-          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9B8B77] hover:text-[#241C15] transition">
+        <a routerLink="/orders" routerLinkActive="text-[#FF8A00]" [routerLinkActiveOptions]="{exact: true}"
+          class="flex-1 h-full flex flex-col items-center justify-center gap-1.5 text-[10px] font-bold text-[#9C9C9C] hover:text-white transition">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m6-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM3 20.25v-4.5a6 6 0 0 1 6-6h.75a.75.75 0 0 0 .75-.75V9a6 6 0 0 1 6-6h.75a.75.75 0 0 1 .75.75v.75a6 6 0 0 1-6 6h-.75a.75.75 0 0 0-.75.75v4.5a6 6 0 0 1-6 6h-.75a.75.75 0 0 1-.75-.75Z" />
           </svg>

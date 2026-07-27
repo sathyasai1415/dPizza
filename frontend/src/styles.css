@@ -8,15 +8,15 @@
   /* Core palette */
   --color-brand-red: #E53935;
   --color-brand-green: #22C55E;
-  --color-brand-black: #0E0E10;
+  --color-brand-black: #0E011E;
   --color-brand-orange: #FF8A00;
-  --color-brand-white: #F8F8F8;
+  --color-brand-white: #FFFFFF;
   
-  --color-surface-bg: #0E0E10;
+  --color-surface-bg: #0E011E;
   --color-surface-card: #18181B;
-  --color-text-primary: #F8F8F8;
-  --color-text-secondary: #B8B8B8;
-  --color-border: #2B2B31;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #FBF4EA;
+  --color-border: rgba(212, 175, 55, 0.15);
   --color-success: #22C55E;
 
   /* MiSlice Gold */
@@ -24,16 +24,29 @@
   --color-gold-premium: #C8A84A;
   --color-gold-light: #E6C96F;
   --color-gold-dark: #9B7A1A;
-  --color-text-soft-white: #F8F8F8;
+  --color-text-soft-white: #FFFFFF;
 }
 
-body {
-  background-color: #0E0E10 !important;
-  color: #F8F8F8 !important;
+html.dark body {
+  background: linear-gradient(135deg, #1E053D 0%, #0E011E 100%) !important;
+  background-attachment: fixed !important;
+  color: #FFFFFF !important;
 }
 
-body:has(app-home) {
-  background-color: #0E0E10 !important;
+html:not(.dark) body {
+  background: linear-gradient(135deg, #FBF4EA 0%, #F5E6D3 100%) !important;
+  background-attachment: fixed !important;
+  color: #241C15 !important;
+}
+
+html.dark body:has(app-home) {
+  background: linear-gradient(135deg, #1E053D 0%, #0E011E 100%) !important;
+  background-attachment: fixed !important;
+}
+
+html:not(.dark) body:has(app-home) {
+  background: linear-gradient(135deg, #FBF4EA 0%, #F5E6D3 100%) !important;
+  background-attachment: fixed !important;
 }
 
 /* MiSlice logo gradient — kept for the logo mark and Gold/Rewards accents only. */

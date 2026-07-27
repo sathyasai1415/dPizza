@@ -91,11 +91,11 @@ import { CartService } from '../../core/services/cart.service';
   `,
   styles: [`
     :host{
-      --o:#FF6A13; --o2:#F0530A; --o-soft:#FFE7D3;
-      --cream:#FBF4EA; --surface:#FFFFFF; --warm:#F2E9DA;
-      --ink:#241C15; --muted:#9B8B77; --faint:#C9BBA8;
-      --espresso:#20140C; --tomato:#E5462F; --basil:#4E9B5A;
-      --line:rgba(36,28,21,.10);
+      --o:#FF8A00; --o2:#D4AF37; --o-soft:rgba(212,175,55,0.15);
+      --cream:transparent; --surface:#0A0A0A; --warm:#111111;
+      --ink:#FFFFFF; --muted:#9C9C9C; --faint:rgba(255,255,255,0.3);
+      --espresso:#111111; --tomato:#E5462F; --basil:#4E9B5A;
+      --line:rgba(212,175,55,0.15);
       display:block; min-height:100%; background:var(--cream); color:var(--ink);
       font-family:"Plus Jakarta Sans", ui-rounded, system-ui, sans-serif;
     }

@@ -467,7 +467,7 @@ export class HomeRedesignComponent {
   pizzerias: Pizzeria[] = [
     {
       id: 1,
-      name: "Domino's",
+      name: "Shamz Pizza",
       rating: 4.5,
       priceRange: '$8-15',
       distance: 2.3,
@@ -477,7 +477,7 @@ export class HomeRedesignComponent {
     },
     {
       id: 2,
-      name: 'Pizza Hut',
+      name: 'Motor City Slice',
       rating: 4.8,
       priceRange: '$10-18',
       distance: 1.8,
@@ -487,7 +487,7 @@ export class HomeRedesignComponent {
     },
     {
       id: 3,
-      name: "Papa John's",
+      name: "Rambo's Pizza",
       rating: 4.3,
       priceRange: '$9-16',
       distance: 3.1,

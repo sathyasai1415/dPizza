@@ -146,6 +146,24 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit() {
     this.cartService.loadCart().subscribe();
+    // Pre-populate address from user_location stored in localStorage
+    const saved = localStorage.getItem('user_location');
+    if (saved) {
+      try {
+        const loc = JSON.parse(saved);
+        if (loc.street || loc.city) {
+          const parts = [
+            loc.street,
+            loc.city,
+            loc.state,
+            loc.zip
+          ].filter(Boolean);
+          this.address = parts.join(', ');
+        }
+      } catch (e) {
+        console.error('Error parsing saved location on checkout:', e);
+      }
+    }
   }
 
   setDeliveryType(type: string) {
@@ -174,6 +192,20 @@ export class CheckoutComponent implements OnInit {
     if (this.paymentMethod() === 'CARD' && this.cardNumber.trim().length < 12) {
       this.error.set('Please enter a valid mock card number.');
       return;
+    }
+
+    // Save potentially modified address to localStorage
+    if (this.deliveryType() === 'delivery' && this.address.trim()) {
+      try {
+        const parts = this.address.split(',').map(s => s.trim());
+        const street = parts[0] || '';
+        const city = parts[1] || 'Detroit';
+        const state = parts[2] || 'MI';
+        const zip = parts[3] || '48201';
+        localStorage.setItem('user_location', JSON.stringify({ street, city, state, zip }));
+      } catch (e) {
+        console.error('Error saving updated address on confirmOrder:', e);
+      }
     }
 
     this.error.set('');

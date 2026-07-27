@@ -199,7 +199,7 @@ export class NotificationBarComponent {
 
   items = signal<Notif[]>([
     { id: '1', icon: '🍕', title: 'Order on the way!', body: 'Your order from Shamz Pizza is out for delivery.', time: '2 min ago', read: false },
-    { id: '2', icon: '🏷️', title: 'New deal near you', body: "Marco's is running BOGO on all large pizzas today.", time: '1 hour ago', read: false },
+    { id: '2', icon: '🏷️', title: 'New deal near you', body: "Zumbo's Pizza is running BOGO on all large pizzas today.", time: '1 hour ago', read: false },
     { id: '3', icon: '⭐', title: 'Rate your last order', body: 'How was your pizza from Detroit Deep Dish?', time: 'Yesterday', read: true },
     { id: '4', icon: '🎁', title: 'You earned 50 points', body: 'Points added from your recent order.', time: '2 days ago', read: true },
   ]);

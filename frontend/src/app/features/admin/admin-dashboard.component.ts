@@ -358,14 +358,14 @@ export class AdminDashboardComponent implements OnInit {
 
   platformOrders = signal<PlatformOrder[]>([
     { id: '10982', storeName: 'Shamz Pizza', userEmail: 'customer@mislice.com', total: 11.99, status: 'DELIVERED' },
-    { id: '10983', storeName: "Domino's", userEmail: 'sathya@gmail.com', total: 14.99, status: 'PREPARING' },
+    { id: '10983', storeName: "Shamz Pizza", userEmail: 'sathya@gmail.com', total: 14.99, status: 'PREPARING' },
     { id: '10984', storeName: "Bunty's Pizza", userEmail: 'alex@mislice.com', total: 10.99, status: 'PLACED' }
   ]);
 
   payouts = signal<Payout[]>([
     { id: '1', storeName: 'Shamz Pizza', amount: 450.00, status: 'PENDING', date: '2026-07-08' },
     { id: '2', storeName: "Bunty's Pizza", amount: 280.00, status: 'PENDING', date: '2026-07-08' },
-    { id: '3', storeName: "Domino's", amount: 1200.00, status: 'PAID', date: '2026-07-01' }
+    { id: '3', storeName: "Shamz Pizza", amount: 1200.00, status: 'PAID', date: '2026-07-01' }
   ]);
 
   coupons = signal<PlatformCoupon[]>([

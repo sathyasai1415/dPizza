@@ -110,22 +110,25 @@ import { Quote, DeliveryProviderOption } from '../../shared/models';
   `,
   styles: [`
     :host{
-      --o:#FF6A13; --o2:#F0530A; --o-soft:#FFE7D3;
-      --cream:#FBF4EA; --surface:#FFFFFF; --warm:#F2E9DA;
-      --ink:#241C15; --muted:#9B8B77; --faint:#C9BBA8;
-      --espresso:#20140C; --tomato:#E5462F; --gold:#F6A623; --basil:#4E9B5A;
-      --line:rgba(36,28,21,.10);
+      --o:#FF8A00; --o2:#D4AF37; --o-soft:rgba(212,175,55,0.15);
+      --cream:transparent; --surface:#0A0A0A; --warm:#111111;
+      --ink:#FFFFFF; --muted:#9C9C9C; --faint:rgba(255,255,255,0.3);
+      --espresso:#111111; --tomato:#E5462F; --gold:#D4AF37; --basil:#4E9B5A;
+      --line:rgba(212,175,55,0.15);
       display:block; min-height:100%; background:var(--cream); color:var(--ink);
       font-family:"Plus Jakarta Sans", ui-rounded, system-ui, sans-serif;
     }
     .cmp{max-width:640px; margin:0 auto; padding:18px 18px 32px; display:flex; flex-direction:column; gap:14px;}
     .banner{border-radius:14px; padding:13px 16px; font-weight:700; font-size:13.5px; text-align:center;}
-    .banner.ok{background:rgba(78,155,90,.14); color:#2f7d43;}
+    .banner.ok{background:rgba(78,155,90,.14); color:#4E9B5A;}
     .banner.err{background:rgba(229,70,47,.12); color:var(--tomato);}
 
     .subject{display:flex; align-items:center; gap:13px; padding:15px 16px; border-radius:20px;
-      background:radial-gradient(120% 130% at 88% 12%, #35251a 0%, var(--espresso) 62%); color:#fff;}
-    .subject .th{width:52px; height:52px; border-radius:14px; background:radial-gradient(circle at 50% 40%,#FFF0DC,#FBE7CE);
+      background:linear-gradient(135deg, #1E053D 0%, #0E011E 100%); color:#fff;
+      border:1px solid rgba(212,175,55,0.25);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .subject .th{width:52px; height:52px; border-radius:14px; background:radial-gradient(circle at 50% 40%,#1E053D,#0E011E);
       display:grid; place-items:center; font-size:26px; flex:none;}
     .subject .lbl{font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--gold);}
     .subject h2{font-weight:800; font-size:18px; letter-spacing:-.02em; margin:3px 0 2px;}

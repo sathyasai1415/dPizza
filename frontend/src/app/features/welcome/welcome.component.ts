@@ -24,15 +24,15 @@ type Mode = 'login' | 'store' | 'demo' | 'admin' | 'register';
       <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60 z-[1]"></div>
 
       <!-- HEADER NAVIGATION -->
-      <header class="relative z-10 w-full px-6 py-5 flex items-center justify-between">
+      <header class="relative z-10 w-full px-4 sm:px-6 py-5 flex items-center justify-between">
         <!-- Logo -->
         <a routerLink="/home" class="flex items-center gap-2 select-none">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-inner animate-pulse" style="background: var(--gradient-mislice);">🍕</div>
-          <span class="font-black text-lg tracking-tight"><span class="text-[#FF8A00]">MI</span><span class="text-[#D4AF37]">Slice</span></span>
+          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs sm:text-sm shadow-inner animate-pulse" style="background: var(--gradient-mislice);">🍕</div>
+          <span class="font-black text-base sm:text-lg tracking-tight"><span class="text-[#FF8A00]">MI</span><span class="text-[#D4AF37]">Slice</span></span>
         </a>
-        <div class="flex items-center gap-3">
-          <button (click)="openSignInModal('login')" class="px-4.5 py-2 rounded-full text-xs font-black bg-white text-black hover:bg-neutral-200 transition">Log in</button>
-          <button (click)="openSignInModal('register')" class="px-4.5 py-2 rounded-full text-xs font-black bg-[#D4AF37] text-black hover:brightness-110 transition">Sign up</button>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button (click)="openSignInModal('login')" class="px-4.5 py-2.5 rounded-full text-xs font-black bg-[#D4AF37] text-black hover:brightness-110 transition shadow-md cursor-pointer">Log in</button>
+          <button (click)="openSignInModal('register')" class="hidden sm:inline-block px-4.5 py-2.5 rounded-full text-xs font-black bg-white text-black hover:bg-neutral-200 transition cursor-pointer">Sign up</button>
         </div>
       </header>
 
@@ -727,21 +727,26 @@ export class WelcomeComponent {
     }
   }
 
-  onLocationSelected(location: { city: string; state?: string; phone?: string }) {
+  onLocationSelected(location: { street: string; city: string; state?: string; zip?: string }) {
     // Save location to localStorage or service
     localStorage.setItem('user_location', JSON.stringify(location));
+    this.locationService.selectCity(location.city);
     this.showLocationModal.set(false);
-    this.showWelcomePoster.set(true);
+    const user = this.pendingUser();
+    if (user) {
+      this.performFinalRedirect(user);
+    }
   }
 
   onLocationSkipped() {
-    // Skip location, go straight to poster
     this.showLocationModal.set(false);
-    this.showWelcomePoster.set(true);
+    const user = this.pendingUser();
+    if (user) {
+      this.performFinalRedirect(user);
+    }
   }
 
   onPosterClosed() {
-    // After seeing poster, redirect to home
     this.showWelcomePoster.set(false);
     const user = this.pendingUser();
     if (user) {
@@ -756,7 +761,6 @@ export class WelcomeComponent {
     } else if (roles.includes('RESTAURANT_OWNER') || roles.includes('RESTAURANT_STAFF')) {
       this.router.navigate(['/owner']);
     } else {
-      this.onboarding.triggerWelcome();
       this.router.navigate(['/home']);
     }
   }

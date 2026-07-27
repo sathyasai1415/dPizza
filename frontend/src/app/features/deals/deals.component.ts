@@ -21,17 +21,17 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="w-full space-y-6 max-w-[1400px] mx-auto px-4 py-6 bg-[#0E0E10]">
+    <div class="w-full space-y-6 max-w-[1400px] mx-auto px-4 py-6 bg-transparent text-neutral-800 dark:text-white">
       <!-- Header -->
-      <div class="relative overflow-hidden rounded-[28px] border border-[#2B2B31] p-6 sm:p-8 bg-gradient-to-r from-[#18181B] to-[#1E1E22] shadow-xl">
+      <div class="relative overflow-hidden rounded-[28px] border border-neutral-200 dark:border-neutral-800 p-5 sm:p-8 bg-white dark:bg-[#0A0A0A] shadow-xl">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.08),transparent_45%)] pointer-events-none"></div>
         <div class="relative z-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <span class="inline-flex items-center gap-2 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest border border-[#D4AF37]/35">🔥 Live Michigan Deals</span>
-            <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold text-white">Deals &amp; Offers</h1>
-            <p class="mt-2 text-sm text-[#B8B8B8] font-semibold">The best pizza deals from restaurants near you — right now.</p>
+            <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold text-neutral-900 dark:text-white">Deals &amp; Offers</h1>
+            <p class="mt-2 text-sm text-neutral-600 dark:text-[#B8B8B8] font-semibold">The best pizza deals from restaurants near you — right now.</p>
           </div>
-          <button (click)="requestLocation()" class="shrink-0 self-start sm:self-auto text-xs font-bold text-white bg-[#1E1E22] border border-[#2B2B31] hover:border-[#D4AF37] px-4 py-2.5 rounded-2xl hover:bg-white/5 transition shadow-sm">
+          <button (click)="requestLocation()" class="shrink-0 self-start sm:self-auto text-xs font-bold text-neutral-700 dark:text-white bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#2B2B31] hover:border-[#D4AF37] px-4 py-2.5 rounded-2xl hover:bg-white/5 transition shadow-sm">
             {{ userLoc() ? '📍 Near you · on' : '📍 Use my location' }}
           </button>
         </div>
@@ -41,47 +41,47 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
         
         <!-- LEFT SIDEBAR: FILTERS -->
         <div class="hidden lg:block w-56 shrink-0 space-y-6 sticky top-6">
-          <h3 class="text-xl font-extrabold text-white tracking-tight border-b border-[#2B2B31] pb-2">Filters</h3>
+          <h3 class="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight border-b border-neutral-200 dark:border-[#2B2B31] pb-2">Filters</h3>
           
           <div class="space-y-4 pt-2">
             
             <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-[#B8B8B8] group-hover:text-white transition">Free Delivery</span>
+              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Free Delivery</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" (change)="toggleFilter('free_delivery')" [checked]="filters().includes('free_delivery')" />
-                <div class="w-10 h-6 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
+                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
               </div>
             </label>
             
             <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-[#B8B8B8] group-hover:text-white transition">Favourites</span>
+              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Favourites</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" (change)="toggleFilter('favourites')" [checked]="filters().includes('favourites')" />
-                <div class="w-10 h-6 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
+                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
               </div>
             </label>
 
             <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-[#B8B8B8] group-hover:text-white transition">4.5+ Stars</span>
+              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">4.5+ Stars</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" (change)="toggleFilter('rating')" [checked]="filters().includes('rating')" />
-                <div class="w-10 h-6 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
+                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
               </div>
             </label>
 
             <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-[#B8B8B8] group-hover:text-white transition">Open Now</span>
+              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Open Now</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" (change)="toggleFilter('open_now')" [checked]="filters().includes('open_now')" />
-                <div class="w-10 h-6 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
+                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
               </div>
             </label>
 
             <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-[#B8B8B8] group-hover:text-white transition">Under $10</span>
+              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Under $10</span>
               <div class="relative">
                 <input type="checkbox" class="sr-only peer" (change)="toggleFilter('under10')" [checked]="filters().includes('under10')" />
-                <div class="w-10 h-6 bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
+                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
               </div>
             </label>
 
@@ -98,7 +98,7 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
                 @for (c of categories; track c.id) {
                   @if (c.id === 'all' || countFor(c) > 0) {
                     <button (click)="activeCat.set(c.id)"
-                      [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ' + (activeCat() === c.id ? 'bg-[#D4AF37] text-black font-extrabold' : 'bg-[#18181B] text-[#B8B8B8] hover:text-white border border-[#2B2B31]')">
+                      [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ' + (activeCat() === c.id ? 'bg-[#D4AF37] text-black font-extrabold' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-[#2B2B31]')">
                       {{ c.label }}<span class="opacity-60 ml-1.5">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
                     </button>
                   }
@@ -107,7 +107,7 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
 
               <!-- Sort -->
               <select [ngModel]="sort()" (ngModelChange)="sort.set($any($event))"
-                class="shrink-0 bg-[#18181B] border border-[#2B2B31] rounded-xl px-4 py-2.5 text-xs font-bold text-white outline-none focus:border-[#D4AF37] shadow-sm cursor-pointer">
+                class="shrink-0 bg-white dark:bg-[#18181B] border border-neutral-200 dark:border-[#2B2B31] rounded-xl px-4 py-2.5 text-xs font-bold text-neutral-800 dark:text-white outline-none focus:border-[#D4AF37] shadow-sm cursor-pointer">
                 <option value="discount">Sort: Best Discount</option>
                 <option value="expiring">Expiring Soon</option>
                 <option value="price">Price: Low → High</option>
@@ -119,42 +119,42 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
             <!-- Mobile Filters (visible on md/sm and below, hidden on lg) -->
             <div class="lg:hidden flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none pt-1">
               <button (click)="toggleFilter('free_delivery')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('free_delivery') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('free_delivery') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
                 🛵 Free Delivery
               </button>
               <button (click)="toggleFilter('favourites')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('favourites') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('favourites') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
                 ❤️ Favourites
               </button>
               <button (click)="toggleFilter('rating')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('rating') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('rating') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
                 ★ 4.5+ Stars
               </button>
               <button (click)="toggleFilter('open_now')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('open_now') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('open_now') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
                 🟢 Open Now
               </button>
               <button (click)="toggleFilter('under10')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('under10') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-[#18181B] text-[#B8B8B8] border-[#2B2B31]')">
+                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('under10') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
                 💰 Under $10
               </button>
             </div>
           </div>
 
           <!-- Loading -->
-          <div *ngIf="loading()" class="flex justify-center py-16"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-[#E53935]"></div></div>
+          <div *ngIf="loading()" class="flex justify-center py-16"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-[#D4AF37]"></div></div>
 
           <!-- Empty -->
-          <div *ngIf="!loading() && visible().length === 0" class="clay rounded-[2rem] p-12 text-center text-white bg-[#18181B] shadow-inner border border-[#2B2B31]">
+          <div *ngIf="!loading() && visible().length === 0" class="clay rounded-[2rem] p-12 text-center bg-white dark:bg-[#18181B] text-neutral-800 dark:text-white shadow-inner border border-neutral-200 dark:border-[#2B2B31]">
             <p class="text-5xl mb-4">🏷️</p>
-            <p class="text-xl font-bold text-white mb-2">No deals match this view</p>
-            <p class="text-xs text-neutral-400 max-w-md mx-auto">Try a different category or clear your filters — new offers post all the time.</p>
+            <p class="text-xl font-bold text-neutral-900 dark:text-white mb-2">No deals match this view</p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">Try a different category or clear your filters — new offers post all the time.</p>
           </div>
 
           <!-- Deals grid with glassmorphism -->
-          <div *ngIf="!loading() && visible().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div *ngIf="!loading() && visible().length > 0" class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 sm:gap-6 justify-center">
             @for (vm of visible(); track vm.deal.id) {
-              <div class="group rounded-[20px] overflow-hidden flex flex-col backdrop-blur-md bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:bg-white/8 hover:scale-105">
+              <div class="group rounded-[20px] overflow-hidden flex flex-col backdrop-blur-md bg-white/70 dark:bg-[#0A0A0A]/50 border border-neutral-200 dark:border-white/10 hover:border-[#D4AF37]/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] shadow-sm">
                 <!-- image / banner -->
                 <div class="relative h-40 sm:h-48 flex items-center justify-center text-5xl overflow-hidden"
                   [style.background]="vm.store?.brandColor || 'linear-gradient(135deg,#7f1d1d,#c2410c)'">
@@ -171,24 +171,24 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
                   <div class="flex items-center gap-3">
                     <span class="text-2xl">{{ vm.store?.emoji || '🏪' }}</span>
                     <div class="flex-1 min-w-0">
-                      <p class="text-sm font-bold text-white truncate">{{ vm.store?.name || 'Local Pizzeria' }}</p>
-                      <p class="text-xs text-white/50">{{ vm.store?.city || 'Local Area' }}</p>
+                      <p class="text-sm font-bold text-neutral-900 dark:text-white truncate">{{ vm.store?.name || 'Local Pizzeria' }}</p>
+                      <p class="text-xs text-neutral-500 dark:text-white/50">{{ vm.store?.city || 'Local Area' }}</p>
                     </div>
-                    <span class="text-xs font-bold text-[#D4AF37] bg-white/10 px-2 py-1 rounded-lg shrink-0">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
+                    <span class="text-xs font-bold text-[#D4AF37] bg-neutral-200/50 dark:bg-white/10 px-2 py-1 rounded-lg shrink-0">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
                   </div>
 
                   <!-- deal info -->
                   <div class="space-y-1.5">
-                    <p class="text-base sm:text-lg font-bold text-white leading-tight line-clamp-2">{{ vm.deal.title }}</p>
-                    <p class="text-xs text-white/60 line-clamp-2">{{ vm.deal.description }}</p>
+                    <p class="text-base sm:text-lg font-bold text-neutral-900 dark:text-white leading-tight line-clamp-2">{{ vm.deal.title }}</p>
+                    <p class="text-xs text-neutral-500 dark:text-white/60 line-clamp-2">{{ vm.deal.description }}</p>
                   </div>
 
                   <!-- price section -->
-                  <div class="space-y-3 py-4 border-t border-b border-white/10">
+                  <div class="space-y-3 py-4 border-t border-b border-neutral-200 dark:border-white/10">
                     <div class="flex items-baseline gap-2">
                       <span class="text-3xl font-black text-[#E53935]">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
                       @if (vm.deal.originalPrice && vm.deal.originalPrice > (vm.deal.discountedPrice ?? 0)) {
-                        <span class="text-sm text-white/40 line-through">{{ vm.deal.originalPrice | currency }}</span>
+                        <span class="text-sm text-neutral-400 dark:text-white/40 line-through">{{ vm.deal.originalPrice | currency }}</span>
                       }
                     </div>
                     @if (vm.savings > 0) {
@@ -197,30 +197,30 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
                   </div>
 
                   <!-- meta info grid -->
-                  <div class="grid grid-cols-3 gap-2 text-xs text-white/60">
+                  <div class="grid grid-cols-3 gap-2 text-xs text-neutral-500 dark:text-white/60">
                     <div class="flex flex-col items-start gap-1">
                       <span class="text-lg">⏱️</span>
-                      <span class="font-semibold text-white">{{ vm.store?.averageEtaMinutes || 25 }}m</span>
+                      <span class="font-semibold text-neutral-900 dark:text-white">{{ vm.store?.averageEtaMinutes || 25 }}m</span>
                     </div>
                     <div class="flex flex-col items-start gap-1">
                       <span class="text-lg">🛵</span>
-                      <span class="font-semibold text-white text-[11px] line-clamp-1">{{ (vm.store?.deliveryFee ?? 0) > 0 ? (vm.store?.deliveryFee | currency) : 'Free' }}</span>
+                      <span class="font-semibold text-neutral-900 dark:text-white text-[11px] line-clamp-1">{{ (vm.store?.deliveryFee ?? 0) > 0 ? (vm.store?.deliveryFee | currency) : 'Free' }}</span>
                     </div>
                     <div class="flex flex-col items-start gap-1">
                       <span class="text-lg">📍</span>
                       @if (vm.distanceMi != null) {
-                        <span class="font-semibold text-white">{{ vm.distanceMi | number:'1.0-1' }}m</span>
+                        <span class="font-semibold text-neutral-900 dark:text-white">{{ vm.distanceMi | number:'1.0-1' }}m</span>
                       }
                       @else if (vm.store?.city) {
-                        <span class="font-semibold text-white text-[11px] line-clamp-1">{{ vm.store?.city }}</span>
+                        <span class="font-semibold text-neutral-900 dark:text-white text-[11px] line-clamp-1">{{ vm.store?.city }}</span>
                       }
                     </div>
                   </div>
 
                   <!-- actions -->
                   <div class="grid grid-cols-2 gap-2 pt-2">
-                    <button (click)="viewDeal(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-white/10 to-white/5 border border-white/20 hover:from-white/20 hover:to-white/10 hover:border-white/30 transition-all duration-300 backdrop-blur-sm hover:shadow-md">Details</button>
-                    <button (click)="orderNow(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#E53935] to-[#D4371A] hover:from-[#F44336] hover:to-[#E53935] transition-all duration-300 shadow-lg hover:shadow-[#E53935]/50 transform hover:-translate-y-0.5">Order</button>
+                    <button (click)="viewDeal(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-white bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/20 hover:bg-neutral-200 dark:hover:bg-white/10 transition-all duration-300 backdrop-blur-sm hover:shadow-md">Details</button>
+                    <button (click)="orderNow(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#FF7A22] to-[#F0530A] hover:brightness-110 transition-all duration-300 shadow-md">Order</button>
                   </div>
                 </div>
               </div>
