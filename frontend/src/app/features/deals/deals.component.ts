@@ -21,215 +21,203 @@ interface Category { id: string; label: string; match: (d: DealVM) => boolean; }
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyPipe],
   template: `
-    <div class="w-full space-y-6 max-w-[1400px] mx-auto px-4 py-6 bg-transparent text-neutral-800 dark:text-white">
-      <!-- Header -->
-      <div class="relative overflow-hidden rounded-[28px] border border-neutral-200 dark:border-neutral-800 p-5 sm:p-8 bg-white dark:bg-[#0A0A0A] shadow-xl">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.08),transparent_45%)] pointer-events-none"></div>
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <span class="inline-flex items-center gap-2 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest border border-[#D4AF37]/35">🔥 Live Michigan Deals</span>
-            <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold text-neutral-900 dark:text-white">Deals &amp; Offers</h1>
-            <p class="mt-2 text-sm text-neutral-600 dark:text-[#B8B8B8] font-semibold">The best pizza deals from restaurants near you — right now.</p>
-          </div>
-          <button (click)="requestLocation()" class="shrink-0 self-start sm:self-auto text-xs font-bold text-neutral-700 dark:text-white bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#2B2B31] hover:border-[#D4AF37] px-4 py-2.5 rounded-2xl hover:bg-white/5 transition shadow-sm">
-            {{ userLoc() ? '📍 Near you · on' : '📍 Use my location' }}
-          </button>
-        </div>
+    <div class="deals">
+      <!-- Hero -->
+      <div class="hero">
+        <span class="pill">🔥 Live Michigan Deals</span>
+        <h1>Deals &amp; Offers</h1>
+        <p>The best pizza deals from local Michigan pizzerias — right now.</p>
+        <button class="loc" (click)="requestLocation()">{{ userLoc() ? '📍 Near you · on' : '📍 Use my location' }}</button>
       </div>
 
-      <div class="flex flex-col lg:flex-row gap-8 items-start">
-        
-        <!-- LEFT SIDEBAR: FILTERS -->
-        <div class="hidden lg:block w-56 shrink-0 space-y-6 sticky top-6">
-          <h3 class="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight border-b border-neutral-200 dark:border-[#2B2B31] pb-2">Filters</h3>
-          
-          <div class="space-y-4 pt-2">
-            
-            <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Free Delivery</span>
-              <div class="relative">
-                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('free_delivery')" [checked]="filters().includes('free_delivery')" />
-                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
-              </div>
-            </label>
-            
-            <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Favourites</span>
-              <div class="relative">
-                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('favourites')" [checked]="filters().includes('favourites')" />
-                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
-              </div>
-            </label>
+      <!-- Category chips (scroll contained) -->
+      <div class="chips">
+        @for (c of categories; track c.id) {
+          @if (c.id === 'all' || countFor(c) > 0) {
+            <button [class.on]="activeCat() === c.id" (click)="activeCat.set(c.id)">
+              {{ c.label }}<span class="n">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
+            </button>
+          }
+        }
+      </div>
 
-            <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">4.5+ Stars</span>
-              <div class="relative">
-                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('rating')" [checked]="filters().includes('rating')" />
-                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
-              </div>
-            </label>
+      <!-- Sort -->
+      <select class="sortsel" [ngModel]="sort()" (ngModelChange)="sort.set($any($event))">
+        <option value="discount">Sort: Best Discount</option>
+        <option value="expiring">Expiring Soon</option>
+        <option value="price">Price: Low → High</option>
+        <option value="distance">Nearest</option>
+        <option value="rating">Top Rated</option>
+      </select>
 
-            <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Open Now</span>
-              <div class="relative">
-                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('open_now')" [checked]="filters().includes('open_now')" />
-                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
-              </div>
-            </label>
+      <!-- Filter chips (scroll contained) -->
+      <div class="fchips">
+        <button [class.on]="filters().includes('free_delivery')" (click)="toggleFilter('free_delivery')">🛵 Free Delivery</button>
+        <button [class.on]="filters().includes('favourites')" (click)="toggleFilter('favourites')">❤️ Favourites</button>
+        <button [class.on]="filters().includes('rating')" (click)="toggleFilter('rating')">★ 4.5+ Stars</button>
+        <button [class.on]="filters().includes('open_now')" (click)="toggleFilter('open_now')">🟢 Open Now</button>
+        <button [class.on]="filters().includes('under10')" (click)="toggleFilter('under10')">💰 Under $10</button>
+      </div>
 
-            <label class="flex items-center justify-between cursor-pointer group">
-              <span class="text-sm font-semibold text-neutral-600 dark:text-[#B8B8B8] group-hover:text-neutral-950 dark:group-hover:text-white transition">Under $10</span>
-              <div class="relative">
-                <input type="checkbox" class="sr-only peer" (change)="toggleFilter('under10')" [checked]="filters().includes('under10')" />
-                <div class="w-10 h-6 bg-neutral-200 dark:bg-neutral-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E53935] peer-focus:outline-none"></div>
-              </div>
-            </label>
+      @if (loading()) {
+        <div class="loading"><div class="spinner"></div></div>
+      }
 
-          </div>
+      @if (!loading() && visible().length === 0) {
+        <div class="empty">
+          <p class="ico">🏷️</p>
+          <p class="t">No deals match this view</p>
+          <p class="s">Try a different category or clear your filters — new offers post all the time.</p>
         </div>
+      }
 
-        <!-- MAIN CONTENT -->
-        <div class="flex-1 min-w-0 space-y-6">
-          
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <!-- Category chips -->
-              <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none flex-1">
-                @for (c of categories; track c.id) {
-                  @if (c.id === 'all' || countFor(c) > 0) {
-                    <button (click)="activeCat.set(c.id)"
-                      [class]="'shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ' + (activeCat() === c.id ? 'bg-[#D4AF37] text-black font-extrabold' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-[#2B2B31]')">
-                      {{ c.label }}<span class="opacity-60 ml-1.5">{{ c.id === 'all' ? vms().length : countFor(c) }}</span>
-                    </button>
-                  }
-                }
+      @if (!loading() && visible().length > 0) {
+        <div class="dgrid">
+          @for (vm of visible(); track vm.deal.id) {
+            <div class="dcard">
+              <div class="dbanner" [style.background]="vm.store?.brandColor || 'linear-gradient(135deg,#1E053D,#0E011E)'">
+                <img *ngIf="vm.deal.imageUrl" [src]="vm.deal.imageUrl" alt="" />
+                <span *ngIf="!vm.deal.imageUrl" class="pie">🍕</span>
+                @if (vm.pct > 0) { <span class="bsave">SAVE {{ vm.pct }}%</span> }
+                <span class="btime">{{ timeLeft(vm.deal) }}</span>
               </div>
 
-              <!-- Sort -->
-              <select [ngModel]="sort()" (ngModelChange)="sort.set($any($event))"
-                class="shrink-0 bg-white dark:bg-[#18181B] border border-neutral-200 dark:border-[#2B2B31] rounded-xl px-4 py-2.5 text-xs font-bold text-neutral-800 dark:text-white outline-none focus:border-[#D4AF37] shadow-sm cursor-pointer">
-                <option value="discount">Sort: Best Discount</option>
-                <option value="expiring">Expiring Soon</option>
-                <option value="price">Price: Low → High</option>
-                <option value="distance">Nearest</option>
-                <option value="rating">Top Rated</option>
-              </select>
-            </div>
-
-            <!-- Mobile Filters (visible on md/sm and below, hidden on lg) -->
-            <div class="lg:hidden flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none pt-1">
-              <button (click)="toggleFilter('free_delivery')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('free_delivery') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
-                🛵 Free Delivery
-              </button>
-              <button (click)="toggleFilter('favourites')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('favourites') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
-                ❤️ Favourites
-              </button>
-              <button (click)="toggleFilter('rating')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('rating') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
-                ★ 4.5+ Stars
-              </button>
-              <button (click)="toggleFilter('open_now')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('open_now') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
-                🟢 Open Now
-              </button>
-              <button (click)="toggleFilter('under10')"
-                [class]="'shrink-0 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition border whitespace-nowrap shadow-sm ' + (filters().includes('under10') ? 'bg-[#E53935] text-white border-[#E53935]' : 'bg-white dark:bg-[#18181B] text-neutral-600 dark:text-[#B8B8B8] border-neutral-200 dark:border-[#2B2B31]')">
-                💰 Under $10
-              </button>
-            </div>
-          </div>
-
-          <!-- Loading -->
-          <div *ngIf="loading()" class="flex justify-center py-16"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-[#D4AF37]"></div></div>
-
-          <!-- Empty -->
-          <div *ngIf="!loading() && visible().length === 0" class="clay rounded-[2rem] p-12 text-center bg-white dark:bg-[#18181B] text-neutral-800 dark:text-white shadow-inner border border-neutral-200 dark:border-[#2B2B31]">
-            <p class="text-5xl mb-4">🏷️</p>
-            <p class="text-xl font-bold text-neutral-900 dark:text-white mb-2">No deals match this view</p>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">Try a different category or clear your filters — new offers post all the time.</p>
-          </div>
-
-          <!-- Deals grid with glassmorphism -->
-          <div *ngIf="!loading() && visible().length > 0" class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 sm:gap-6 justify-center">
-            @for (vm of visible(); track vm.deal.id) {
-              <div class="group rounded-[20px] overflow-hidden flex flex-col backdrop-blur-md bg-white/70 dark:bg-[#0A0A0A]/50 border border-neutral-200 dark:border-white/10 hover:border-[#D4AF37]/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] shadow-sm">
-                <!-- image / banner -->
-                <div class="relative h-40 sm:h-48 flex items-center justify-center text-5xl overflow-hidden"
-                  [style.background]="vm.store?.brandColor || 'linear-gradient(135deg,#7f1d1d,#c2410c)'">
-                  <img *ngIf="vm.deal.imageUrl" [src]="vm.deal.imageUrl" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
-                  <span *ngIf="!vm.deal.imageUrl" class="group-hover:scale-125 transition duration-500">🍕</span>
-                  @if (vm.pct > 0) {
-                    <span class="absolute top-4 left-4 text-[12px] font-black text-black bg-gradient-to-r from-[#D4AF37] to-[#E5BF47] px-3 py-1.5 rounded-full shadow-lg">SAVE {{ vm.pct }}%</span>
-                  }
-                  <span class="absolute top-4 right-4 text-[11px] font-bold text-white bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-white/10">{{ timeLeft(vm.deal) }}</span>
+              <div class="dbody">
+                <div class="rrow">
+                  <span class="remoji">{{ vm.store?.emoji || '🏪' }}</span>
+                  <div class="rn">
+                    <p class="name">{{ vm.store?.name || 'Local Pizzeria' }}</p>
+                    <p class="city">{{ vm.store?.city || 'Local Area' }}</p>
+                  </div>
+                  <span class="rate">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
                 </div>
 
-                <div class="p-5 sm:p-6 flex flex-col flex-1 gap-4">
-                  <!-- restaurant row -->
-                  <div class="flex items-center gap-3">
-                    <span class="text-2xl">{{ vm.store?.emoji || '🏪' }}</span>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-bold text-neutral-900 dark:text-white truncate">{{ vm.store?.name || 'Local Pizzeria' }}</p>
-                      <p class="text-xs text-neutral-500 dark:text-white/50">{{ vm.store?.city || 'Local Area' }}</p>
-                    </div>
-                    <span class="text-xs font-bold text-[#D4AF37] bg-neutral-200/50 dark:bg-white/10 px-2 py-1 rounded-lg shrink-0">★ {{ (vm.store?.ratingAvg || 4.5) | number:'1.1-1' }}</span>
-                  </div>
+                <div class="dinfo">
+                  <p class="dtitle">{{ vm.deal.title }}</p>
+                  <p class="ddesc">{{ vm.deal.description }}</p>
+                </div>
 
-                  <!-- deal info -->
-                  <div class="space-y-1.5">
-                    <p class="text-base sm:text-lg font-bold text-neutral-900 dark:text-white leading-tight line-clamp-2">{{ vm.deal.title }}</p>
-                    <p class="text-xs text-neutral-500 dark:text-white/60 line-clamp-2">{{ vm.deal.description }}</p>
-                  </div>
-
-                  <!-- price section -->
-                  <div class="space-y-3 py-4 border-t border-b border-neutral-200 dark:border-white/10">
-                    <div class="flex items-baseline gap-2">
-                      <span class="text-3xl font-black text-[#E53935]">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
-                      @if (vm.deal.originalPrice && vm.deal.originalPrice > (vm.deal.discountedPrice ?? 0)) {
-                        <span class="text-sm text-neutral-400 dark:text-white/40 line-through">{{ vm.deal.originalPrice | currency }}</span>
-                      }
-                    </div>
-                    @if (vm.savings > 0) {
-                      <p class="text-xs font-bold text-[#22C55E] bg-[#22C55E]/15 px-3 py-1.5 rounded-lg border border-[#22C55E]/30 inline-block">You save {{ vm.savings | currency }}</p>
+                <div class="dprice">
+                  <div class="prow">
+                    <span class="now">{{ (vm.deal.discountedPrice ?? vm.deal.originalPrice) | currency }}</span>
+                    @if (vm.deal.originalPrice && vm.deal.originalPrice > (vm.deal.discountedPrice ?? 0)) {
+                      <span class="was">{{ vm.deal.originalPrice | currency }}</span>
                     }
                   </div>
+                  @if (vm.savings > 0) {
+                    <span class="savepill">You save {{ vm.savings | currency }}</span>
+                  }
+                </div>
 
-                  <!-- meta info grid -->
-                  <div class="grid grid-cols-3 gap-2 text-xs text-neutral-500 dark:text-white/60">
-                    <div class="flex flex-col items-start gap-1">
-                      <span class="text-lg">⏱️</span>
-                      <span class="font-semibold text-neutral-900 dark:text-white">{{ vm.store?.averageEtaMinutes || 25 }}m</span>
-                    </div>
-                    <div class="flex flex-col items-start gap-1">
-                      <span class="text-lg">🛵</span>
-                      <span class="font-semibold text-neutral-900 dark:text-white text-[11px] line-clamp-1">{{ (vm.store?.deliveryFee ?? 0) > 0 ? (vm.store?.deliveryFee | currency) : 'Free' }}</span>
-                    </div>
-                    <div class="flex flex-col items-start gap-1">
-                      <span class="text-lg">📍</span>
-                      @if (vm.distanceMi != null) {
-                        <span class="font-semibold text-neutral-900 dark:text-white">{{ vm.distanceMi | number:'1.0-1' }}m</span>
-                      }
-                      @else if (vm.store?.city) {
-                        <span class="font-semibold text-neutral-900 dark:text-white text-[11px] line-clamp-1">{{ vm.store?.city }}</span>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- actions -->
-                  <div class="grid grid-cols-2 gap-2 pt-2">
-                    <button (click)="viewDeal(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-white bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/20 hover:bg-neutral-200 dark:hover:bg-white/10 transition-all duration-300 backdrop-blur-sm hover:shadow-md">Details</button>
-                    <button (click)="orderNow(vm)" class="py-3 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#FF7A22] to-[#F0530A] hover:brightness-110 transition-all duration-300 shadow-md">Order</button>
+                <div class="meta">
+                  <div class="mi"><span class="e">⏱️</span><span class="v">{{ vm.store?.averageEtaMinutes || 25 }}m</span></div>
+                  <div class="mi"><span class="e">🛵</span><span class="v">{{ (vm.store?.deliveryFee ?? 0) > 0 ? (vm.store?.deliveryFee | currency) : 'Free' }}</span></div>
+                  <div class="mi"><span class="e">📍</span>
+                    @if (vm.distanceMi != null) { <span class="v">{{ vm.distanceMi | number:'1.0-1' }}mi</span> }
+                    @else { <span class="v">{{ vm.store?.city || '—' }}</span> }
                   </div>
                 </div>
+
+                <div class="dactions">
+                  <button class="details" (click)="viewDeal(vm)">Details</button>
+                  <button class="order" (click)="orderNow(vm)">Order</button>
+                </div>
               </div>
-            }
-          </div>
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
   `,
+  styles: [`
+    :host{
+      --o:#FF8A00; --gold:#D4AF37; --surface:#0A0A0A; --warm:#141414;
+      --ink:#FFFFFF; --muted:#9C9C9C; --tomato:#E5462F; --basil:#4E9B5A;
+      --line:rgba(212,175,55,0.18);
+      display:block; min-height:100%; background:transparent; color:var(--ink);
+      font-family:"Plus Jakarta Sans", ui-rounded, system-ui, sans-serif;
+    }
+    .deals{max-width:640px; margin:0 auto; padding:16px 16px 40px; display:flex; flex-direction:column; gap:12px; overflow-x:hidden;}
+
+    .hero{position:relative; overflow:hidden; border-radius:22px; padding:22px 20px;
+      background:linear-gradient(135deg,#1E053D 0%,#0E011E 100%); border:1px solid var(--line); box-shadow:0 10px 28px rgba(0,0,0,.45);}
+    .hero .pill{display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+      color:var(--gold); background:rgba(212,175,55,.12); border:1px solid rgba(212,175,55,.35); padding:6px 12px; border-radius:999px;}
+    .hero h1{font-weight:800; font-size:28px; letter-spacing:-.02em; margin:14px 0 6px; color:#fff;}
+    .hero p{font-size:13px; color:rgba(255,255,255,.66); font-weight:500; line-height:1.5; max-width:38ch;}
+    .hero .loc{margin-top:16px; background:#fff; color:#1a1020; border:none; padding:11px 18px; border-radius:14px; font-weight:800; font-size:13px; cursor:pointer; font-family:inherit;}
+
+    .chips{display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+    .chips::-webkit-scrollbar{display:none;}
+    .chips button{flex:none; white-space:nowrap; padding:9px 15px; border-radius:999px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;
+      background:var(--surface); color:var(--muted); border:1px solid var(--line); transition:.16s;}
+    .chips button .n{opacity:.6; margin-left:6px;}
+    .chips button.on{background:linear-gradient(180deg,var(--gold),#C8A84A); color:#1a1020; border-color:transparent; font-weight:800;}
+
+    .sortsel{width:100%; background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:12px 15px; font-size:13px; font-weight:700;
+      color:#fff; outline:none; cursor:pointer; font-family:inherit;}
+    .sortsel:focus{border-color:var(--gold);}
+    .sortsel option{background:#141414; color:#fff;}
+
+    .fchips{display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
+    .fchips::-webkit-scrollbar{display:none;}
+    .fchips button{flex:none; white-space:nowrap; padding:8px 13px; border-radius:11px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit;
+      background:var(--surface); color:var(--muted); border:1px solid var(--line); transition:.16s;}
+    .fchips button.on{background:var(--tomato); color:#fff; border-color:var(--tomato);}
+
+    .loading{display:grid; place-items:center; padding:56px 0;}
+    .spinner{width:34px; height:34px; border-radius:50%; border:3px solid var(--warm); border-top-color:var(--gold); animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .empty{text-align:center; padding:48px 20px; background:var(--surface); border:1px solid var(--line); border-radius:22px;}
+    .empty .ico{font-size:46px;} .empty .t{font-weight:800; font-size:18px; margin-top:10px;} .empty .s{font-size:13px; color:var(--muted); margin-top:6px;}
+
+    .dgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px;}
+    .dcard{background:var(--surface); border:1px solid var(--line); border-radius:20px; overflow:hidden; display:flex; flex-direction:column;
+      box-shadow:0 8px 22px -14px rgba(0,0,0,.6); transition:transform .18s, border-color .18s;}
+    .dcard:hover{transform:translateY(-3px); border-color:rgba(212,175,55,.5);}
+    .dbanner{position:relative; height:150px; display:grid; place-items:center; overflow:hidden;}
+    .dbanner img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+    .dbanner .pie{font-size:52px;}
+    .bsave{position:absolute; top:12px; left:12px; font-size:11px; font-weight:900; color:#1a1020;
+      background:linear-gradient(90deg,var(--gold),#E5BF47); padding:6px 11px; border-radius:999px; box-shadow:0 4px 10px rgba(0,0,0,.35);}
+    .btime{position:absolute; top:12px; right:12px; font-size:10.5px; font-weight:700; color:#fff; background:rgba(0,0,0,.6);
+      padding:6px 11px; border-radius:999px; border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(3px);}
+
+    .dbody{padding:16px; display:flex; flex-direction:column; gap:13px;}
+    .rrow{display:flex; align-items:center; gap:10px;}
+    .rrow .remoji{font-size:22px;}
+    .rrow .rn{flex:1; min-width:0;}
+    .rrow .name{font-size:13.5px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .rrow .city{font-size:11px; color:var(--muted); font-weight:600;}
+    .rrow .rate{font-size:11.5px; font-weight:800; color:var(--gold); background:rgba(212,175,55,.12); padding:4px 9px; border-radius:9px; flex:none;}
+
+    .dinfo .dtitle{font-size:15px; font-weight:800; color:#fff; line-height:1.25;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+    .dinfo .ddesc{font-size:12px; color:var(--muted); font-weight:500; line-height:1.5; margin-top:4px;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+
+    .dprice{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+    .dprice .prow{display:flex; align-items:baseline; gap:8px;}
+    .dprice .now{font-size:26px; font-weight:900; color:var(--o); line-height:1;}
+    .dprice .was{font-size:13px; color:rgba(255,255,255,.4); font-weight:600; text-decoration:line-through;}
+    .savepill{font-size:11px; font-weight:800; color:var(--basil); background:rgba(78,155,90,.15); border:1px solid rgba(78,155,90,.3); padding:6px 10px; border-radius:9px; white-space:nowrap;}
+
+    .meta{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+    .meta .mi{display:flex; flex-direction:column; gap:3px;}
+    .meta .e{font-size:16px;}
+    .meta .v{font-size:12px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+    .dactions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:2px;}
+    .dactions button{padding:12px; border-radius:12px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; border:none; font-family:inherit; transition:.16s;}
+    .dactions .details{background:var(--warm); color:#fff; border:1px solid var(--line);}
+    .dactions .details:hover{border-color:var(--gold); color:var(--gold);}
+    .dactions .order{background:linear-gradient(90deg,#FF8A00,#FF6A13); color:#fff; box-shadow:0 8px 16px -8px rgba(255,106,19,.7);}
+    .dactions .order:hover{filter:brightness(1.08);}
+
+    button:focus-visible, select:focus-visible{outline:2px solid var(--o); outline-offset:2px;}
+    @media (prefers-reduced-motion:reduce){ .dcard{transition:none} .spinner{animation-duration:1.4s} }
+  `],
 })
 export class DealsComponent implements OnInit, OnDestroy {
   private readonly restaurantService = inject(RestaurantService);
